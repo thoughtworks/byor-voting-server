@@ -1,0 +1,39 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    // TODO there is one open issue with these configurations: the breakpoints added from VSCode go to the wrong line
+    "configurations": [
+        {
+            "name": "Dev server: attach",
+            "type": "node",
+            "request": "attach",
+            "protocol": "auto",
+            "port": 9229,
+            "restart": true,
+            "timeout": 1000,
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "/usr/src/app",
+        },
+        {
+            "name": "Test: launch current file",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "make",
+            "runtimeArgs": [
+                "test_single"
+            ],
+            "env": {
+                "TEST_FILE_PATH": "${relativeFile}",
+            },
+            "protocol": "auto",
+            "port": 9228,
+            "restart": true,
+            "timeout": 4500,
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "/usr/src/app",
+            "console": "integratedTerminal",
+        },
+    ]
+}

@@ -1,0 +1,19 @@
+version: '3.7'
+
+services:
+
+  byor-backend:
+    volumes:
+      - byor_backend_ssh:/root/.ssh
+    environment:
+      AWS_ACCESS_KEY_ID:
+      AWS_REGION:
+      AWS_SECRET_ACCESS_KEY:
+      AWS_SERVICE_URL:
+      AWS_SERVICE_STAGE:
+      CI:
+      GITHUB_TOKEN:
+
+volumes:
+  byor_backend_app:
+  byor_backend_ssh:

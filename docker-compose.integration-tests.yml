@@ -1,0 +1,16 @@
+version: '3.7'
+
+services:
+
+  mongo:
+    ports:
+      - 27018:27017
+
+  byor-backend:
+    depends_on:
+       - mongo
+    environment:
+      MONGO_URI: 'mongodb://mongo/'
+      MONGO_URI_ADMIN: 'mongodb://mongo/'
+      MONGO_DB_NAME: 'byorTest'
+      JWT_SECRET_KEY: 'key'

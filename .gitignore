@@ -1,0 +1,20 @@
+# package directories
+node_modules
+jspm_packages
+
+# Serverless directories
+.serverless
+
+
+.DS_Store
+.idea/
+
+db/dump
+dist
+
+extract-test.txt
+config/byor_*.sh
+src/credentials.ts
+test-version.ts
+commands.txt
+package.json.test

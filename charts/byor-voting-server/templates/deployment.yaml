@@ -1,0 +1,27 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+    spec:
+      containers:
+      - name: {{ .Values.name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        ports:
+          - containerPort: {{ .Values.containerPort }}
+        env:
+        - name: MONGO_DB_NAME
+          value: {{ .Values.dbName }}
+        - name: MONGO_URI
+          value: {{ .Values.mongoUrl }}
+        - name: MONGO_URI_ADMIN
+          value: {{ .Values.mongoAdminUrl }}

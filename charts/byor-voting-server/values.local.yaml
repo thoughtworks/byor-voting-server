@@ -1,0 +1,20 @@
+replicaCount: 1
+
+name: byor-voting-server
+namespace: byor
+image:
+    repository: byoritaly/byor-voting-server
+    tag: latest
+    pullPolicy: IfNotPresent
+
+nameOverride: ''
+fullnameOverride: ''
+containerPort: 3000
+dbName: byor
+mongoUrl: mongodb://mongo/
+mongoAdminUrl: mongodb://mongo/
+
+service:
+    type: NodePort
+    port: 3000
+    nodePort: 30090

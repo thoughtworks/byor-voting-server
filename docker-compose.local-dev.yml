@@ -1,0 +1,24 @@
+version: '3.7'
+
+services:
+
+  mongo:
+    volumes:
+      - local_dev_mongo_data:/data/db
+    ports:
+      - 27017:27017
+
+  byor-backend:
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URI: 'mongodb://mongo/'
+      MONGO_URI_ADMIN: 'mongodb://mongo/'
+      MONGO_DB_NAME: 'byorDev'
+    ports:
+      - 3000:3000
+      - 8081:8081
+      - 9229:9229
+
+volumes:
+  local_dev_mongo_data:

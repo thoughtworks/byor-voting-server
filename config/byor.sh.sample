@@ -1,0 +1,11 @@
+#!/bin/bash
+export MONGO_URI=mongodb://mongo/
+export MONGO_URI_ADMIN=
+export MONGO_DB_NAME=byorDev
+## for db maintenance only
+# export MONGO_HOME=
+# export MONGO_HOST=
+# export MONGO_USER=
+# export MONGO_PWD=
+# export MONGO_DB=
+# export MONGO_AUTH_DB=

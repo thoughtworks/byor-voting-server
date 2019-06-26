@@ -15,7 +15,7 @@ fileignoreconfig:
   checksum: a1e105983c0bc867e694374f48240ce44bbd75477ea6222b7828e15fecb8c118
   ignore_detectors: []
 - filename: package-lock.json
-  checksum: dc85c1780769737024ce05b68a025b54492295d503317eedbaea3feb2ea0d995
+  checksum: ff4d894afeb57cb802b0e74d41363d640988b17502a3e2f969f8b4247a01fab3
   ignore_detectors: []
 - filename: .git/hooks/pre-commit.sample
   checksum: db4357ef58ba0db53f99c087351e968b65f6907685a72c677b7481d430b73847

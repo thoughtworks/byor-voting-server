@@ -131,11 +131,11 @@ workflows:
       - test: *only_tagged_versions
       - publish:
           <<: *only_tagged_versions
-          context: byor
+          context: BYOR-VotingApp
           requires:
             - test
       - deploy:
           <<: *only_tagged_versions
-          context: byor
+          context: BYOR-VotingApp
           requires:
             - test

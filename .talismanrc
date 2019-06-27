@@ -30,7 +30,7 @@ fileignoreconfig:
   checksum: 6467055834926bc547544b013f3694f178fe26cdfb3821cabfdb478877d890b4
   ignore_detectors: []
 - filename: .make/admin/set_admin_user_and_pwd.sh
-  checksum: 011b8873b18edaaaddc7fbb7615fa9d8a3f45247bb0ea6f42987ef846a5aaa70
+  checksum: 6ff8f7aa9fa39a867b454cf899503e2f2322523aa138dd330a0a706a252a28d1
   ignore_detectors: []
 - filename: .make/data/dump_db.sh
   checksum: 95bc67555df934bc222540b96a90567b4c477cdd806d67a6ea6b0f99711ffea9
@@ -45,13 +45,13 @@ fileignoreconfig:
   checksum: aa2466e9431a6ba44efa62e52905bd115b516affe917555a314bfb947d9fa2c0
   ignore_detectors: []
 - filename: .make/cd/deploy_aws.sh
-  checksum: 1e67c8a9e998b06f63bea5d8e5b52f6c9ddd2be912a521c8652a058ce550885d
+  checksum: c448e411090e543cc4a9676e399832b9d82984d0a9bd4587d95a93907df3682e
   ignore_detectors: []
 - filename: docker-compose.circle-ci.yml
-  checksum: b1b6f201e082f042961ca31c8e3ce2e2a0c208bb05a0c912eb35c1f487f3e22f
+  checksum: d13489b074c136ac9a1ecbefefc55d0d6af1fadb6ae810d4b96a3cdf4978b961
   ignore_detectors: []
 - filename: README.md
-  checksum: 12ec9f54e11da8602b0ed859ed09ed47addc1f2fd6502c83dac92e6a852143f9
+  checksum: b223b35cbbed12fbb6d22dcc14e32b17ca7084b1bf807397e93d3831c3495716
   ignore_detectors: []
 - filename: CHANGELOG.md
   checksum: 49ad2a84e5b624a6133dd86213901c416ceaf1291059a4243632443af8a706e3

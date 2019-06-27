@@ -5,11 +5,11 @@ services:
   mongo:
     image: mongo:4.0
 
-  byor-backend:
+  byor-voting-server:
     build: 
       context: .
       target: dev
-    image: byor-backend
+    image: byor-voting-server
     volumes:
       - byor_backend_app:/usr/src/app
     command: ${BACKEND_COMMAND:-}

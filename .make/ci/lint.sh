@@ -14,5 +14,5 @@ echo "About to execute: ${full_command}"
 
 /bin/bash .make/utils/execute-in-docker.sh \
 -c "${full_command}" \
--s "byor-backend" \
--o "--exit-code-from byor-backend"
+-s "byor-voting-server" \
+-o "--exit-code-from byor-voting-server"

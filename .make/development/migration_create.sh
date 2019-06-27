@@ -15,7 +15,7 @@ fi
 
 /bin/bash .make/utils/execute-in-docker.sh \
 -c "npm run migrate:create ${migration}" \
--s "byor-backend" \
--o "--exit-code-from byor-backend"
+-s "byor-voting-server" \
+-o "--exit-code-from byor-voting-server"
 
 echo "Migration file created successfully, now you should implement the migration logic in it"

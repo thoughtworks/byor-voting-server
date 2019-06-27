@@ -38,5 +38,5 @@ EOF
 /bin/bash .make/utils/execute-in-docker.sh \
 -d "run" \
 -c "/bin/bash -c \"${final_command}\"" \
--s "byor-backend" \
+-s "byor-voting-server" \
 -o "--rm"

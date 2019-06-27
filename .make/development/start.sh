@@ -9,4 +9,4 @@ EOF
 /bin/bash .make/utils/execute-in-docker.sh \
 -c "/bin/bash -c \"${final_command}\"" \
 -f "docker-compose.local-dev.yml" \
--o "--exit-code-from byor-backend"
+-o "--exit-code-from byor-voting-server"

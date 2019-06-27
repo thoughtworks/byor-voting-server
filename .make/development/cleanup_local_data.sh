@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e;
 
-read -e -p "This will delete all your local byor-backend data, if any... are you sure to continue? [y/N] " response;
+read -e -p "This will delete all your local byor-voting-server data, if any... are you sure to continue? [y/N] " response;
 if [[ ! ${response} == y ]]; then
     echo "Aborting on user choice"
     exit 1;

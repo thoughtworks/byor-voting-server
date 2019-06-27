@@ -15,5 +15,5 @@ EOF
         -d "run" \
         -c "/bin/bash -c \"${final_command}\"" \
         -f "docker-compose.integration-tests.yml" \
-        -s "byor-backend" \
+        -s "byor-voting-server" \
         -o "--rm --publish 9228:9228"

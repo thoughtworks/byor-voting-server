@@ -10,9 +10,9 @@ if [ -z "${command}" ]; then
     command="${input_command}"
 fi
 
-echo "About to execute \"${command}\" in byor-backend container"
+echo "About to execute \"${command}\" in byor-voting-server container"
 /bin/bash .make/utils/execute-in-docker.sh \
 -d "run" \
 -c "${command}" \
--s "byor-backend" \
+-s "byor-voting-server" \
 -o "--rm"

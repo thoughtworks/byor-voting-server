@@ -196,7 +196,7 @@ If not executed in CI mode, the above command will prompt the user for trying to
 
 -   **Unit tests**:
     make unit_tests
--   **Integration tests** (run with `byor-backend`+`mongo`):
+-   **Integration tests** (run with `byor-voting-server`+`mongo`):
     make integration_tests
 
 If not executed in CI mode, the above commands will prompt the user for executing tests in watch mode.
@@ -233,7 +233,7 @@ The build artifacts will be stored in the `dist/` directory.
 ### Build the docker image
 
 ```shell
-docker build -t byor-backend:latest .
+docker build -t byor-voting-server:latest .
 ```
 
 ## HOWTOs
@@ -327,7 +327,7 @@ export MONGO_URI='mongo-uri-here'
 export MONGO_URI_ADMIN='mongo-admin-uri-here'
 export MONGO_DB_NAME='mongo-db-name-here'
 export EXPOSED_BACKEND_PORT='exposed-backend-port-here'
-docker run -it --rm -p ${EXPOSED_BACKEND_PORT}:3000 -e MONGO_URI -e MONGO_URI_ADMIN -e MONGO_DB_NAME byor-backend:latest
+docker run -it --rm -p ${EXPOSED_BACKEND_PORT}:3000 -e MONGO_URI -e MONGO_URI_ADMIN -e MONGO_DB_NAME byor-voting-server:latest
 ```
 
 ### Import technologies from a Google Spreadsheet or csv file

@@ -31,8 +31,8 @@ EOF
 
 /bin/bash .make/utils/execute-in-docker.sh \
 -c "/bin/bash -c \"${final_command}\"" \
--s "byor-backend" \
--o "--exit-code-from byor-backend"
+-s "byor-voting-server" \
+-o "--exit-code-from byor-voting-server"
 
 /bin/bash .make/utils/execute-in-docker.sh \
 -d "down"

@@ -3,5 +3,5 @@ set -e;
 
 /bin/bash .make/utils/execute-in-docker.sh \
 -c "npm install" \
--s "byor-backend" \
--o "--build --exit-code-from byor-backend"
+-s "byor-voting-server" \
+-o "--build --exit-code-from byor-voting-server"

@@ -6,7 +6,7 @@ services:
     ports:
       - 27018:27017
 
-  byor-backend:
+  byor-voting-server:
     depends_on:
        - mongo
     environment:

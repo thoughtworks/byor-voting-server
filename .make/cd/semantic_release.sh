@@ -8,5 +8,5 @@ fi
 
 /bin/bash .make/utils/execute-in-docker.sh \
 -c "npm run semantic-release" \
--s "byor-backend" \
--o "--exit-code-from byor-backend"
+-s "byor-voting-server" \
+-o "--exit-code-from byor-voting-server"

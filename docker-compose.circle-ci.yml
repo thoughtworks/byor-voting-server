@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
 
-  byor-backend:
+  byor-voting-server:
     volumes:
       - byor_backend_ssh:/root/.ssh
     environment:

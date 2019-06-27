@@ -5,7 +5,7 @@ SHELL:=/bin/bash
 
 .PHONY: install
 
-install: ## Pulls and builds the necessary docker images and then runs npm install from within the container `byor-backend`
+install: ## Pulls and builds the necessary docker images and then runs npm install from within the container `byor-voting-server`
 		@/bin/bash .make/ci/install.sh
 
 ##@ CI

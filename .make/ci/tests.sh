@@ -16,13 +16,13 @@ case "${test_script}" in
     test)
         /bin/bash .make/utils/execute-in-docker.sh \
         -c "${full_command}" \
-        -s "byor-backend" \
-        -o "--exit-code-from byor-backend";;
+        -s "byor-voting-server" \
+        -o "--exit-code-from byor-voting-server";;
     test:integration)
         /bin/bash .make/utils/execute-in-docker.sh \
         -c "${full_command}" \
         -f "docker-compose.integration-tests.yml" \
-        -o "--exit-code-from byor-backend";;
+        -o "--exit-code-from byor-voting-server";;
     *)
         echo "ERROR: ${test_script} is not supported"
         exit 1;;

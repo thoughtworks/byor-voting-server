@@ -18,3 +18,5 @@ src/credentials.ts
 test-version.ts
 commands.txt
 package.json.test
+.env
+

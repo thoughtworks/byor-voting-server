@@ -50,9 +50,6 @@ fileignoreconfig:
 - filename: docker-compose.circle-ci.yml
   checksum: d13489b074c136ac9a1ecbefefc55d0d6af1fadb6ae810d4b96a3cdf4978b961
   ignore_detectors: []
-- filename: README.md
-  checksum: b223b35cbbed12fbb6d22dcc14e32b17ca7084b1bf807397e93d3831c3495716
-  ignore_detectors: []
 - filename: CHANGELOG.md
   checksum: 49ad2a84e5b624a6133dd86213901c416ceaf1291059a4243632443af8a706e3
   ignore_detectors: []

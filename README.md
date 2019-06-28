@@ -1,6 +1,6 @@
 # BYOR VotingApp [server]
 
-[![CircleCI](https://circleci.com/gh/thoughtworks/byor-voting-server/tree/master.svg?style=svg&circle-token=25c013345998789688643105806c437bc8c9fab8)](https://circleci.com/gh/thoughtworks/byor-voting-server/tree/master) [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+[![CircleCI](https://circleci.com/gh/thoughtworks/byor-voting-server.svg?style=svg)](https://circleci.com/gh/thoughtworks/byor-voting-server) [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
 Welcome to the repository for the server component of **BYOR-VotingApp**!
 

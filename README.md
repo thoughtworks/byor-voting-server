@@ -24,20 +24,6 @@ You can find more information about the BYOR-VotingApp in the web-app Github [re
     ```
 1. access the API on [http://localhost:3000](http://localhost:3000)
 
-## Launching API server from VSCode and running it locally
-
-1. clone the project as per above instructions
-1. provide a mongodb server and get its connnection string, e.g. "mongodb://localhost:27017/"
-1. create a .env file in the root of the project where to define the required environment variables - in case of a local mongodb server this file could be
-    ```
-    MONGO_URI=mongodb://mylocalhosthost:27017/
-    MONGO_URI_ADMIN=mongodb://localhost:27017/
-    MONGO_DB_NAME=byorDev
-    ```
-1. go to the debug view of VSCode, select "Launch Dev Server" configuration and launch the debugger
-1. when on the Debug Console appears the message `-->[INFO] Listening on port 3000` the server is running
-1. you can now place breakpoints and debug interactively
-
 > Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for more options on running the server locally and connect to a MongoDB database.
 
 ## Running BYOR-VotingApp on Kubernetes

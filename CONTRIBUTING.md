@@ -37,6 +37,7 @@ The following is a set of guidelines, not rules, for contributing. Feel free to 
 
 -   [Database connection configuration](#database-connection-configuration)
 -   [Running the application locally in watch mode](#running-the-application-locally-in-watch-mode)
+-   [Running the application from VSCode](#running-the-application-from-vscode)
 -   [Manage application's container](#manage-applications-container)
 -   [Running the application from production-grade docker image](#running-the-application-from-production-grade-docker-image)
 -   [Import technologies from a Google Spreadsheet or csv file](#import-technologies-from-a-google-spreadsheet-or-csv-file)
@@ -297,6 +298,18 @@ Clean up the local application (this will also remove all your local application
 ```shell
 make dev_clean_up
 ```
+
+## Running the application from VSCode
+
+1. create a .env file in the root of the project where to define the required environment variables - in case of a local mongodb server this file could be
+    ```
+    MONGO_URI=mongodb://mylocalhosthost:27017/
+    MONGO_URI_ADMIN=mongodb://localhost:27017/
+    MONGO_DB_NAME=byorDev
+    ```
+1. go to the debug view of VSCode, select "Launch Dev Server" configuration and launch the debugger
+1. when on the Debug Console appears the message `-->[INFO] Listening on port 3000` the server is running
+1. you can now place breakpoints and debug interactively
 
 #### Debugging server from VSCode
 

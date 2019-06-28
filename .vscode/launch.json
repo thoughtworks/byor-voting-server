@@ -6,6 +6,19 @@
     // TODO there is one open issue with these configurations: the breakpoints added from VSCode go to the wrong line
     "configurations": [
         {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Dev Server",
+            "runtimeExecutable": "npm",
+            "cwd": "${workspaceFolder}",
+            "envFile": "${workspaceFolder}/.env",
+            "runtimeArgs": [
+                "run-script",
+                "dev-server:start"
+            ],
+            "port": 9229
+        },
+        {
             "name": "Dev server: attach",
             "type": "node",
             "request": "attach",

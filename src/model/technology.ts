@@ -3,7 +3,6 @@ import { Comment } from './comment';
 
 export interface Technology {
     _id?: string | ObjectId;
-    id?: string;
     name: string;
     quadrant: string;
     isNew: boolean;

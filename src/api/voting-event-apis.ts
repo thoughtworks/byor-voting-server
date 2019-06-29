@@ -1,5 +1,5 @@
 import { throwError, forkJoin, Observable, of } from 'rxjs';
-import { toArray, switchMap, map, catchError } from 'rxjs/operators';
+import { toArray, switchMap, map, catchError, tap, concatMap } from 'rxjs/operators';
 import { Collection, ObjectId } from 'mongodb';
 
 import { findObs, dropObs, insertManyObs, updateOneObs, deleteObs, updateManyObs } from 'observable-mongo';
@@ -11,6 +11,8 @@ import { ERRORS } from './errors';
 import { getObjectId } from './utils';
 import { getTechnologies } from './technologies-apis';
 import { Technology } from '../model/technology';
+import { buildComment, findComment } from '../model/comment';
+import { Comment } from '../model/comment';
 
 // if skynny is true then 'blips' and 'technologies' propertires are removed to reduce the size of the data
 export function getVotingEvents(votingEventsCollection: Collection, params?: { full: boolean; all?: boolean }) {
@@ -89,7 +91,7 @@ export function openVotingEvent(
                 dataToUpdate['round'] = 1;
             }
             if (!votingEvent.technologies) {
-                // retrieve technologies from backend if this voting event has none yet
+                // retrieve technologies from backend if this voting event has got none yet
                 return getTechnologies(technologiesCollection);
             } else {
                 return of(null);
@@ -196,8 +198,109 @@ export function addNewTechnologyToEvent(
             if (isTechPresent) {
                 throw ERRORS.techPresentInVotingEvent;
             }
-            const dataToUpdate = { $push: { technologies: params.technology } };
+            const tech = params.technology;
+            tech._id = new ObjectId();
+            const dataToUpdate = { $push: { technologies: tech } };
             return updateOneObs({ _id: votingEvent._id }, dataToUpdate, votingEventsCollection);
         }),
+    );
+}
+
+export function addCommentToTech(
+    votingEventsCollection: Collection,
+    params: { _id: string; technologyId: string; comment: string; author: string },
+) {
+    return getVotingEvent(votingEventsCollection, params._id).pipe(
+        switchMap(votingEvent => {
+            if (!votingEvent) {
+                throw ERRORS.votingEventNotExisting;
+            }
+            const techs = votingEvent.technologies;
+            const tech = techs.find(t => {
+                const techId = t._id as ObjectId;
+                return techId.toHexString() === params.technologyId;
+            });
+            if (!tech) {
+                throw ERRORS.techNotPresentInVotingEvent;
+            }
+            if (!tech.comments) {
+                tech.comments = [];
+            }
+            const newComment = buildComment(params.comment, params.author);
+            tech.comments.push(newComment);
+            const dataToUpdate = { 'technologies.$.comments': tech.comments };
+            return updateOneObs(
+                { _id: votingEvent._id, 'technologies._id': tech._id },
+                dataToUpdate,
+                votingEventsCollection,
+            );
+        }),
+    );
+}
+
+// adds a reply to a comment present in a Tech
+export function addReplyToTechComment(
+    votingEventsCollection: Collection,
+    params: { votingEventId: string; technologyId: string; reply: Comment; commentReceivingReplyId: string },
+) {
+    const findVotingEventSelector = { _id: getObjectId(params.votingEventId) };
+    let dataToUpdate;
+    let votingEvent: VotingEvent;
+    let tech: Technology;
+    return findObs(votingEventsCollection, findVotingEventSelector).pipe(
+        // toArray is used here to ba able to manage properly the case
+        // where no VotingEvent is found
+        toArray(),
+        tap(vEvents => {
+            if (vEvents.length === 0) {
+                throw `no VotingEvent with id ${params.votingEventId} found in collection ${
+                    votingEventsCollection.collectionName
+                }`;
+            }
+            votingEvent = vEvents[0];
+        }),
+        map((vEvents: VotingEvent[]) => vEvents[0].technologies),
+        tap(technologies => {
+            if (!technologies || technologies.length === 0) {
+                throw `VotingEvent "${votingEvent.name}" has no technologies defined`;
+            }
+        }),
+        map(technologies => technologies.find((t: any) => t._id.toHexString() === params.technologyId)),
+        tap(technology => {
+            if (!technology) {
+                throw `VotingEvent "${votingEvent.name}" has no technology with id ${params.technologyId}`;
+            }
+            tech = technology;
+            if (!technology.comments || technology.comments.length === 0) {
+                throw `Technology ${technology.name} in VotingEvent "${votingEvent.name}" has no comments`;
+            }
+        }),
+        map(techology => {
+            const comments = techology.comments;
+            let commentToReplyTo: Comment;
+            for (let comment of comments) {
+                commentToReplyTo = findComment(comment, params.commentReceivingReplyId);
+                if (commentToReplyTo) {
+                    break;
+                }
+            }
+            return commentToReplyTo;
+        }),
+        tap(commentToReplyTo => {
+            if (!commentToReplyTo) {
+                throw `VotingEvent "${votingEvent.name}" has no comment with id ${
+                    params.commentReceivingReplyId
+                } for technology ${tech.name}`;
+            }
+            dataToUpdate = { 'technologies.$.comments': tech.comments };
+            if (!commentToReplyTo.replies) {
+                commentToReplyTo.replies = [];
+            }
+            const newComment = buildComment(params.reply.text, params.reply.author);
+            commentToReplyTo.replies.push(newComment);
+        }),
+        concatMap(() =>
+            updateOneObs({ _id: votingEvent._id, 'technologies._id': tech._id }, dataToUpdate, votingEventsCollection),
+        ),
     );
 }

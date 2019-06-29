@@ -29,6 +29,8 @@ export enum ServiceNames {
     calculateWinner,
     getVoters,
     addNewTechnologyToEvent,
+    addCommentToTech,
+    addReplyToTechComment,
     calculateBlips,
     calculateBlipsFromAllEvents,
     openForRevote,

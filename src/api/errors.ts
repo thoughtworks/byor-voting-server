@@ -18,6 +18,10 @@ export const ERRORS = {
         errorCode: 'V-E-03',
         message: `the technology is already present in the voting event`,
     },
+    techNotPresentInVotingEvent: {
+        errorCode: 'V-E-04',
+        message: `the technology is NOT present in the voting event`,
+    },
     voteAlreadyPresent: { errorCode: 'V-01', mongoErrorCode: 11000, message: `vote already present` } as MongoError,
     pwdInvalid: { errorCode: 'A-01', message: `password not valid` },
     userUnknown: { errorCode: 'A-02', message: `user not known` },

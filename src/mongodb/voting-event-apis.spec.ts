@@ -13,6 +13,8 @@ import { VotingEvent } from '../model/voting-event';
 import { initializeVotingEventsAndVotes } from './base.spec';
 import { Technology } from '../model/technology';
 import { logError } from '../lib/utils';
+import { ObjectId } from 'bson';
+import { Comment } from '../model/comment';
 
 describe('Operations on votingevents collection', () => {
     it('1.0 create a voting event and then reads it', done => {
@@ -624,7 +626,7 @@ describe('Operations on votingevents collection', () => {
                 map(votingEvents => votingEvents.filter(ve => ve.name === votingEventName)),
                 switchMap(votingEvents => {
                     const votingEventsDeleteObs = votingEvents.map(ve =>
-                        mongodbService(cachedDb, ServiceNames.getVotingEvents, { _id: ve._id, hard: true }),
+                        mongodbService(cachedDb, ServiceNames.cancelVotingEvent, { _id: ve._id, hard: true }),
                     );
                     return votingEvents.length > 0 ? forkJoin(votingEventsDeleteObs) : of(null);
                 }),
@@ -643,7 +645,9 @@ describe('Operations on votingevents collection', () => {
                 ),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap(event => {
-                    expect(event.technologies.filter(t => t.name === newTech.name).length).to.equal(1);
+                    const techs = event.technologies.filter(t => t.name === newTech.name);
+                    expect(techs.length).to.equal(1);
+                    expect(techs[0]._id).to.be.not.undefined;
                 }),
                 // add again the same technology
                 switchMap(() =>
@@ -675,6 +679,186 @@ describe('Operations on votingevents collection', () => {
                     done(err);
                 },
                 () => {
+                    cachedDb.client.close();
+                    done();
+                },
+            );
+    }).timeout(30000);
+
+    it(`2.2 add  comment to a technology which has no comments and then add a second one
+    and then adds a reply to the second comment`, done => {
+        const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+        const votingEventName = 'event with a tech without comments';
+        const newTech: Technology = {
+            name: 'tech with no comment',
+            description: 'I am a new cool tech with no comment',
+            isNew: true,
+            quadrant: 'tools',
+        };
+        const firstCommentText = 'I am the first comment for tech';
+        const firstAuthor = 'the first author of the comment';
+        const secondCommentText = 'I am the second comment for tech';
+        const secondAuthor = 'the second author of the comment';
+        const replyToSecondComment = 'i am the reply to the second comment';
+        const replyAuthor = ' I am the author of the reply';
+
+        let votingEventId;
+        let technology: Technology;
+        let techId: string;
+        mongodbService(cachedDb, ServiceNames.getVotingEvents)
+            .pipe(
+                map(votingEvents => votingEvents.filter(ve => ve.name === votingEventName)),
+                switchMap(votingEvents => {
+                    const votingEventsDeleteObs = votingEvents.map(ve =>
+                        mongodbService(cachedDb, ServiceNames.cancelVotingEvent, { _id: ve._id, hard: true }),
+                    );
+                    return votingEvents.length > 0 ? forkJoin(votingEventsDeleteObs) : of(null);
+                }),
+                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName })),
+                tap(id => (votingEventId = id)),
+                // open the even to load the technologies - currently technologies are loaded into the event when the event is opened
+                switchMap(() =>
+                    mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId, round: 1 }),
+                ),
+                switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                switchMap(() =>
+                    mongodbService(cachedDb, ServiceNames.addNewTechnologyToEvent, {
+                        _id: votingEventId,
+                        technology: newTech,
+                    }),
+                ),
+                switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                tap((event: VotingEvent) => {
+                    technology = event.technologies.find(t => t.name === newTech.name);
+                    const tId = technology._id as ObjectId;
+                    techId = tId.toHexString();
+                }),
+                // add a first comment to the technology
+                switchMap(() =>
+                    mongodbService(cachedDb, ServiceNames.addCommentToTech, {
+                        _id: votingEventId,
+                        technologyId: techId,
+                        comment: firstCommentText,
+                        author: firstAuthor,
+                    }),
+                ),
+                switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                tap((event: VotingEvent) => {
+                    technology = event.technologies.find(t => t.name === newTech.name);
+                    expect(technology.comments).to.be.not.undefined;
+                    expect(technology.comments.length).to.equal(1);
+                    expect(technology.comments[0].text).to.equal(firstCommentText);
+                    expect(technology.comments[0].author).to.equal(firstAuthor);
+                    expect(technology.comments[0].id).to.be.not.undefined;
+                    expect(technology.comments[0].timestamp).to.be.not.undefined;
+                    expect(technology.comments[0].replies).to.be.undefined;
+                }),
+
+                // add a second comment to the technology
+                switchMap(() =>
+                    mongodbService(cachedDb, ServiceNames.addCommentToTech, {
+                        _id: votingEventId,
+                        technologyId: techId,
+                        comment: secondCommentText,
+                        author: secondAuthor,
+                    }),
+                ),
+                switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                map((event: VotingEvent) => event.technologies.find(t => t.name === newTech.name)),
+                tap((technology: Technology) => {
+                    const comments = technology.comments;
+                    expect(comments).to.be.not.undefined;
+                    expect(comments.length).to.equal(2);
+                    expect(comments[1].text).to.equal(secondCommentText);
+                    expect(comments[1].author).to.equal(secondAuthor);
+                    expect(comments[1].id).to.be.not.undefined;
+                    expect(comments[1].timestamp).to.be.not.undefined;
+                    expect(comments[1].replies).to.be.undefined;
+                }),
+
+                // add a reply to the second comment added to the technology
+                switchMap((technology: Technology) => {
+                    const commentId = technology.comments[1].id;
+                    const reply: Comment = { text: replyToSecondComment, author: replyAuthor };
+                    return mongodbService(cachedDb, ServiceNames.addReplyToTechComment, {
+                        votingEventId,
+                        technologyId: techId,
+                        reply,
+                        commentReceivingReplyId: commentId,
+                    });
+                }),
+                switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                map((event: VotingEvent) => event.technologies.find(t => t.name === newTech.name)),
+                tap((technology: Technology) => {
+                    const comments = technology.comments;
+                    expect(comments[1].replies).to.be.not.undefined;
+                    const replies = comments[1].replies;
+                    expect(replies.length).to.equal(1);
+                    expect(replies[0].text).to.equal(replyToSecondComment);
+                    expect(replies[0].author).to.equal(replyAuthor);
+                    expect(replies[0].id).to.be.not.undefined;
+                    expect(replies[0].timestamp).to.be.not.undefined;
+                    expect(replies[0].replies).to.be.undefined;
+                }),
+            )
+            .subscribe(
+                null,
+                err => {
+                    cachedDb.client.close();
+                    done(err);
+                },
+                () => {
+                    console.log('DONE');
+                    cachedDb.client.close();
+                    done();
+                },
+            );
+    }).timeout(30000);
+
+    it(`2.3 try to add a comment to a tech that does not exist in the voting event`, done => {
+        const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+        const votingEventName = 'event with no tech for comments';
+        const commentText = 'I am the comment for tech not present';
+        const theAuthor = 'the author of the comment';
+
+        let votingEventId;
+        mongodbService(cachedDb, ServiceNames.getVotingEvents)
+            .pipe(
+                map(votingEvents => votingEvents.filter(ve => ve.name === votingEventName)),
+                switchMap(votingEvents => {
+                    const votingEventsDeleteObs = votingEvents.map(ve =>
+                        mongodbService(cachedDb, ServiceNames.cancelVotingEvent, { _id: ve._id, hard: true }),
+                    );
+                    return votingEvents.length > 0 ? forkJoin(votingEventsDeleteObs) : of(null);
+                }),
+                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName })),
+                tap(id => (votingEventId = id)),
+                // open the even to load the technologies - currently technologies are loaded into the event when the event is opened
+                switchMap(() =>
+                    mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId, round: 1 }),
+                ),
+                // add a comment to a technology the is not present in the voting event
+                switchMap(() =>
+                    mongodbService(cachedDb, ServiceNames.addCommentToTech, {
+                        _id: votingEventId,
+                        technologyId: 'i am an id not present in the event',
+                        comment: commentText,
+                        author: theAuthor,
+                    }),
+                ),
+                catchError(err => {
+                    expect(err.errorCode).to.equal(ERRORS.techNotPresentInVotingEvent.errorCode);
+                    return of(null);
+                }),
+            )
+            .subscribe(
+                null,
+                err => {
+                    cachedDb.client.close();
+                    done(err);
+                },
+                () => {
+                    console.log('DONE');
                     cachedDb.client.close();
                     done();
                 },

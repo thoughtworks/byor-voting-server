@@ -30,6 +30,7 @@ The following is a set of guidelines, not rules, for contributing. Feel free to 
 -   [Typescript Styleguide](#typescript-styleguide)
 -   [Testing](#testing)
 -   [DB Migrations](#db-migrations)
+-   [Run the continuous integration in local](#run-the-continuous-integration-on-local)
 -   [Build the application for Production](#build-the-application-for-production)
 -   [Build the docker image](#build-the-docker-image)
 
@@ -155,6 +156,8 @@ Please follow these steps to have your contribution considered by the maintainer
 
 While the prerequisites above must be satisfied prior to having your pull request reviewed, the reviewer(s) may ask you to complete additional design work, tests, or other changes before your pull request can be ultimately accepted.
 
+Note: consider that the Continuous Integration logic runs lint checks and uses the prettier module - if you use VSCode it is recommended to install the "Prettier - Code formatter" extension to avoid lint errors.
+
 ## Guidelines
 
 ### Git Commit Checks
@@ -219,6 +222,14 @@ make migration_create
 -   After generating a migration with `make migration_create`, it's necessary to implement the migration's logic inside its `up` method
 -   Existing migrations should never be deleted or modified, create new migrations to extend or override the effects of existing migrations
 
+### Run the continuous integration on local
+
+You can run the CI logic on local via the command:
+
+```shell
+make ci_all
+```
+
 ### Build the application for Production
 
 To build the app for production use:
@@ -269,7 +280,7 @@ The commands to build, test and deploy the application are managed via `make`, w
 make
 ```
 
-#### Firt run
+#### First run
 
 To run the backend locally the first time you will need to build it with:
 

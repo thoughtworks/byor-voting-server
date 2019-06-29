@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/thoughtworks/byor-voting-server/compare/v1.0.0...v1.1.0) (2019-06-29)
+
+
+### Features
+
+* **voting-event-apis:** apis to add comments to technologies ([42be15a](https://github.com/thoughtworks/byor-voting-server/commit/42be15a))
+
 # 1.0.0 (2019-06-28)
 
 

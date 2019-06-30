@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/thoughtworks/byor-voting-server/compare/v1.1.0...v1.2.0) (2019-06-30)
+
+
+### Features
+
+* **voting-event-flow:** Introduced concept of voting event flow ([0f01860](https://github.com/thoughtworks/byor-voting-server/commit/0f01860))
+
 # [1.1.0](https://github.com/thoughtworks/byor-voting-server/compare/v1.0.0...v1.1.0) (2019-06-29)
 
 

@@ -13,6 +13,7 @@ import { getTechnologies } from './technologies-apis';
 import { Technology } from '../model/technology';
 import { buildComment, findComment } from '../model/comment';
 import { Comment } from '../model/comment';
+import { CorporateVotingEventFlow } from '../voting-event-flow-templates/corporate-voting-event-flow';
 
 // if skynny is true then 'blips' and 'technologies' propertires are removed to reduce the size of the data
 export function getVotingEvents(votingEventsCollection: Collection, params?: { full: boolean; all?: boolean }) {
@@ -21,6 +22,7 @@ export function getVotingEvents(votingEventsCollection: Collection, params?: { f
     return findObs(votingEventsCollection, selector, options).pipe(
         toArray(),
         map((votingEvents: VotingEvent[]) => votingEvents.sort()),
+        tap(votingEvents => votingEvents.map(ve => (ve.flow = ve.flow ? ve.flow : CorporateVotingEventFlow))),
     );
 }
 export function getVotingEvent(votingEventsCollection: Collection, _id: any) {
@@ -42,7 +44,11 @@ export function getVotingEvent(votingEventsCollection: Collection, _id: any) {
         // take(1), does not close the cursor
         toArray(),
         map((votingEvents: VotingEvent[]) => {
-            return votingEvents[0];
+            const votingEvent = votingEvents[0];
+            if (votingEvent && !votingEvent.flow) {
+                votingEvent.flow = CorporateVotingEventFlow;
+            }
+            return votingEvent;
         }),
     );
 }

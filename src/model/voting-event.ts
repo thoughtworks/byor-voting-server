@@ -1,4 +1,5 @@
 import { Technology } from './technology';
+import { VotingEventFlow } from './voting-event-flow';
 
 export type VotingEventStatus = 'open' | 'closed';
 
@@ -14,4 +15,5 @@ export interface VotingEvent {
     openForRevote?: boolean;
     hasTechnologiesForRevote?: boolean;
     url?: string;
+    flow?: VotingEventFlow;
 }

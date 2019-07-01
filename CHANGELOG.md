@@ -1,3 +1,11 @@
+# [1.3.0](https://github.com/thoughtworks/byor-voting-server/compare/v1.2.0...v1.3.0) (2019-07-01)
+
+
+### Features
+
+* **add/delete users:** addUsersWithRole and deleteUsers apis added ([cfc67a8](https://github.com/thoughtworks/byor-voting-server/commit/cfc67a8))
+* **authenticateForVotingEvent:** authenticateForVotingEvent API added ([8e4d658](https://github.com/thoughtworks/byor-voting-server/commit/8e4d658))
+
 # [1.2.0](https://github.com/thoughtworks/byor-voting-server/compare/v1.1.0...v1.2.0) (2019-06-30)
 
 

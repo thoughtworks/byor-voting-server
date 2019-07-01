@@ -38,5 +38,7 @@ export enum ServiceNames {
     getConfiguration,
     authenticate,
     authenticateForVotingEvent,
+    addUsersWithRole,
+    deleteUsers,
     saveLogInfo,
 }

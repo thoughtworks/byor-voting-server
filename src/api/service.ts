@@ -61,7 +61,7 @@ import {
 
 import { executeTwBlipsCollection, findLatestEdition } from './tw-blips-collection-api';
 import { getConfiguration } from './configuration-apis';
-import { authenticate, authenticateForVotingEvent } from './authentication-api';
+import { authenticate, authenticateForVotingEvent, addUsersWithRole, deleteUsers } from './authentication-api';
 import { saveLog } from './client-log-apis';
 
 import { defaultTWTechnologies } from '../model/technologies.local-data';
@@ -112,6 +112,8 @@ export function isServiceKnown(service: ServiceNames) {
         service === ServiceNames.getConfiguration ||
         service === ServiceNames.authenticate ||
         service === ServiceNames.authenticateForVotingEvent ||
+        service === ServiceNames.addUsersWithRole ||
+        service === ServiceNames.deleteUsers ||
         service === ServiceNames.saveLogInfo
     );
 }
@@ -258,6 +260,10 @@ function executeMongoService(
         returnedObservable = authenticate(usersColl, serviceData);
     } else if (service === ServiceNames.authenticateForVotingEvent) {
         returnedObservable = authenticateForVotingEvent(usersColl, serviceData);
+    } else if (service === ServiceNames.addUsersWithRole) {
+        returnedObservable = addUsersWithRole(usersColl, serviceData);
+    } else if (service === ServiceNames.deleteUsers) {
+        returnedObservable = deleteUsers(usersColl, serviceData);
     } else if (service === ServiceNames.saveLogInfo) {
         returnedObservable = saveLog(logColl, serviceData, ipAddress);
     } else {

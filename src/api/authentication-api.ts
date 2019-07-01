@@ -1,7 +1,7 @@
 import { map, tap, mergeMap, last, catchError, concatMap, toArray } from 'rxjs/operators';
 import { Collection } from 'mongodb';
 
-import { findObs, updateOneObs } from 'observable-mongo';
+import { findObs, updateOneObs, deleteObs } from 'observable-mongo';
 import { ERRORS } from './errors';
 import { logDebug, logError } from '../lib/utils';
 import { validatePasswordAgainstHash$, generateJwt$, verifyJwt, getPasswordHash$ } from '../lib/observables';
@@ -89,15 +89,15 @@ export function authenticateForVotingEvent(
     );
 }
 
-export function addUsersWithRole(usersColl: Collection<any>, users: { user: string; role: string }[]) {
-    const usersGroupedByRoles = groupBy(users, 'user');
+export function addUsersWithRole(usersColl: Collection<any>, params: { users: { user: string; role: string }[] }) {
+    const usersGroupedByRoles = groupBy(params.users, 'user');
     const usersWithRoles = Object.keys(usersGroupedByRoles).map(user => {
         const roles = usersGroupedByRoles[user].map(item => item.role);
         return { user, roles };
     });
     return forkJoin(usersWithRoles.map(user => updateOneObs({ user: user.user }, user, usersColl, { upsert: true })));
 }
-// export function addUserWithRole(usersColl: Collection<any>, user: { user: string; role: string }) {
-//     const dataToUpdate = { $push: { roles: user.role }, $set: { user: user.user } };
-//     return updateOneObs({ user: user.user }, dataToUpdate, usersColl, { upsert: true });
-// }
+
+export function deleteUsers(usersColl: Collection<any>, params: { users: string[] }) {
+    return forkJoin(params.users.map(user => deleteObs({ user: user }, usersColl)));
+}

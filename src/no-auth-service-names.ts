@@ -15,5 +15,6 @@ export function noAuthServiceNames() {
         ServiceNames[ServiceNames.authenticate],
         ServiceNames[ServiceNames.noservice],
         ServiceNames[ServiceNames.version],
+        ServiceNames[ServiceNames.saveLogInfo],
     ];
 }

@@ -10,7 +10,6 @@ import { ERRORS } from '../api/errors';
 import { of, from, forkJoin } from 'rxjs';
 import { getPasswordHash$ } from '../lib/observables';
 import { Collection } from 'mongodb';
-import { addUsersWithRole } from '../api/authentication-api';
 
 describe('1.0 - Authentication operations', () => {
     it('loads the users collection and then authenticates one valid user', done => {
@@ -92,6 +91,7 @@ describe('1.1 - Voting Event Authentication operations', () => {
         let errorMissingRoleEncountered = false;
         let errorWrongPwdEncountered = false;
         let errorUserUnknownEncountered = false;
+        let errorUserUnknownBecauseDeletedEncountered = false;
 
         connectObs(config.mongoUri)
             // clean the test data
@@ -101,7 +101,7 @@ describe('1.1 - Voting Event Authentication operations', () => {
                     _userColl = client.db(config.dbname).collection(config.usersCollection);
                 }),
                 concatMap(() => forkJoin(VOTING_EVENT_USERS.map(user => deleteObs({ user: user.user }, _userColl)))),
-                concatMap(() => addUsersWithRole(_userColl, VOTING_EVENT_USERS)),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.addUsersWithRole, { users: VOTING_EVENT_USERS })),
                 concatMap(() =>
                     mongodbService(cachedDb, ServiceNames.getVotingEvents).pipe(
                         map(votingEvents => votingEvents.filter(ve => ve.name === votingEventName)),
@@ -186,6 +186,23 @@ describe('1.1 - Voting Event Authentication operations', () => {
                     expect(err).to.equal(ERRORS.userUnknown);
                     return of(err);
                 }),
+                // I delete a user and then try to log in with its credentials
+                concatMap(() => {
+                    return mongodbService(cachedDb, ServiceNames.deleteUsers, { users: [VOTING_EVENT_USERS[0].user] });
+                }),
+                concatMap(() => {
+                    const user = VOTING_EVENT_USERS[0].user;
+                    return mongodbService(cachedDb, ServiceNames.authenticateForVotingEvent, {
+                        user,
+                        pwd: firstTimePwd,
+                        votingEventId,
+                    });
+                }),
+                catchError(err => {
+                    errorUserUnknownBecauseDeletedEncountered = true;
+                    expect(err).to.equal(ERRORS.userUnknown);
+                    return of(err);
+                }),
             )
             .subscribe(
                 () => {},
@@ -199,6 +216,7 @@ describe('1.1 - Voting Event Authentication operations', () => {
                     expect(errorMissingRoleEncountered).to.be.true;
                     expect(errorWrongPwdEncountered).to.be.true;
                     expect(errorUserUnknownEncountered).to.be.true;
+                    expect(errorUserUnknownBecauseDeletedEncountered).to.be.true;
                     cachedDb.client.close();
                     _client.close();
                     done();

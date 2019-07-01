@@ -37,5 +37,6 @@ export enum ServiceNames {
     closeForRevote,
     getConfiguration,
     authenticate,
+    authenticateForVotingEvent,
     saveLogInfo,
 }

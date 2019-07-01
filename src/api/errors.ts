@@ -25,6 +25,7 @@ export const ERRORS = {
     voteAlreadyPresent: { errorCode: 'V-01', mongoErrorCode: 11000, message: `vote already present` } as MongoError,
     pwdInvalid: { errorCode: 'A-01', message: `password not valid` },
     userUnknown: { errorCode: 'A-02', message: `user not known` },
+    userWithNotTheReuqestedRole: { errorCode: 'A-03', message: `user does not have the requesated role` },
     technologyAlreadyPresent: {
         errorCode: 'V-T-01',
         mongoErrorCode: 11000,

@@ -97,7 +97,7 @@ describe('1.1 - Voting Event Authentication operations', () => {
                 },
                 {
                     name: secondStepName,
-                    identification: { name: 'login', roles: ['architect'] },
+                    identification: { name: 'login', groups: ['architect'] },
                     action: { name: 'conversation' },
                 },
             ],

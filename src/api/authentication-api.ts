@@ -90,12 +90,12 @@ export function authenticateForVotingEvent(
                             `No step with name "${params.flowStepName}" found for Voting Event "${votingEvent.name}"`,
                         );
                     }
-                    const rolesAllowedInStep = step.identification.roles;
-                    const userRoles = foundUser.roles;
-                    const isRoleAllowed = rolesAllowedInStep
-                        ? rolesAllowedInStep.some(role => userRoles.includes(role))
+                    const groupsAllowedInStep = step.identification.groups;
+                    const userGroups = foundUser.groups;
+                    const isGroupAllowed = groupsAllowedInStep
+                        ? groupsAllowedInStep.some(role => userGroups.includes(role))
                         : true;
-                    if (!isRoleAllowed) {
+                    if (!isGroupAllowed) {
                         throw ERRORS.userWithNotTheRequestedRole;
                     }
                 }),
@@ -123,12 +123,12 @@ export function authenticateForVotingEvent(
 }
 
 export function addUsersWithRole(usersColl: Collection<any>, params: { users: { user: string; role: string }[] }) {
-    const usersGroupedByRoles = groupBy(params.users, 'user');
-    const usersWithRoles = Object.keys(usersGroupedByRoles).map(user => {
-        const roles = usersGroupedByRoles[user].map(item => item.role);
-        return { user, roles };
+    const dataGroupedByUser = groupBy(params.users, 'user');
+    const usersWithGroups = Object.keys(dataGroupedByUser).map(user => {
+        const groups = dataGroupedByUser[user].map(item => item.role);
+        return { user, groups };
     });
-    return forkJoin(usersWithRoles.map(user => updateOneObs({ user: user.user }, user, usersColl, { upsert: true })));
+    return forkJoin(usersWithGroups.map(user => updateOneObs({ user: user.user }, user, usersColl, { upsert: true })));
 }
 
 export function deleteUsers(usersColl: Collection<any>, params: { users: string[] }) {

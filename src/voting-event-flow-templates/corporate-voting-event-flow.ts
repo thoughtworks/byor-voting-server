@@ -9,12 +9,12 @@ export const CorporateVotingEventFlow: VotingEventFlow = {
         },
         {
             name: 'conversation on all techs',
-            identification: { name: 'login', roles: ['architect'] },
+            identification: { name: 'login', groups: ['architect'] },
             action: { name: 'conversation' },
         },
         {
             name: 'conversation on all techs',
-            identification: { name: 'login', roles: ['champion'] },
+            identification: { name: 'login', groups: ['champion'] },
             action: { name: 'recommendation' },
         },
     ],

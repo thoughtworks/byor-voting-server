@@ -1,10 +1,10 @@
-export type IdentificationTypeNames = 'nickname' | 'login';
+export type IdentificationTypeNames = 'nickname' | 'login' | 'anonymous';
 export type ActionNames = 'vote' | 'conversation' | 'recommendation';
 export type TechSelectLogic = 'TechWithComments' | 'TechUncertain';
 
 export interface VotingEventStep {
     name: string;
     description?: string;
-    identification: { name: IdentificationTypeNames; roles?: string[] };
+    identification: { name: IdentificationTypeNames; groups?: string[] };
     action: { name: ActionNames; commentOnVoteBlocked?: boolean; techSelectLogic?: TechSelectLogic };
 }

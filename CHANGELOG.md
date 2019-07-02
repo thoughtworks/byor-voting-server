@@ -1,3 +1,11 @@
+## [1.3.1](https://github.com/thoughtworks/byor-voting-server/compare/v1.3.0...v1.3.1) (2019-07-02)
+
+
+### Bug Fixes
+
+* **authenticateForVotingEvent:** Check roles only on backend ([750b7e3](https://github.com/thoughtworks/byor-voting-server/commit/750b7e3))
+* **createNewVotingEvent:** write servicename in VotingEvent removed ([664ad36](https://github.com/thoughtworks/byor-voting-server/commit/664ad36))
+
 # [1.3.0](https://github.com/thoughtworks/byor-voting-server/compare/v1.2.0...v1.3.0) (2019-07-01)
 
 

@@ -241,7 +241,7 @@ describe('Voting Events API', () => {
 
     describe('createNewVotingEvent', () => {
         it('creates a new voting event', () => {
-            createNewVotingEvent(collection, { name: 'Ng-Conf' }).subscribe(id => {
+            createNewVotingEvent(collection, { name: 'Ng-Conf', flow: null }).subscribe(id => {
                 expect(id).to.equal(1);
             });
             sinon.assert.calledWith(insertManyObs, sinon.match.array, collection);

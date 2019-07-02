@@ -6,8 +6,8 @@ export type VotingEventStatus = 'open' | 'closed';
 export interface VotingEvent {
     _id?: any;
     name: string;
-    status: VotingEventStatus;
-    creationTS: string;
+    status?: VotingEventStatus;
+    creationTS?: string;
     lastOpenedTS?: string;
     lastClosedTS?: string;
     technologies?: Technology[];

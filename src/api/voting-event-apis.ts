@@ -75,13 +75,10 @@ export function saveVotingEvents(votingEventsCollection: Collection, votingEvent
         }),
     );
 }
-export function createNewVotingEvent(votingEventsCollection: Collection, votingEvent: { name: string }) {
-    const newVotingEvent: VotingEvent = {
-        name: votingEvent.name,
-        status: 'closed',
-        creationTS: new Date(Date.now()).toISOString(),
-    };
-    return saveVotingEvents(votingEventsCollection, [newVotingEvent]).pipe(map(ids => ids[0]));
+export function createNewVotingEvent(votingEventsCollection: Collection, votingEvent: VotingEvent) {
+    votingEvent.status = 'closed';
+    votingEvent.creationTS = new Date(Date.now()).toISOString();
+    return saveVotingEvents(votingEventsCollection, [votingEvent]).pipe(map(ids => ids[0]));
 }
 export function openVotingEvent(
     votingEventsCollection: Collection,

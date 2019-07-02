@@ -2,8 +2,20 @@ import { VotingEventFlow } from '../model/voting-event-flow';
 
 export const CorporateVotingEventFlow: VotingEventFlow = {
     steps: [
-        { identification: { name: 'nickname' }, action: { name: 'vote', commentOnVoteBlocked: true } },
-        { identification: { name: 'login', role: 'architect' }, action: { name: 'conversation' } },
-        { identification: { name: 'login', role: 'champion' }, action: { name: 'recommendation' } },
+        {
+            name: 'vote all techs',
+            identification: { name: 'nickname' },
+            action: { name: 'vote', commentOnVoteBlocked: false },
+        },
+        {
+            name: 'conversation on all techs',
+            identification: { name: 'login', roles: ['architect'] },
+            action: { name: 'conversation' },
+        },
+        {
+            name: 'conversation on all techs',
+            identification: { name: 'login', roles: ['champion'] },
+            action: { name: 'recommendation' },
+        },
     ],
 };

@@ -26,7 +26,8 @@
         "count-voters": "npx ts-node src/mongodb/scripts/count-voters.exec",
         "cancel-voting-event": "npx ts-node src/mongodb/scripts/cancel-voting-event.exec",
         "semantic-release": "npx semantic-release",
-        "serverless": "npx serverless offline start"
+        "serverless": "npx serverless offline start",
+        "load-voting-event-sample": "npx ts-node-dev --nolazy --transpileOnly -- ./src/voting-event-flow-templates/create-voting-events-from-templates"
     },
     "author": "",
     "license": "ISC",

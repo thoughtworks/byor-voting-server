@@ -10,6 +10,7 @@ import { ERRORS } from '../api/errors';
 import { of, from, forkJoin } from 'rxjs';
 import { getPasswordHash$ } from '../lib/observables';
 import { Collection } from 'mongodb';
+import { VotingEventFlow } from '../model/voting-event-flow';
 
 describe('1.0 - Authentication operations', () => {
     it('loads the users collection and then authenticates one valid user', done => {
@@ -77,7 +78,7 @@ describe('1.1 - Voting Event Authentication operations', () => {
         const VOTING_EVENT_USERS = [
             { user: 'Mary', role: 'architect' },
             { user: 'Mary', role: 'admin' },
-            { user: 'John', role: 'architect' },
+            { user: 'John', role: 'dev' },
         ];
 
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
@@ -85,6 +86,22 @@ describe('1.1 - Voting Event Authentication operations', () => {
         let _client;
         let _userColl;
         const votingEventName = 'event to test login of users';
+        const firstStepName = 'first step';
+        const secondStepName = 'second step';
+        const votingEventFlow: VotingEventFlow = {
+            steps: [
+                {
+                    name: firstStepName,
+                    identification: { name: 'nickname' },
+                    action: { name: 'vote', commentOnVoteBlocked: false },
+                },
+                {
+                    name: secondStepName,
+                    identification: { name: 'login', roles: ['architect'] },
+                    action: { name: 'conversation' },
+                },
+            ],
+        };
         let votingEventId: string;
 
         const firstTimePwd = 'I am the password used for the first login';
@@ -113,7 +130,12 @@ describe('1.1 - Voting Event Authentication operations', () => {
                         }),
                     ),
                 ),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName })),
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.createVotingEvent, {
+                        name: votingEventName,
+                        flow: votingEventFlow,
+                    }),
+                ),
                 tap(id => (votingEventId = id.toHexString())),
             )
             // run the real test logic
@@ -125,6 +147,7 @@ describe('1.1 - Voting Event Authentication operations', () => {
                         user,
                         pwd: firstTimePwd,
                         votingEventId,
+                        flowStepName: secondStepName,
                     });
                 }),
                 tap(({ token, pwdInserted }) => {
@@ -138,6 +161,7 @@ describe('1.1 - Voting Event Authentication operations', () => {
                         user,
                         pwd: firstTimePwd,
                         votingEventId,
+                        flowStepName: secondStepName,
                     });
                 }),
                 tap(({ token, pwdInserted }) => {
@@ -146,17 +170,17 @@ describe('1.1 - Voting Event Authentication operations', () => {
                 }),
                 // I do a login requesting a role I do not have
                 concatMap(() => {
-                    const user = VOTING_EVENT_USERS[0].user;
+                    const user = VOTING_EVENT_USERS[2].user;
                     return mongodbService(cachedDb, ServiceNames.authenticateForVotingEvent, {
                         user,
                         pwd: firstTimePwd,
-                        role: 'the boss',
                         votingEventId,
+                        flowStepName: secondStepName,
                     });
                 }),
                 catchError(err => {
                     errorMissingRoleEncountered = true;
-                    expect(err).to.equal(ERRORS.userWithNotTheReuqestedRole);
+                    expect(err).to.equal(ERRORS.userWithNotTheRequestedRole);
                     return of(null);
                 }),
                 // I do a login with a wrong pwd
@@ -166,6 +190,7 @@ describe('1.1 - Voting Event Authentication operations', () => {
                         user,
                         pwd: 'wrong pwd',
                         votingEventId,
+                        flowStepName: secondStepName,
                     });
                 }),
                 catchError(err => {
@@ -179,6 +204,7 @@ describe('1.1 - Voting Event Authentication operations', () => {
                         user: 'I do not exist',
                         pwd: 'pwd',
                         votingEventId,
+                        flowStepName: secondStepName,
                     });
                 }),
                 catchError(err => {
@@ -196,6 +222,7 @@ describe('1.1 - Voting Event Authentication operations', () => {
                         user,
                         pwd: firstTimePwd,
                         votingEventId,
+                        flowStepName: secondStepName,
                     });
                 }),
                 catchError(err => {

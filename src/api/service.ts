@@ -259,7 +259,7 @@ function executeMongoService(
     } else if (service === ServiceNames.authenticate) {
         returnedObservable = authenticate(usersColl, serviceData);
     } else if (service === ServiceNames.authenticateForVotingEvent) {
-        returnedObservable = authenticateForVotingEvent(usersColl, serviceData);
+        returnedObservable = authenticateForVotingEvent(usersColl, votingEventColl, serviceData);
     } else if (service === ServiceNames.addUsersWithRole) {
         returnedObservable = addUsersWithRole(usersColl, serviceData);
     } else if (service === ServiceNames.deleteUsers) {

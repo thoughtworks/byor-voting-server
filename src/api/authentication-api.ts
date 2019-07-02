@@ -7,6 +7,8 @@ import { logDebug, logError } from '../lib/utils';
 import { validatePasswordAgainstHash$, generateJwt$, verifyJwt, getPasswordHash$ } from '../lib/observables';
 import { EmptyError, forkJoin } from 'rxjs';
 import { groupBy } from 'lodash';
+import { getVotingEvent } from './voting-event-apis';
+import { VotingEvent } from '../model/voting-event';
 
 export function authenticate(usersColl: Collection<any>, credentials: { user: string; pwd: string }) {
     const _user = { user: credentials.user };
@@ -53,8 +55,13 @@ export function validateRequestAuthentication(headers: any) {
 
 export function authenticateForVotingEvent(
     usersColl: Collection<any>,
-    params: { user: string; pwd: string; role: string; votingEventId: string },
+    votingEventColl: Collection<any>,
+    params: { user: string; pwd: string; votingEventId: string; flowStepName: string },
 ) {
+    if (!params.user) throw new Error('Parameter user not passed to authenticateForVotingEvent');
+    if (!params.pwd) throw new Error('Parameter pwd not passed to authenticateForVotingEvent');
+    if (!params.votingEventId) throw new Error('Parameter votingEventId not passed to authenticateForVotingEvent');
+    if (!params.flowStepName) throw new Error('Parameter flowStepName not passed to authenticateForVotingEvent');
     const _user = { user: params.user };
     return findObs(usersColl, _user).pipe(
         toArray(),
@@ -65,11 +72,37 @@ export function authenticateForVotingEvent(
             if (foundUsers.length > 1) {
                 throw new Error(`More than one user with the same user id "${_user}"`);
             }
-            if (params.role && !foundUsers[0].roles.find(r => r === params.role)) {
-                throw ERRORS.userWithNotTheReuqestedRole;
-            }
         }),
         concatMap(([foundUser]) => {
+            let votingEvent: VotingEvent;
+            return getVotingEvent(votingEventColl, params.votingEventId).pipe(
+                tap(votingEvent => {
+                    if (!votingEvent) {
+                        throw new Error(`No Voting Event found with id "${params.votingEventId}"`);
+                    }
+                    votingEvent = votingEvent;
+                }),
+                map(votingEvent => votingEvent.flow),
+                map(flow => flow.steps.find(step => step.name === params.flowStepName)),
+                tap(step => {
+                    if (!step) {
+                        throw new Error(
+                            `No step with name "${params.flowStepName}" found for Voting Event "${votingEvent.name}"`,
+                        );
+                    }
+                    const rolesAllowedInStep = step.identification.roles;
+                    const userRoles = foundUser.roles;
+                    const isRoleAllowed = rolesAllowedInStep
+                        ? rolesAllowedInStep.some(role => userRoles.includes(role))
+                        : true;
+                    if (!isRoleAllowed) {
+                        throw ERRORS.userWithNotTheRequestedRole;
+                    }
+                }),
+                map(() => foundUser),
+            );
+        }),
+        concatMap(foundUser => {
             return foundUser.pwd
                 ? authenticate(usersColl, params).pipe(map(token => ({ token, pwdInserted: false })))
                 : // if the pwd is not found as hash in the db, it means that this is the first time the user tries to login

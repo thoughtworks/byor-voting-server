@@ -16,7 +16,7 @@ const communityEvent: VotingEvent = { name: 'A Community Event', flow: Community
 
 const initialize = (dbName: string) => {
     let mongoClient: MongoClient;
-    return connectObs(config.mongoUriAdmin).pipe(
+    return connectObs(config.mongoUri).pipe(
         tap(client => (mongoClient = client)),
         map(client => client.db(dbName)),
         finalize(() => mongoClient.close()),

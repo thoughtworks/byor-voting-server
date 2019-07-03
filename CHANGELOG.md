@@ -1,3 +1,10 @@
+## [1.3.3](https://github.com/thoughtworks/byor-voting-server/compare/v1.3.2...v1.3.3) (2019-07-03)
+
+
+### Bug Fixes
+
+* **circleci:** skip asking env if $CI is set ([57f7f37](https://github.com/thoughtworks/byor-voting-server/commit/57f7f37))
+
 ## [1.3.2](https://github.com/thoughtworks/byor-voting-server/compare/v1.3.1...v1.3.2) (2019-07-03)
 
 

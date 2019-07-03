@@ -6,7 +6,7 @@ import { config } from '../api/config';
 
 export const initializeVotingEventsAndVotes = (dbName: string) => {
     let mongoClient: MongoClient;
-    return connectObs(config.mongoUriAdmin).pipe(
+    return connectObs(config.mongoUri).pipe(
         tap(client => (mongoClient = client)),
         map(client => client.db(dbName)),
         switchMap((db: Db) => {

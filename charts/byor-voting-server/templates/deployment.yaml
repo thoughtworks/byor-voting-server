@@ -23,5 +23,3 @@ spec:
           value: {{ .Values.dbName }}
         - name: MONGO_URI
           value: {{ .Values.mongoUrl }}
-        - name: MONGO_URI_ADMIN
-          value: {{ .Values.mongoAdminUrl }}

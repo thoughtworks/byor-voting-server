@@ -13,7 +13,6 @@ services:
       - mongo
     environment:
       MONGO_URI: 'mongodb://mongo/'
-      MONGO_URI_ADMIN: 'mongodb://mongo/'
       MONGO_DB_NAME: 'byorDev'
     ports:
       - 3000:3000

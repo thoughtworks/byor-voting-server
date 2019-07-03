@@ -32,7 +32,7 @@ MongodbStore.prototype.save = function(set: any, cb: (error?: any) => any) {
             };
         }),
     };
-    connectObs(config.mongoUriAdmin)
+    connectObs(config.mongoUri)
         .pipe(
             tap(client => (this.mongoClient = client)),
             map(client => client.db(config.dbname)),

@@ -15,7 +15,7 @@ fileignoreconfig:
   checksum: a1e105983c0bc867e694374f48240ce44bbd75477ea6222b7828e15fecb8c118
   ignore_detectors: []
 - filename: package-lock.json
-  checksum: 4975165395ca4e66498d0e2c9c3ca178cd15dd9d5b9830318d69956a073f151c
+  checksum: 26116c5ca1eb039ef1126e99b3b7f1d222e3611d9ecc551772438036eaa35830
   ignore_detectors: []
 - filename: .git/hooks/pre-commit.sample
   checksum: db4357ef58ba0db53f99c087351e968b65f6907685a72c677b7481d430b73847
@@ -33,7 +33,7 @@ fileignoreconfig:
   checksum: 6ff8f7aa9fa39a867b454cf899503e2f2322523aa138dd330a0a706a252a28d1
   ignore_detectors: []
 - filename: .make/data/dump_db.sh
-  checksum: 95bc67555df934bc222540b96a90567b4c477cdd806d67a6ea6b0f99711ffea9
+  checksum: 746c807855541749ef6e8aa49cf694bb4809cf44184f511f3c98639c900335a7
   ignore_detectors: []
 - filename: src/mongodb/scripts/set-admin-user-and-pwd.exec.ts
   checksum: 0c9ea2aef185d28f32bcc5b94957966043e9caa1b500e7ab221bffcf6a83d575
@@ -45,7 +45,7 @@ fileignoreconfig:
   checksum: aa2466e9431a6ba44efa62e52905bd115b516affe917555a314bfb947d9fa2c0
   ignore_detectors: []
 - filename: .make/cd/deploy_aws.sh
-  checksum: c448e411090e543cc4a9676e399832b9d82984d0a9bd4587d95a93907df3682e
+  checksum: 9b2c53705ddcf37ac81ff846cf5b4ea93e061e2570bf845631955d63d0b5d303
   ignore_detectors: []
 - filename: docker-compose.circle-ci.yml
   checksum: d13489b074c136ac9a1ecbefefc55d0d6af1fadb6ae810d4b96a3cdf4978b961
@@ -55,4 +55,10 @@ fileignoreconfig:
   ignore_detectors: []
 - filename: .env
   checksum: 7103ec841e5ebd717e69d203e7e999df0eeb76e6a7d24117a449ba23c81a3736
+  ignore_detectors: []
+- filename: config/byor.sh.sample
+  checksum: f6ea581aca0260b7f9d098b5715cfaed8702e3ff4de3b2e8f9e4429db9022982
+  ignore_detectors: []
+- filename: .make/utils/get_byor_env.sh
+  checksum: b5f8ee2acbbc68ae3494c28fb13ce6fae03d51017e9b199e0a4ffb03a38d6907
   ignore_detectors: []

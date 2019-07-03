@@ -255,7 +255,6 @@ docker build -t byor-voting-server:latest .
 For any kind of deployment, the following environment variables should be properly valued:
 
 -   **MONGO_URI**: the mongo connection string (with username and password, if any) for normal read/write operations
--   **MONGO_URI_ADMIN**: the mongo connection string (with username and password, if any) to perform admin operations (create/delete collections and indexes)
 -   **MONGO_DB_NAME**: the mongo database name
 
 ### Connection to bundled MongoDB
@@ -315,7 +314,6 @@ make dev_clean_up
 1. create a .env file in the root of the project where to define the required environment variables - in case of a local mongodb server this file could be
     ```
     MONGO_URI=mongodb://mylocalhosthost:27017/
-    MONGO_URI_ADMIN=mongodb://localhost:27017/
     MONGO_DB_NAME=byorDev
     ```
 1. go to the debug view of VSCode, select "Launch Dev Server" configuration and launch the debugger
@@ -348,10 +346,9 @@ execute:
 
 ```shell
 export MONGO_URI='mongo-uri-here'
-export MONGO_URI_ADMIN='mongo-admin-uri-here'
 export MONGO_DB_NAME='mongo-db-name-here'
 export EXPOSED_BACKEND_PORT='exposed-backend-port-here'
-docker run -it --rm -p ${EXPOSED_BACKEND_PORT}:3000 -e MONGO_URI -e MONGO_URI_ADMIN -e MONGO_DB_NAME byor-voting-server:latest
+docker run -it --rm -p ${EXPOSED_BACKEND_PORT}:3000 -e MONGO_URI -e MONGO_DB_NAME byor-voting-server:latest
 ```
 
 ### Import technologies from a Google Spreadsheet or csv file

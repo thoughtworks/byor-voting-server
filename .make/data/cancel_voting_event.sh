@@ -1,8 +1,7 @@
 #!/bin/bash
 set -e;
 
-read -e -p "Please enter the target MongoDB URI: " mongoUri;
-read -e -p "And the target MongoDB name: " mongoDbName;
+source .make/utils/get_byor_env.sh
 
 read -e -p "Voting event id: " votingEventId;
 if [ -z "${votingEventId}" ]; then
@@ -16,9 +15,8 @@ if [[ ${inCancelHard} == y ]]; then
 fi
 
 read -d '' final_command << EOF || true
-export MONGO_URI="${mongoUri}"
-export MONGO_URI_ADMIN=""
-export MONGO_DB_NAME="${mongoDbName}"
+export MONGO_URI="${MONGO_URI}"
+export MONGO_DB_NAME="${MONGO_DB_NAME}"
 npm run cancel-voting-event "${votingEventId}" "${cancelHard}"
 EOF
 

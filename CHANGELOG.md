@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/thoughtworks/byor-voting-server/compare/v1.3.1...v1.3.2) (2019-07-03)
+
+
+### Bug Fixes
+
+* **mongodb:** change mongoUriAdmin reference to mongoUri ([ea74176](https://github.com/thoughtworks/byor-voting-server/commit/ea74176))
+
 ## [1.3.1](https://github.com/thoughtworks/byor-voting-server/compare/v1.3.0...v1.3.1) (2019-07-02)
 
 

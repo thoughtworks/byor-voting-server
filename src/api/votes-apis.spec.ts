@@ -256,7 +256,10 @@ describe('Votes', () => {
             );
 
             assert.calledThrice(findObs);
-            assert.calledWith(findObs, votingCollection, { _id: votingEvent._id, cancelled: { $exists: false } });
+            assert.calledWith(findObs, votingCollection, {
+                _id: votingEvent._id,
+                $or: [{ cancelled: { $exists: false } }, { cancelled: false }],
+            });
             assert.calledWith(findObs, votesCollection, {
                 eventId: votingEvent._id,
                 voterId: {
@@ -264,7 +267,10 @@ describe('Votes', () => {
                     lastName: 'MANGO',
                 },
             });
-            assert.calledWith(findObs, votingCollection, { _id: votingEvent._id, cancelled: { $exists: false } });
+            assert.calledWith(findObs, votingCollection, {
+                _id: votingEvent._id,
+                $or: [{ cancelled: { $exists: false } }, { cancelled: false }],
+            });
         });
     });
 
@@ -340,7 +346,10 @@ describe('Votes', () => {
             );
 
             assert.calledOnce(findObs);
-            assert.calledWith(findObs, votingCollection, { _id: objectId, cancelled: { $exists: false } });
+            assert.calledWith(findObs, votingCollection, {
+                _id: objectId,
+                $or: [{ cancelled: { $exists: false } }, { cancelled: false }],
+            });
             assert.calledOnce(aggregateObs);
             assert.calledOnce(updateOneObs);
         });
@@ -413,7 +422,10 @@ describe('Votes', () => {
             });
 
             assert.calledOnce(findObs);
-            assert.calledWith(findObs, votingCollection, { _id: objectId, cancelled: { $exists: false } });
+            assert.calledWith(findObs, votingCollection, {
+                _id: objectId,
+                $or: [{ cancelled: { $exists: false } }, { cancelled: false }],
+            });
             assert.calledOnce(aggregateObs);
             assert.calledOnce(updateOneObs);
         });

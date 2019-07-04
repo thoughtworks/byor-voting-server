@@ -113,7 +113,7 @@ describe('Voting Events API', () => {
 
     describe('getVotingEvent', () => {
         const id = new ObjectId('000000000000000000000000');
-        const selector = { cancelled: { $exists: false }, _id: id };
+        const selector = { $or: [{ cancelled: { $exists: false } }, { cancelled: false }], _id: id };
 
         it('gets the first event for id', () => {
             getVotingEvent(collection, id).subscribe(event => {

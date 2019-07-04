@@ -57,6 +57,7 @@ import {
     addNewTechnologyToEvent,
     addCommentToTech,
     addReplyToTechComment,
+    undoCancelVotingEvent,
 } from './voting-event-apis';
 
 import { executeTwBlipsCollection, findLatestEdition } from './tw-blips-collection-api';
@@ -85,6 +86,7 @@ export function isServiceKnown(service: ServiceNames) {
         service === ServiceNames.addTechnology ||
         service === ServiceNames.updateTechnology ||
         service === ServiceNames.cancelTechnology ||
+        service === ServiceNames.undoCancelVotingEvent ||
         service === ServiceNames.deleteTechnology ||
         service === ServiceNames.getVotes ||
         service === ServiceNames.loadVotes ||
@@ -236,6 +238,8 @@ function executeMongoService(
         returnedObservable = closeVotingEvent(votingEventColl, serviceData);
     } else if (service === ServiceNames.cancelVotingEvent) {
         returnedObservable = cancelVotingEvent(votingEventColl, votesColl, serviceData);
+    } else if (service === ServiceNames.undoCancelVotingEvent) {
+        returnedObservable = undoCancelVotingEvent(votingEventColl, votesColl, serviceData);
     } else if (service === ServiceNames.calculateWinner) {
         returnedObservable = calculateWinner(votesColl, votingEventColl, serviceData);
     } else if (service === ServiceNames.addNewTechnologyToEvent) {

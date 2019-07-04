@@ -40,7 +40,7 @@ export function getVotingEvent(votingEventsCollection: Collection, _id: any) {
     } catch (err) {
         return throwError(err);
     }
-    const selector = { cancelled: { $exists: false }, _id: eventId };
+    const selector = { $or: [{ cancelled: { $exists: false } }, { cancelled: false }], _id: eventId };
     return findObs(votingEventsCollection, selector).pipe(
         // take(1), does not close the cursor
         toArray(),
@@ -168,6 +168,18 @@ export function cancelVotingEvent(
         );
     }
     return retObs;
+}
+export function undoCancelVotingEvent(
+    votingEventsCollection: Collection,
+    votesCollection: Collection,
+    params: { name?: string; _id?: any },
+) {
+    const votingEventKey = !!params._id ? { _id: getObjectId(params._id) } : { name: params.name };
+    const votesKey = !!params._id ? { eventId: params._id } : { eventName: params.name };
+    return forkJoin(
+        updateManyObs(votingEventKey, { cancelled: false }, votingEventsCollection),
+        updateManyObs(votesKey, { cancelled: false }, votesCollection),
+    );
 }
 export function getVoters(votesColl: Collection, params: { votingEvent: any }) {
     return getVotes(votesColl, params.votingEvent._id).pipe(

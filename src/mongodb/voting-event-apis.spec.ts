@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { switchMap, map, tap, catchError } from 'rxjs/operators';
+import { switchMap, map, tap, catchError, concatMap } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
 import { mongodbService, CachedDB } from '../api/service';
 import { getAllVotingEvents } from '../api/voting-event-apis';
@@ -864,4 +864,41 @@ describe('Operations on votingevents collection', () => {
                 },
             );
     }).timeout(30000);
+
+    it('2.4 after setting the cancelled property to false the VotingEvent should be visible again', done => {
+        const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+
+        const newVotingEvent = { name: 'An Event with cancelled property set to false' };
+
+        let votingEventId;
+        initializeVotingEventsAndVotes(cachedDb.dbName)
+            .pipe(
+                concatMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, newVotingEvent)),
+                tap(id => (votingEventId = id)),
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.cancelVotingEvent, { _id: votingEventId, hard: false }),
+                ),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, { _id: votingEventId })),
+                tap(votingEvent => {
+                    expect(votingEvent).to.be.undefined;
+                }),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.undoCancelVotingEvent, { _id: votingEventId })),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, { _id: votingEventId })),
+                tap(votingEvent => {
+                    expect(votingEvent.name).to.equal(newVotingEvent.name);
+                }),
+            )
+            .subscribe(
+                null,
+                err => {
+                    cachedDb.client.close();
+                    logError(err);
+                    done(err);
+                },
+                () => {
+                    cachedDb.client.close();
+                    done();
+                },
+            );
+    }).timeout(10000);
 });

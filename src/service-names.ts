@@ -8,6 +8,7 @@ export enum ServiceNames {
     addTechnology,
     updateTechnology,
     cancelTechnology,
+    undoCancelVotingEvent,
     restoreTechnology,
     deleteTechnology,
     getVotes,

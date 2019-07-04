@@ -1,3 +1,10 @@
+## [1.3.5](https://github.com/thoughtworks/byor-voting-server/compare/v1.3.4...v1.3.5) (2019-07-04)
+
+
+### Bug Fixes
+
+* **lambda:** change default region to eu-west-1 ([18cf858](https://github.com/thoughtworks/byor-voting-server/commit/18cf858))
+
 ## [1.3.4](https://github.com/thoughtworks/byor-voting-server/compare/v1.3.3...v1.3.4) (2019-07-04)
 
 

@@ -10,8 +10,8 @@ read -d '' final_command << EOF || true
 mkdir -p $(dirname ${credentials_file});
 touch ${credentials_file};
 echo '[byor]' > ${credentials_file};
-echo 'aws_access_key_id=${inAwsKeyid}' >> ${credentials_file};
-echo 'aws_secret_access_key=${inAwsSecretkey}' >> ${credentials_file};
+echo 'aws_access_key_id=${AWS_ACCESS_KEY_ID}' >> ${credentials_file};
+echo 'aws_secret_access_key=${AWS_SECRET_ACCESS_KEY}' >> ${credentials_file};
 serverless deploy --stage ${AWS_SERVICE_STAGE} --region ${AWS_REGION}
 EOF
 

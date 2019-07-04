@@ -1,3 +1,10 @@
+## [1.3.4](https://github.com/thoughtworks/byor-voting-server/compare/v1.3.3...v1.3.4) (2019-07-04)
+
+
+### Bug Fixes
+
+* **make:** fix aws variable names in deploy_aws script ([9566508](https://github.com/thoughtworks/byor-voting-server/commit/9566508))
+
 ## [1.3.3](https://github.com/thoughtworks/byor-voting-server/compare/v1.3.2...v1.3.3) (2019-07-03)
 
 

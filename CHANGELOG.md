@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/thoughtworks/byor-voting-server/compare/v1.3.5...v1.4.0) (2019-07-05)
+
+
+### Features
+
+* **undoCancelVotingEvent:** undoCancelVotingEvent api added ([423b2a6](https://github.com/thoughtworks/byor-voting-server/commit/423b2a6))
+
 ## [1.3.5](https://github.com/thoughtworks/byor-voting-server/compare/v1.3.4...v1.3.5) (2019-07-04)
 
 

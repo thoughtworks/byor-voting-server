@@ -5,17 +5,17 @@ export const CommunityVotingEventFlow: VotingEventFlow = {
         {
             name: 'vote all techs',
             identification: { name: 'nickname' },
-            action: { name: 'vote', commentOnVoteBlocked: false },
+            action: { name: 'vote', parameters: { commentOnVoteBlocked: false } },
         },
         {
             name: 'conversation phase on blips uncertain',
             identification: { name: 'nickname' },
-            action: { name: 'conversation', techSelectLogic: 'TechUncertain' },
+            action: { name: 'conversation', parameters: { techSelectLogic: 'TechUncertain' } },
         },
         {
             name: 'revote techs with uncertain blips',
             identification: { name: 'nickname' },
-            action: { name: 'vote', commentOnVoteBlocked: true, techSelectLogic: 'TechUncertain' },
+            action: { name: 'vote', parameters: { commentOnVoteBlocked: true, techSelectLogic: 'TechUncertain' } },
         },
     ],
 };

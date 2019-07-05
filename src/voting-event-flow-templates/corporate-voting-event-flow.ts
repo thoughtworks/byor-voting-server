@@ -5,7 +5,7 @@ export const CorporateVotingEventFlow: VotingEventFlow = {
         {
             name: 'vote all techs',
             identification: { name: 'nickname' },
-            action: { name: 'vote', commentOnVoteBlocked: false },
+            action: { name: 'vote', parameters: { commentOnVoteBlocked: false } },
         },
         {
             name: 'conversation on all techs',

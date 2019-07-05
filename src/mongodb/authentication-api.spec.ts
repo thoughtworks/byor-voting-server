@@ -93,7 +93,7 @@ describe('1.1 - Voting Event Authentication operations', () => {
                 {
                     name: firstStepName,
                     identification: { name: 'nickname' },
-                    action: { name: 'vote', commentOnVoteBlocked: false },
+                    action: { name: 'vote', parameters: { commentOnVoteBlocked: false } },
                 },
                 {
                     name: secondStepName,

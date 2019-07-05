@@ -12,10 +12,19 @@
             "runtimeExecutable": "npm",
             "cwd": "${workspaceFolder}",
             "envFile": "${workspaceFolder}/.env",
-            "runtimeArgs": [
-                "run-script",
-                "dev-server:start"
-            ],
+            "runtimeArgs": ["run-script", "dev-server:start"],
+            "port": 9229
+        },
+        {
+            "name": "Current TS Tests File",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm",
+            "args": ["${relativeFile}"],
+            "cwd": "${workspaceRoot}",
+            "protocol": "inspector",
+            "envFile": "${workspaceFolder}/.env",
+            "runtimeArgs": ["run-script", "test:currentfile"],
             "port": 9229
         },
         {
@@ -27,18 +36,16 @@
             "restart": true,
             "timeout": 1000,
             "localRoot": "${workspaceFolder}",
-            "remoteRoot": "/usr/src/app",
+            "remoteRoot": "/usr/src/app"
         },
         {
             "name": "Test: launch current file",
             "type": "node",
             "request": "launch",
             "runtimeExecutable": "make",
-            "runtimeArgs": [
-                "test_single"
-            ],
+            "runtimeArgs": ["test_single"],
             "env": {
-                "TEST_FILE_PATH": "${relativeFile}",
+                "TEST_FILE_PATH": "${relativeFile}"
             },
             "protocol": "auto",
             "port": 9228,
@@ -46,7 +53,7 @@
             "timeout": 4500,
             "localRoot": "${workspaceFolder}",
             "remoteRoot": "/usr/src/app",
-            "console": "integratedTerminal",
-        },
+            "console": "integratedTerminal"
+        }
     ]
 }

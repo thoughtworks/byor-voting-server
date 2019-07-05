@@ -15,7 +15,7 @@ fileignoreconfig:
   checksum: a1e105983c0bc867e694374f48240ce44bbd75477ea6222b7828e15fecb8c118
   ignore_detectors: []
 - filename: package-lock.json
-  checksum: 60ef72023b9d4644987897c5bb7d50bf465ead54e6184f3966ec8965b7a3d3ec
+  checksum: ac6d6c40eee72eee5cfa3f15cd8a3cf8c66f3fc85007a0fe9faf6e045283d312
   ignore_detectors: []
 - filename: .git/hooks/pre-commit.sample
   checksum: db4357ef58ba0db53f99c087351e968b65f6907685a72c677b7481d430b73847
@@ -45,7 +45,7 @@ fileignoreconfig:
   checksum: aa2466e9431a6ba44efa62e52905bd115b516affe917555a314bfb947d9fa2c0
   ignore_detectors: []
 - filename: .make/cd/deploy_aws.sh
-  checksum: 9b2c53705ddcf37ac81ff846cf5b4ea93e061e2570bf845631955d63d0b5d303
+  checksum: 2627500056800dbbb38e87e462b8c9b0ae9ad82154045735fd8160c78b378d6a
   ignore_detectors: []
 - filename: docker-compose.circle-ci.yml
   checksum: d13489b074c136ac9a1ecbefefc55d0d6af1fadb6ae810d4b96a3cdf4978b961
@@ -54,11 +54,11 @@ fileignoreconfig:
   checksum: 49ad2a84e5b624a6133dd86213901c416ceaf1291059a4243632443af8a706e3
   ignore_detectors: []
 - filename: .env
-  checksum: 7103ec841e5ebd717e69d203e7e999df0eeb76e6a7d24117a449ba23c81a3736
+  checksum: a98c3a1b6112ce48c82bb55ba604fabb568cb75210eae220011235b118029e90
   ignore_detectors: []
 - filename: config/byor.sh.sample
   checksum: f6ea581aca0260b7f9d098b5715cfaed8702e3ff4de3b2e8f9e4429db9022982
   ignore_detectors: []
 - filename: .make/utils/get_byor_env.sh
-  checksum: b5f8ee2acbbc68ae3494c28fb13ce6fae03d51017e9b199e0a4ffb03a38d6907
+  checksum: e3d68f1f2758f038e8e70531c23e95b3ef5d9325b037132e57f6f5e7dccdcddf
   ignore_detectors: []

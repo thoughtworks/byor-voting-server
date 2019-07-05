@@ -27,7 +27,7 @@ provider:
     profile: byor
     # you can overwrite defaults here
     stage: ${opt:stage,'dev'}
-    region: ${opt:region,'us-east-1'}
+    region: ${opt:region,'eu-west-1'}
     deploymentBucket:
         name: ${self:provider.stage}--byor-voting
     environment:

@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/thoughtworks/byor-voting-server/compare/v1.4.0...v1.5.0) (2019-07-05)
+
+
+### Features
+
+* **numberOfVotesAndComments:** Number of votes and comments calculated ([a5af4ae](https://github.com/thoughtworks/byor-voting-server/commit/a5af4ae))
+
 # [1.4.0](https://github.com/thoughtworks/byor-voting-server/compare/v1.3.5...v1.4.0) (2019-07-05)
 
 

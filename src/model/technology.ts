@@ -9,4 +9,6 @@ export interface Technology {
     description: string;
     forRevote?: boolean;
     comments?: Comment[];
+    numberOfVotes?: number;
+    numberOfComments?: number;
 }

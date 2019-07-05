@@ -23,6 +23,7 @@ import { buildComment, findComment } from '../model/comment';
 import { Comment } from '../model/comment';
 import { getObjectId } from './utils';
 import { logError } from '../lib/utils';
+import { Credentials } from '../model/credentials';
 
 export function getVotes(votesColl: Collection, id?: string | { eventId: string }): Observable<Vote[]> {
     let eventId: any;
@@ -112,11 +113,21 @@ export function saveVotes(
         tap(() => RefreshTrigger.refresh()),
     );
 }
-function voterIdToUpperCase(voterId: { firstName: string; lastName: string }) {
-    return (voterId = {
-        firstName: voterId.firstName.toUpperCase().trim(),
-        lastName: voterId.lastName.toUpperCase().trim(),
-    });
+function voterIdToUpperCase(voterId: { firstName: string; lastName: string } | Credentials) {
+    // @todo remove the logic to manage firstName and lastName when only nickname and userids are going to be used
+    let resp;
+    if (voterId['firstName']) {
+        resp = {
+            firstName: voterId['firstName'].toUpperCase().trim(),
+            lastName: voterId['lastName'].toUpperCase().trim(),
+        };
+    } else {
+        resp = {
+            nickname: voterId['nickname'] ? voterId['nickname'].toUpperCase().trim() : '',
+            userId: voterId['userId'] ? voterId['userId'].toUpperCase().trim() : '',
+        };
+    }
+    return resp;
 }
 
 // export function getVoteComments(votesColl: Collection, technologyId: any, votingEventId: any) {}

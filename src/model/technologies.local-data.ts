@@ -3,9 +3,11 @@ import { TWBlip } from './tw-blips';
 import * as fs from 'fs';
 import * as parse from 'csv-parse/lib/sync';
 import * as _ from 'lodash';
+import { ObjectId } from 'bson';
 
 export const TEST_TECHNOLOGIES = [
     {
+        _id: new ObjectId('123456789012'),
         id: '0001',
         name: 'Babel',
         quadrant: 'tools',
@@ -13,6 +15,7 @@ export const TEST_TECHNOLOGIES = [
         description: 'Description of <strong>Babel</strong>',
     },
     {
+        _id: new ObjectId('234567890123'),
         id: '0002',
         name: 'Ember.js',
         quadrant: 'languages & frameworks',
@@ -20,6 +23,7 @@ export const TEST_TECHNOLOGIES = [
         description: 'Description of <strong>Ember.js</strong>',
     },
     {
+        _id: new ObjectId('345678901234'),
         id: '0003',
         name: 'Docker',
         quadrant: 'platforms',
@@ -30,6 +34,7 @@ export const TEST_TECHNOLOGIES = [
         imageFile: 'docker.png',
     },
     {
+        _id: new ObjectId('456789012345'),
         id: '0004',
         name: 'Consumer-driven contract testing',
         quadrant: 'techniques',
@@ -37,6 +42,7 @@ export const TEST_TECHNOLOGIES = [
         description: 'Description of <strong>Consumer-driven contract testin</strong>',
     },
     {
+        _id: new ObjectId('567890123456'),
         id: '0005',
         name: 'LambdaCD',
         quadrant: 'tools',

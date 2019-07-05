@@ -24,6 +24,7 @@ export enum ServiceNames {
     createVotingEvent,
     getVotingEvents,
     getVotingEvent,
+    getVotingEventWithNumberOfCommentsAndVotes,
     openVotingEvent,
     closeVotingEvent,
     cancelVotingEvent,

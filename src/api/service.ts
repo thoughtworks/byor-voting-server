@@ -58,6 +58,7 @@ import {
     addCommentToTech,
     addReplyToTechComment,
     undoCancelVotingEvent,
+    getVotingEventWithNumberOfCommentsAndVotes,
 } from './voting-event-apis';
 
 import { executeTwBlipsCollection, findLatestEdition } from './tw-blips-collection-api';
@@ -98,6 +99,7 @@ export function isServiceKnown(service: ServiceNames) {
         service === ServiceNames.addReplyToVoteComment ||
         service === ServiceNames.getVotingEvents ||
         service === ServiceNames.getVotingEvent ||
+        service === ServiceNames.getVotingEventWithNumberOfCommentsAndVotes ||
         service === ServiceNames.createVotingEvent ||
         service === ServiceNames.openVotingEvent ||
         service === ServiceNames.closeVotingEvent ||
@@ -232,6 +234,8 @@ function executeMongoService(
         returnedObservable = getVotingEvents(votingEventColl, serviceData);
     } else if (service === ServiceNames.getVotingEvent) {
         returnedObservable = getVotingEvent(votingEventColl, serviceData);
+    } else if (service === ServiceNames.getVotingEventWithNumberOfCommentsAndVotes) {
+        returnedObservable = getVotingEventWithNumberOfCommentsAndVotes(votingEventColl, votesColl, serviceData);
     } else if (service === ServiceNames.openVotingEvent) {
         returnedObservable = openVotingEvent(votingEventColl, technologiesColl, serviceData);
     } else if (service === ServiceNames.closeVotingEvent) {

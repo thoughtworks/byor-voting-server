@@ -1397,7 +1397,7 @@ describe('CRUD operations on Votes collection', () => {
                     };
                 }),
                 concatMap(() => mongodbService(cachedDb, ServiceNames.saveVotes, credentializedVote)),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotes)),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotes, { eventId: votingEventId })),
                 concatMap(votes => {
                     const theVote = votes[0];
                     const voteId = theVote._id.toHexString();
@@ -1408,7 +1408,7 @@ describe('CRUD operations on Votes collection', () => {
                     const params = { voteId, reply, commentReceivingReplyId };
                     return mongodbService(cachedDb, ServiceNames.addReplyToVoteComment, params);
                 }),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotes)),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotes, { eventId: votingEventId })),
                 concatMap((votes: Vote[]) => {
                     const theVote = votes[0];
                     const voteId = theVote._id.toHexString();
@@ -1419,7 +1419,7 @@ describe('CRUD operations on Votes collection', () => {
                     const params = { voteId, reply, commentReceivingReplyId: topCommentReceivingSecondReply };
                     return mongodbService(cachedDb, ServiceNames.addReplyToVoteComment, params);
                 }),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotes)),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotes, { eventId: votingEventId })),
                 tap((votes: Vote[]) => {
                     const theVote = votes[0];
                     expect(theVote.comment).to.be.not.undefined;

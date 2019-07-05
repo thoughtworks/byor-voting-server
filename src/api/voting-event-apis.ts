@@ -4,8 +4,10 @@ import { Collection, ObjectId } from 'mongodb';
 
 import { findObs, dropObs, insertManyObs, updateOneObs, deleteObs, updateManyObs } from 'observable-mongo';
 
+import { groupBy } from 'lodash';
+
 import { VotingEvent } from '../model/voting-event';
-import { Vote } from '../model/vote';
+import { Vote, countVoteComments } from '../model/vote';
 import { getVotes } from './votes-apis';
 import { ERRORS } from './errors';
 import { getObjectId } from './utils';
@@ -53,6 +55,31 @@ export function getVotingEvent(votingEventsCollection: Collection, _id: any) {
         }),
     );
 }
+export function getVotingEventWithNumberOfCommentsAndVotes(
+    votingEventsCollection: Collection,
+    votesCollection: Collection,
+    _id: any,
+) {
+    return forkJoin(getVotingEvent(votingEventsCollection, _id), getVotes(votesCollection, _id)).pipe(
+        map(([votingEvent, votes]) => {
+            if (!votingEvent) throw Error(`No Voting Event present with ID ${_id}`);
+            const technologies = votingEvent.technologies;
+            if (!technologies) throw Error(`No Technologies defined for Voting Event ${votingEvent.name}`);
+            const votesGroupedByTech = groupBy(votes, 'technology._id');
+            Object.entries(votesGroupedByTech).forEach(([id, votes]) => {
+                const tech = technologies.find(t => {
+                    const techId: any = t._id;
+                    return techId.toHexString() === id;
+                });
+                tech.numberOfVotes = votes.length;
+                const numberOfComments = votes.reduce((acc, vote) => acc + countVoteComments(vote), 0);
+                tech.numberOfComments = numberOfComments;
+            });
+            return votingEvent;
+        }),
+    );
+}
+
 export function getAllVotingEvents(votingEventsCollection: Collection) {
     return findObs(votingEventsCollection).pipe(
         toArray(),

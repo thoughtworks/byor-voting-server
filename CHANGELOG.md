@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/thoughtworks/byor-voting-server/compare/v1.5.0...v1.6.0) (2019-07-07)
+
+
+### Features
+
+* **VotingEventStep:** displayVotesAndCommentNumbers option added ([64f1770](https://github.com/thoughtworks/byor-voting-server/commit/64f1770))
+
 # [1.5.0](https://github.com/thoughtworks/byor-voting-server/compare/v1.4.0...v1.5.0) (2019-07-05)
 
 

@@ -10,10 +10,10 @@ export const CorporateVotingEventFlow: VotingEventFlow = {
         {
             name: 'conversation on all techs',
             identification: { name: 'login', groups: ['architect'] },
-            action: { name: 'conversation' },
+            action: { name: 'conversation', parameters: { displayVotesAndCommentNumbers: true } },
         },
         {
-            name: 'conversation on all techs',
+            name: 'recommendations on all techs',
             identification: { name: 'login', groups: ['champion'] },
             action: { name: 'recommendation' },
         },

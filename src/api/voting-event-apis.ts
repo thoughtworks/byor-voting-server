@@ -60,7 +60,8 @@ export function getVotingEventWithNumberOfCommentsAndVotes(
     votesCollection: Collection,
     _id: any,
 ) {
-    return forkJoin(getVotingEvent(votingEventsCollection, _id), getVotes(votesCollection, _id)).pipe(
+    const eventId = _id._id ? _id._id : _id;
+    return forkJoin(getVotingEvent(votingEventsCollection, _id), getVotes(votesCollection, eventId)).pipe(
         map(([votingEvent, votes]) => {
             if (!votingEvent) throw Error(`No Voting Event present with ID ${_id}`);
             const technologies = votingEvent.technologies;

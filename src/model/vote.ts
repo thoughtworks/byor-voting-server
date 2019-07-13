@@ -12,6 +12,7 @@ export interface Vote {
     ipAddress?: string;
     eventRound: any;
     comment?: Comment;
+    tags?: string[];
 }
 
 export function countVoteComments(vote: Vote) {

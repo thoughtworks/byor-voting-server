@@ -5,12 +5,26 @@ export const CorporateVotingEventFlow: VotingEventFlow = {
         {
             name: 'vote all techs',
             identification: { name: 'nickname' },
-            action: { name: 'vote', parameters: { commentOnVoteBlocked: false } },
+            action: {
+                name: 'vote',
+                parameters: {
+                    commentOnVoteBlocked: false,
+                    allowTagsOnVote: true,
+                    tags: ['Prod Experience', 'Personal Project', 'Blogs-Conferences', 'Training', 'Colleagues'],
+                },
+            },
         },
         {
             name: 'conversation on all techs',
             identification: { name: 'login', groups: ['architect'] },
-            action: { name: 'conversation', parameters: { displayVotesAndCommentNumbers: true } },
+            action: {
+                name: 'conversation',
+                parameters: {
+                    displayVotesAndCommentNumbers: true,
+                    allowTagsOnVote: true,
+                    tags: ['Prod Experience', 'Personal Project', 'Blogs-Conferences', 'Training', 'Colleagues'],
+                },
+            },
         },
         {
             name: 'recommendations on all techs',

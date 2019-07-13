@@ -2,7 +2,7 @@ import { concatMap, tap, map, finalize } from 'rxjs/operators';
 import { mongodbService, CachedDB } from '../api/service';
 import { config } from '../api/config';
 import { MongoClient } from 'mongodb';
-import { connectObs } from 'observable-mongo';
+import { connectObs, updateOneObs } from 'observable-mongo';
 import { ServiceNames } from '../service-names';
 import { logError } from '../lib/utils';
 import { VotingEvent } from '../model/voting-event';
@@ -25,16 +25,31 @@ const initialize = (dbName: string) => {
 
 initialize(cachedDb.dbName)
     .pipe(
+        concatMap(() =>
+            mongodbService(cachedDb, ServiceNames.cancelVotingEvent, { name: corporateEvent.name, hard: true }),
+        ),
+        concatMap(() =>
+            mongodbService(cachedDb, ServiceNames.cancelVotingEvent, { name: communityEvent.name, hard: true }),
+        ),
+
         concatMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, corporateEvent)),
         concatMap(_id => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id })),
         concatMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, communityEvent)),
         concatMap(_id => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id })),
+        concatMap(() =>
+            updateOneObs(
+                { user: { $exists: false } },
+                { 'config.enableVotingEventFlow': true },
+                cachedDb.db.collection(config.configurationCollection),
+                { upsert: true },
+            ),
+        ),
     )
     .subscribe(
         null,
         err => {
             cachedDb.client.close();
-            logError(err);
+            logError(JSON.stringify(err, null, 2));
         },
         () => {
             cachedDb.client.close();

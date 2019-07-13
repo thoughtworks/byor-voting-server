@@ -94,6 +94,7 @@ export function saveVotes(
                     eventId,
                     eventRound,
                     ipAddress,
+                    tags: v.tags,
                 };
                 if (v.comment) {
                     const comment = buildComment(v.comment.text, `${voterId.firstName} ${voterId.lastName}`);

@@ -12,6 +12,8 @@ export interface VotingEventStep {
             commentOnVoteBlocked?: boolean;
             techSelectLogic?: TechSelectLogic;
             displayVotesAndCommentNumbers?: boolean;
+            tags?: string[];
+            allowTagsOnVote?: boolean;
         };
     };
 }

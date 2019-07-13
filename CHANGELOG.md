@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/thoughtworks/byor-voting-server/compare/v1.6.0...v1.7.0) (2019-07-13)
+
+
+### Features
+
+* **Vote:** support for tags ([ff02778](https://github.com/thoughtworks/byor-voting-server/commit/ff02778))
+
 # [1.6.0](https://github.com/thoughtworks/byor-voting-server/compare/v1.5.0...v1.6.0) (2019-07-07)
 
 

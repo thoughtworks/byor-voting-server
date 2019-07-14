@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/thoughtworks/byor-voting-server/compare/v1.7.0...v1.8.0) (2019-07-14)
+
+
+### Features
+
+* **moveToNexFlowStep:** moveToNexFlowStep api added ([b50ea9c](https://github.com/thoughtworks/byor-voting-server/commit/b50ea9c))
+
 # [1.7.0](https://github.com/thoughtworks/byor-voting-server/compare/v1.6.0...v1.7.0) (2019-07-13)
 
 

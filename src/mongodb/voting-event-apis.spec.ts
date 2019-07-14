@@ -1103,4 +1103,136 @@ describe('Operations on votingevents collection', () => {
                 },
             );
     }).timeout(10000);
+
+    it(`2.6 A Voting Event is created, people vote and add tags, and then we move the event 
+    to the next step of the VotingEvent flow`, done => {
+        const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+
+        const newVotingEvent = { name: 'An Event which moves to the next step of the flow' };
+
+        let votingEventId;
+        let votingEventRound: number;
+        let votes: VoteCredentialized[];
+        let votingEvent;
+        let tech0: Technology;
+        let tech1: Technology;
+        const ringForTech0 = 'hold';
+        const ringForTech1 = 'assess';
+        const productionTag = 'Production';
+        const trainingTag = 'Trainig';
+        const colleaguesTag = 'Colleagues';
+
+        initializeVotingEventsAndVotes(cachedDb.dbName)
+            .pipe(
+                concatMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, newVotingEvent)),
+                tap(id => (votingEventId = id)),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                tap(vEvent => {
+                    votingEvent = vEvent;
+                    tech0 = votingEvent.technologies[0];
+                    tech1 = votingEvent.technologies[1];
+                    votes = [
+                        {
+                            credentials: { votingEvent, voterId: { nickname: 'I am the first voter' } },
+                            votes: [
+                                {
+                                    ring: ringForTech0,
+                                    technology: tech0,
+                                    eventName: votingEvent.name,
+                                    eventId: votingEvent._id,
+                                    eventRound: 1,
+                                    comment: { text: `I am the comment for vote[1] on tech ${tech0.name}` },
+                                    tags: [productionTag, trainingTag],
+                                },
+                            ],
+                        },
+                        {
+                            credentials: { votingEvent, voterId: { nickname: 'two A' } },
+                            votes: [
+                                {
+                                    ring: ringForTech0,
+                                    technology: tech0,
+                                    eventName: votingEvent.name,
+                                    eventId: votingEvent._id,
+                                    eventRound: 1,
+                                    tags: [productionTag, colleaguesTag],
+                                },
+                                {
+                                    ring: ringForTech1,
+                                    technology: tech1,
+                                    eventName: votingEvent.name,
+                                    eventId: votingEvent._id,
+                                    eventRound: 1,
+                                    comment: { text: `I am the comment for vote[1] on tech ${tech1.name}` },
+                                },
+                            ],
+                        },
+                        {
+                            credentials: { votingEvent, voterId: { nickname: 'five A' } },
+                            votes: [
+                                {
+                                    ring: ringForTech0,
+                                    technology: tech0,
+                                    eventName: votingEvent.name,
+                                    eventId: votingEvent._id,
+                                    eventRound: 1,
+                                    tags: [colleaguesTag, trainingTag],
+                                },
+                            ],
+                        },
+                        {
+                            credentials: { votingEvent, voterId: { nickname: 'seven A' } },
+                            votes: [
+                                {
+                                    ring: ringForTech1,
+                                    technology: tech1,
+                                    eventName: votingEvent.name,
+                                    eventId: votingEvent._id,
+                                    eventRound: 1,
+                                },
+                            ],
+                        },
+                    ];
+                }),
+                concatMap(() => forkJoin(votes.map(vote => mongodbService(cachedDb, ServiceNames.saveVotes, vote)))),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                tap(votingEvent => {
+                    votingEventRound = votingEvent.round;
+                }),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.moveToNexFlowStep, { _id: votingEventId })),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                tap((votingEvent: VotingEvent) => {
+                    expect(votingEvent.round).to.equal(votingEventRound + 1);
+                    const t0 = votingEvent.technologies.find(t => t.name === tech0.name);
+                    expect(t0.votingResult.votesForRing.length).to.equal(1);
+                    expect(t0.votingResult.votesForRing[0].ring).to.equal(ringForTech0);
+                    expect(t0.votingResult.votesForRing[0].count).to.equal(3);
+                    expect(t0.votingResult.votesForTag.length).to.equal(3);
+                    const productionTagRes = t0.votingResult.votesForTag.find(t => t.tag === productionTag);
+                    expect(productionTagRes.count).to.equal(2);
+                    const trainingTagRes = t0.votingResult.votesForTag.find(t => t.tag === trainingTag);
+                    expect(trainingTagRes.count).to.equal(2);
+                    const colleaguesTagRes = t0.votingResult.votesForTag.find(t => t.tag === colleaguesTag);
+                    expect(colleaguesTagRes.count).to.equal(2);
+                    const t1 = votingEvent.technologies.find(t => t.name === tech1.name);
+                    expect(t1.votingResult.votesForRing.length).to.equal(1);
+                    expect(t1.votingResult.votesForRing[0].ring).to.equal(ringForTech1);
+                    expect(t1.votingResult.votesForRing[0].count).to.equal(2);
+                    expect(t1.votingResult.votesForTag).to.be.undefined;
+                }),
+            )
+            .subscribe(
+                null,
+                err => {
+                    cachedDb.client.close();
+                    logError(err);
+                    done(err);
+                },
+                () => {
+                    cachedDb.client.close();
+                    done();
+                },
+            );
+    }).timeout(10000);
 });

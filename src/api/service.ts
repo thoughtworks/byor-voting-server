@@ -59,6 +59,7 @@ import {
     addReplyToTechComment,
     undoCancelVotingEvent,
     getVotingEventWithNumberOfCommentsAndVotes,
+    moveToNexFlowStep,
 } from './voting-event-apis';
 
 import { executeTwBlipsCollection, findLatestEdition } from './tw-blips-collection-api';
@@ -113,6 +114,7 @@ export function isServiceKnown(service: ServiceNames) {
         service === ServiceNames.calculateBlipsFromAllEvents ||
         service === ServiceNames.openForRevote ||
         service === ServiceNames.closeForRevote ||
+        service === ServiceNames.moveToNexFlowStep ||
         service === ServiceNames.getConfiguration ||
         service === ServiceNames.authenticate ||
         service === ServiceNames.authenticateForVotingEvent ||
@@ -264,6 +266,8 @@ function executeMongoService(
         returnedObservable = closeForRevote(votingEventColl, serviceData);
     } else if (service === ServiceNames.getConfiguration) {
         returnedObservable = getConfiguration(configurationColl, serviceData);
+    } else if (service === ServiceNames.moveToNexFlowStep) {
+        returnedObservable = moveToNexFlowStep(votingEventColl, votesColl, serviceData);
     } else if (service === ServiceNames.authenticate) {
         returnedObservable = authenticate(usersColl, serviceData);
     } else if (service === ServiceNames.authenticateForVotingEvent) {

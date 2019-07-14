@@ -60,6 +60,15 @@ export function getVotingEventWithNumberOfCommentsAndVotes(
     votesCollection: Collection,
     _id: any,
 ) {
+    return _getVotingEventWithNumberOfCommentsAndVotes(votingEventsCollection, votesCollection, _id).pipe(
+        map(data => data.votingEvent),
+    );
+}
+function _getVotingEventWithNumberOfCommentsAndVotes(
+    votingEventsCollection: Collection,
+    votesCollection: Collection,
+    _id: any,
+) {
     const eventId = _id._id ? _id._id : _id;
     return forkJoin(getVotingEvent(votingEventsCollection, _id), getVotes(votesCollection, eventId)).pipe(
         map(([votingEvent, votes]) => {
@@ -76,7 +85,7 @@ export function getVotingEventWithNumberOfCommentsAndVotes(
                 const numberOfComments = votes.reduce((acc, vote) => acc + countVoteComments(vote), 0);
                 tech.numberOfComments = numberOfComments;
             });
-            return votingEvent;
+            return { votingEvent, votesGroupedByTech };
         }),
     );
 }
@@ -355,5 +364,64 @@ export function addReplyToTechComment(
         concatMap(() =>
             updateOneObs({ _id: votingEvent._id, 'technologies._id': tech._id }, dataToUpdate, votingEventsCollection),
         ),
+    );
+}
+
+export function moveToNexFlowStep(votingEventsCollection: Collection, votesColl: Collection, params: { _id: string }) {
+    return fetchVotingEvidences(votingEventsCollection, votesColl, params).pipe(
+        concatMap(votingEvent => {
+            const votingEventKey = { _id: getObjectId(params._id) };
+            const newRound = votingEvent.round + 1;
+            const dataToUpdate = { round: newRound, technologies: votingEvent.technologies };
+            return updateOneObs(votingEventKey, dataToUpdate, votingEventsCollection);
+        }),
+    );
+}
+export function fetchVotingEvidences(
+    votingEventsCollection: Collection,
+    votesColl: Collection,
+    params: { _id: string },
+) {
+    if (!(params && params._id)) {
+        return throwError('The parameters passed to fetchVotingEvidences do not containt the VotingEvent is');
+    }
+    const eventId = params._id;
+    return _getVotingEventWithNumberOfCommentsAndVotes(votingEventsCollection, votesColl, eventId).pipe(
+        map(({ votingEvent, votesGroupedByTech }) => {
+            Object.entries(votesGroupedByTech).forEach(([id, votes]) => {
+                const tech = votingEvent.technologies.find(t => {
+                    const techId: any = t._id;
+                    return techId.toHexString() === id;
+                });
+                const votesGroupedByRing = groupBy(votes, 'ring');
+                Object.entries(votesGroupedByRing).forEach(([ring, votes]) => {
+                    if (!tech.votingResult) {
+                        tech.votingResult = {
+                            votesForRing: [],
+                        };
+                    }
+                    tech.votingResult.votesForRing.push({ ring, count: votes.length });
+                });
+                const votesGroupedByTag = new Map<string, Vote[]>();
+                votes.forEach(vote => {
+                    const voteTags = vote.tags;
+                    if (voteTags) {
+                        voteTags.forEach(tag => {
+                            if (!votesGroupedByTag.get(tag)) {
+                                votesGroupedByTag.set(tag, []);
+                            }
+                            votesGroupedByTag.get(tag).push(vote);
+                        });
+                    }
+                });
+                votesGroupedByTag.forEach((votes, tag) => {
+                    if (!tech.votingResult.votesForTag) {
+                        tech.votingResult.votesForTag = [];
+                    }
+                    tech.votingResult.votesForTag.push({ tag, count: votes.length });
+                });
+            });
+            return votingEvent;
+        }),
     );
 }

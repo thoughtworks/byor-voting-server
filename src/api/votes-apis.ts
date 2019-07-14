@@ -1,7 +1,7 @@
 import { Observable, throwError, forkJoin } from 'rxjs';
 import { toArray, switchMap, map, tap, filter, concatMap } from 'rxjs/operators';
 // import {groupBy as rxGroupBy} from 'rxjs/operators'
-import { Collection } from 'mongodb';
+import { Collection, ObjectId } from 'mongodb';
 
 import { map as _map } from 'lodash';
 // import groupBy from 'lodash/groupBy';
@@ -11,7 +11,6 @@ import { findObs, dropObs, insertManyObs, aggregateObs, updateOneObs } from 'obs
 import { Vote } from '../model/vote';
 import { VoteCredentialized } from '../model/vote-credentialized';
 import { VoteCredentials } from '../model/vote-credentials';
-import { VotingEvent } from '../model/voting-event';
 import { Blip } from '../model/blip';
 import { RefreshTrigger } from '../refresh-trigger';
 import { ERRORS } from './errors';
@@ -135,7 +134,7 @@ function voterIdToUpperCase(voterId: { firstName: string; lastName: string } | C
 
 export function aggregateVotes(
     votesColl: Collection,
-    params?: { votingEvent: VotingEvent },
+    params?: { votingEvent: { _id: string | ObjectId } },
 ): Observable<AggregatedVote[]> {
     const aggregationPipeline = [];
     if (params && params.votingEvent) {
@@ -188,7 +187,14 @@ export function aggregateVotes(
     return aggregateObs(votesColl, aggregationPipeline).pipe(toArray());
 }
 
-export function calculateBlips(votesColl: Collection, votingEventsCollection: Collection, params: any) {
+export function calculateBlips(
+    votesColl: Collection,
+    votingEventsCollection: Collection,
+    params: {
+        votingEvent: { _id: string | ObjectId };
+        thresholdForRevote: number;
+    },
+) {
     if (!(params && params.votingEvent)) {
         return throwError('could not find votingEvent from given params');
     }

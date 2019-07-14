@@ -393,13 +393,11 @@ export function fetchVotingEvidences(
                     const techId: any = t._id;
                     return techId.toHexString() === id;
                 });
+                tech.votingResult = {
+                    votesForRing: [],
+                };
                 const votesGroupedByRing = groupBy(votes, 'ring');
                 Object.entries(votesGroupedByRing).forEach(([ring, votes]) => {
-                    if (!tech.votingResult) {
-                        tech.votingResult = {
-                            votesForRing: [],
-                        };
-                    }
                     tech.votingResult.votesForRing.push({ ring, count: votes.length });
                 });
                 const votesGroupedByTag = new Map<string, Vote[]>();

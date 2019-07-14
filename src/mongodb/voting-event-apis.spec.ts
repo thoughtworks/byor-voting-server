@@ -1221,6 +1221,23 @@ describe('Operations on votingevents collection', () => {
                     expect(t1.votingResult.votesForRing[0].count).to.equal(2);
                     expect(t1.votingResult.votesForTag).to.be.undefined;
                 }),
+                // We move to the third step and want to check that the voting results are the same at least in terms of numbers
+                concatMap(() => mongodbService(cachedDb, ServiceNames.moveToNexFlowStep, { _id: votingEventId })),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                tap((votingEvent: VotingEvent) => {
+                    expect(votingEvent.round).to.equal(votingEventRound + 2);
+                    const t0 = votingEvent.technologies.find(t => t.name === tech0.name);
+                    expect(t0.votingResult.votesForRing.length).to.equal(1);
+                    const productionTagRes = t0.votingResult.votesForTag.find(t => t.tag === productionTag);
+                    expect(productionTagRes.count).to.equal(2);
+                    const trainingTagRes = t0.votingResult.votesForTag.find(t => t.tag === trainingTag);
+                    expect(trainingTagRes.count).to.equal(2);
+                    const colleaguesTagRes = t0.votingResult.votesForTag.find(t => t.tag === colleaguesTag);
+                    expect(colleaguesTagRes.count).to.equal(2);
+                    const t1 = votingEvent.technologies.find(t => t.name === tech1.name);
+                    expect(t1.votingResult.votesForRing.length).to.equal(1);
+                    expect(t1.votingResult.votesForTag).to.be.undefined;
+                }),
             )
             .subscribe(
                 null,

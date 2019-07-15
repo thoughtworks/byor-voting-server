@@ -12,6 +12,13 @@ export interface VotingResults {
     }[];
 }
 
+export interface Recommendation {
+    author: string;
+    ring?: string;
+    text?: string;
+    timestamp?: string;
+}
+
 export interface Technology {
     _id?: string | ObjectId;
     name: string;
@@ -23,4 +30,6 @@ export interface Technology {
     numberOfVotes?: number;
     numberOfComments?: number;
     votingResult?: VotingResults;
+    recommender?: string;
+    recommendandation?: Recommendation;
 }

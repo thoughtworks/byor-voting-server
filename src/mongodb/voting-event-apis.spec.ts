@@ -1252,4 +1252,101 @@ describe('Operations on votingevents collection', () => {
                 },
             );
     }).timeout(10000);
+
+    it(`2.7 A Voting Event is created and a person is set as author of the recommendation for one of the techs
+    and then it is reset`, done => {
+        const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+
+        const newVotingEvent = {
+            name: 'An Event where a person is set as the author of the recommendation of the tecnology',
+        };
+
+        let votingEventId;
+        let votes: VoteCredentialized[];
+        let votingEvent;
+        let tech0: Technology;
+
+        const authorId = 'I am the person who is going to write the recommendation';
+
+        let resetterImpostorErrorEncountered = false;
+
+        initializeVotingEventsAndVotes(cachedDb.dbName)
+            .pipe(
+                concatMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, newVotingEvent)),
+                tap(id => (votingEventId = id)),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                tap(vEvent => {
+                    votingEvent = vEvent;
+                    tech0 = votingEvent.technologies[0];
+                    votes = [
+                        {
+                            credentials: { votingEvent, voterId: { nickname: 'I am the first voter' } },
+                            votes: [
+                                {
+                                    ring: 'adopt',
+                                    technology: tech0,
+                                    eventName: votingEvent.name,
+                                    eventId: votingEvent._id,
+                                    eventRound: 1,
+                                },
+                            ],
+                        },
+                    ];
+                }),
+                concatMap(() => forkJoin(votes.map(vote => mongodbService(cachedDb, ServiceNames.saveVotes, vote)))),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.setRecommendationAuthor, {
+                        votingEventId,
+                        technologyName: tech0.name,
+                        author: authorId,
+                    }),
+                ),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                tap((votingEvent: VotingEvent) => {
+                    const t0 = votingEvent.technologies.find(t => t.name === tech0.name);
+                    expect(t0.recommendandation).to.be.not.undefined;
+                    expect(t0.recommendandation.author).equal(authorId);
+                }),
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.resetRecommendation, {
+                        votingEventId,
+                        technologyName: tech0.name,
+                        requester: 'An impostor',
+                    }),
+                ),
+                catchError(err => {
+                    resetterImpostorErrorEncountered = true;
+                    expect(err.errorCode).equal(ERRORS.recommendationAuthorDifferent.errorCode);
+                    return of(null);
+                }),
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.resetRecommendation, {
+                        votingEventId,
+                        technologyName: tech0.name,
+                        requester: authorId,
+                    }),
+                ),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                tap((votingEvent: VotingEvent) => {
+                    const t0 = votingEvent.technologies.find(t => t.name === tech0.name);
+                    expect(t0.recommendandation).to.be.null;
+                }),
+            )
+            .subscribe(
+                () => {
+                    expect(resetterImpostorErrorEncountered).to.be.true;
+                },
+                err => {
+                    cachedDb.client.close();
+                    logError(err);
+                    done(err);
+                },
+                () => {
+                    cachedDb.client.close();
+                    done();
+                },
+            );
+    }).timeout(10000);
 });

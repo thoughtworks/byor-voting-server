@@ -25,10 +25,16 @@ export const ERRORS = {
     voteAlreadyPresent: { errorCode: 'V-01', mongoErrorCode: 11000, message: `vote already present` } as MongoError,
     pwdInvalid: { errorCode: 'A-01', message: `password not valid` },
     userUnknown: { errorCode: 'A-02', message: `user not known` },
-    userWithNotTheRequestedRole: { errorCode: 'A-03', message: `user does not have the requesated role` },
+    userWithNotTheRequestedRole: { errorCode: 'A-03', message: `user does not have the requested role` },
     technologyAlreadyPresent: {
         errorCode: 'V-T-01',
         mongoErrorCode: 11000,
         message: `Technology already present`,
     } as MongoError,
+    recommendationAuthorAlreadySet: { errorCode: 'R-01', message: `Recommender already set` },
+    recommendationAuthorDifferent: {
+        errorCode: 'R-02',
+        message: `Who is requesting the reset of recommendation 
+    is not the person who actually is the recommender`,
+    },
 };

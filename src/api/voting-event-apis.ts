@@ -423,3 +423,70 @@ export function fetchVotingEvidences(
         }),
     );
 }
+
+export function setRecommendationAuthor(
+    votingEventsCollection: Collection,
+    params: { votingEventId: string; technologyName: string; author: string },
+) {
+    return getVotingEvent(votingEventsCollection, params.votingEventId).pipe(
+        map(votingEvent => {
+            if (!votingEvent) {
+                throw new Error(`VotingEvent ${votingEvent.name} not found`);
+            }
+            const tech = votingEvent.technologies.find(t => t.name === params.technologyName);
+            if (!tech) {
+                throw new Error(
+                    `Technologgy with id ${params.technologyName} not found in VotingEvent ${votingEvent.name}`,
+                );
+            }
+            if (tech.recommendandation) {
+                // create a copy of the error to be able to set safely the name of the author of the recommendation in
+                // the error message
+                const err = { ...ERRORS.recommendationAuthorAlreadySet };
+                err.message = `Recommendation already taken by ${tech.recommendandation.author}`;
+                throw err;
+            }
+            tech.recommendandation = { author: params.author };
+            return { votingEvent, tech, votingEventsCollection };
+        }),
+        concatMap(updateTechRecommendation),
+    );
+}
+
+export function resetRecommendation(
+    votingEventsCollection: Collection,
+    params: { votingEventId: string; technologyName: string; requester: string },
+) {
+    return getVotingEvent(votingEventsCollection, params.votingEventId).pipe(
+        map(votingEvent => {
+            if (!votingEvent) {
+                throw new Error(`VotingEvent ${votingEvent.name} not found`);
+            }
+            const tech = votingEvent.technologies.find(t => t.name === params.technologyName);
+            if (!tech) {
+                throw new Error(`Technologgy ${params.technologyName} not found in VotingEvent ${votingEvent.name}`);
+            }
+            if (!tech.recommendandation) {
+                throw new Error(
+                    `No recommendation set for technologgy ${params.technologyName} in VotingEvent ${votingEvent.name}`,
+                );
+            }
+            if (tech.recommendandation.author !== params.requester) {
+                // create a copy of the error to be able to set safely the name of the author of the
+                // request to reset the recommendation
+                const err = { ...ERRORS.recommendationAuthorDifferent };
+                err.message = `The current author of the recommendation "${tech.recommendandation.author}" 
+                is not the same who is requesting the reset "${params.requester}"`;
+                throw err;
+            }
+            tech.recommendandation = null;
+            return { votingEvent, tech, votingEventsCollection };
+        }),
+        concatMap(updateTechRecommendation),
+    );
+}
+
+function updateTechRecommendation({ votingEvent, tech, votingEventsCollection }) {
+    const dataToUpdate = { 'technologies.$.recommendandation': tech.recommendandation };
+    return updateOneObs({ _id: votingEvent._id, 'technologies._id': tech._id }, dataToUpdate, votingEventsCollection);
+}

@@ -38,6 +38,8 @@ export enum ServiceNames {
     openForRevote,
     closeForRevote,
     moveToNexFlowStep,
+    setRecommendationAuthor,
+    resetRecommendation,
     getConfiguration,
     authenticate,
     authenticateForVotingEvent,

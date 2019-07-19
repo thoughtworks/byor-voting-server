@@ -11,7 +11,7 @@ import { TEST_TECHNOLOGIES } from '../model/technologies.local-data';
 import { VoteCredentialized } from '../model/vote-credentialized';
 import { VotingEvent } from '../model/voting-event';
 import { initializeVotingEventsAndVotes } from './base.spec';
-import { Technology } from '../model/technology';
+import { Technology, Recommendation } from '../model/technology';
 import { logError } from '../lib/utils';
 import { ObjectId } from 'bson';
 import { Comment } from '../model/comment';
@@ -1254,7 +1254,7 @@ describe('Operations on votingevents collection', () => {
     }).timeout(10000);
 
     it(`2.7 A Voting Event is created and a person is set as author of the recommendation for one of the techs
-    and then it is reset`, done => {
+    and then it is reset, then a new recommender is defined and a resommendation is set`, done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
 
         const newVotingEvent = {
@@ -1266,9 +1266,19 @@ describe('Operations on votingevents collection', () => {
         let votingEvent;
         let tech0: Technology;
 
-        const authorId = 'I am the person who is going to write the recommendation';
+        const firstAuthorId = 'I am the FIRST person who wants to write the recommendation';
+        const secondAuthorId = 'I am the SECOND person who wants to write the recommendation';
 
+        const recommendation: Recommendation = {
+            author: secondAuthorId,
+            text: 'This is a very good tech',
+            ring: 'adopt',
+            timestamp: 'now',
+        };
+
+        let recommendationAuthorAlreadySetErrorEncountered = false;
         let resetterImpostorErrorEncountered = false;
+        let differentRecommenderErrorEncountered = false;
 
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
@@ -1296,19 +1306,48 @@ describe('Operations on votingevents collection', () => {
                 }),
                 concatMap(() => forkJoin(votes.map(vote => mongodbService(cachedDb, ServiceNames.saveVotes, vote)))),
                 concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                // set the recommendation author for the first time
                 concatMap(() =>
                     mongodbService(cachedDb, ServiceNames.setRecommendationAuthor, {
                         votingEventId,
                         technologyName: tech0.name,
-                        author: authorId,
+                        author: firstAuthorId,
                     }),
                 ),
                 concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap((votingEvent: VotingEvent) => {
                     const t0 = votingEvent.technologies.find(t => t.name === tech0.name);
                     expect(t0.recommendandation).to.be.not.undefined;
-                    expect(t0.recommendandation.author).equal(authorId);
+                    expect(t0.recommendandation.author).equal(firstAuthorId);
                 }),
+                // try to set the recommendation author with a different author and get an error
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.setRecommendationAuthor, {
+                        votingEventId,
+                        technologyName: tech0.name,
+                        author: secondAuthorId,
+                    }),
+                ),
+                catchError(err => {
+                    recommendationAuthorAlreadySetErrorEncountered = true;
+                    expect(err.errorCode).equal(ERRORS.recommendationAuthorAlreadySet.errorCode);
+                    expect(err.currentAuthor).equal(firstAuthorId);
+                    return of(null);
+                }),
+                // try to set the recommendation author with the same author and do not get an error
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.setRecommendationAuthor, {
+                        votingEventId,
+                        technologyName: tech0.name,
+                        author: firstAuthorId,
+                    }),
+                ),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                tap((votingEvent: VotingEvent) => {
+                    const t0 = votingEvent.technologies.find(t => t.name === tech0.name);
+                    expect(t0.recommendandation.author).equal(firstAuthorId);
+                }),
+                // try to reset the recommendation with a requester who is not the author already set and get an error
                 concatMap(() =>
                     mongodbService(cachedDb, ServiceNames.resetRecommendation, {
                         votingEventId,
@@ -1319,13 +1358,15 @@ describe('Operations on votingevents collection', () => {
                 catchError(err => {
                     resetterImpostorErrorEncountered = true;
                     expect(err.errorCode).equal(ERRORS.recommendationAuthorDifferent.errorCode);
+                    expect(err.currentAuthor).equal(firstAuthorId);
                     return of(null);
                 }),
+                // reset the recommendation with a requester who is the same author already set
                 concatMap(() =>
                     mongodbService(cachedDb, ServiceNames.resetRecommendation, {
                         votingEventId,
                         technologyName: tech0.name,
-                        requester: authorId,
+                        requester: firstAuthorId,
                     }),
                 ),
                 concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
@@ -1333,10 +1374,56 @@ describe('Operations on votingevents collection', () => {
                     const t0 = votingEvent.technologies.find(t => t.name === tech0.name);
                     expect(t0.recommendandation).to.be.null;
                 }),
+                // set the recommendation author again
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.setRecommendationAuthor, {
+                        votingEventId,
+                        technologyName: tech0.name,
+                        author: secondAuthorId,
+                    }),
+                ),
+                // set the recommendation
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.setRecommendation, {
+                        votingEventId,
+                        technologyName: tech0.name,
+                        recommendation,
+                    }),
+                ),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                tap((votingEvent: VotingEvent) => {
+                    const t0 = votingEvent.technologies.find(t => t.name === tech0.name);
+                    expect(t0.recommendandation).to.be.not.undefined;
+                    expect(t0.recommendandation.author).equal(secondAuthorId);
+                    expect(t0.recommendandation.text).equal(recommendation.text);
+                    expect(t0.recommendandation.ring).equal(recommendation.ring);
+                    expect(t0.recommendandation.timestamp).equal(recommendation.timestamp);
+                }),
+                // try to set the recommendation again with a different author and get an error
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.setRecommendation, {
+                        votingEventId,
+                        technologyName: tech0.name,
+                        recommendation: {
+                            author: 'A new author',
+                            text: 'A new recommendation',
+                            ring: 'hold',
+                            timestamp: 'yesterday',
+                        },
+                    }),
+                ),
+                catchError(err => {
+                    differentRecommenderErrorEncountered = true;
+                    expect(err.errorCode).equal(ERRORS.recommendationAuthorDifferent.errorCode);
+                    expect(err.currentAuthor).equal(secondAuthorId);
+                    return of(null);
+                }),
             )
             .subscribe(
                 () => {
+                    expect(recommendationAuthorAlreadySetErrorEncountered).to.be.true;
                     expect(resetterImpostorErrorEncountered).to.be.true;
+                    expect(differentRecommenderErrorEncountered).to.be.true;
                 },
                 err => {
                     cachedDb.client.close();

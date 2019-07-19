@@ -31,10 +31,11 @@ export const ERRORS = {
         mongoErrorCode: 11000,
         message: `Technology already present`,
     } as MongoError,
-    recommendationAuthorAlreadySet: { errorCode: 'R-01', message: `Recommender already set` },
+    recommendationAuthorAlreadySet: { errorCode: 'R-01', message: `Recommender already set`, currentAuthor: null },
     recommendationAuthorDifferent: {
         errorCode: 'R-02',
         message: `Who is requesting the reset of recommendation 
     is not the person who actually is the recommender`,
+        currentAuthor: null,
     },
 };

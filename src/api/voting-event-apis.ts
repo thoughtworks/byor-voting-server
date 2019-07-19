@@ -12,7 +12,7 @@ import { getVotes } from './votes-apis';
 import { ERRORS } from './errors';
 import { getObjectId } from './utils';
 import { getTechnologies } from './technologies-apis';
-import { Technology } from '../model/technology';
+import { Technology, Recommendation } from '../model/technology';
 import { buildComment, findComment } from '../model/comment';
 import { Comment } from '../model/comment';
 import { CorporateVotingEventFlow } from '../voting-event-flow-templates/corporate-voting-event-flow';
@@ -439,14 +439,45 @@ export function setRecommendationAuthor(
                     `Technologgy with id ${params.technologyName} not found in VotingEvent ${votingEvent.name}`,
                 );
             }
-            if (tech.recommendandation) {
+            if (tech.recommendandation && tech.recommendandation.author !== params.author) {
                 // create a copy of the error to be able to set safely the name of the author of the recommendation in
                 // the error message
                 const err = { ...ERRORS.recommendationAuthorAlreadySet };
                 err.message = `Recommendation already taken by ${tech.recommendandation.author}`;
+                err.currentAuthor = tech.recommendandation.author;
                 throw err;
             }
             tech.recommendandation = { author: params.author };
+            return { votingEvent, tech, votingEventsCollection };
+        }),
+        concatMap(updateTechRecommendation),
+    );
+}
+
+export function setRecommendation(
+    votingEventsCollection: Collection,
+    params: { votingEventId: string; technologyName: string; recommendation: Recommendation },
+) {
+    return getVotingEvent(votingEventsCollection, params.votingEventId).pipe(
+        map(votingEvent => {
+            if (!votingEvent) {
+                throw new Error(`VotingEvent ${votingEvent.name} not found`);
+            }
+            const tech = votingEvent.technologies.find(t => t.name === params.technologyName);
+            if (!tech) {
+                throw new Error(`Technologgy ${params.technologyName} not found in VotingEvent ${votingEvent.name}`);
+            }
+            if (tech.recommendandation && tech.recommendandation.author !== params.recommendation.author) {
+                // create a copy of the error to be able to set safely the name of the author of the
+                // request to reset the recommendation
+                const err = { ...ERRORS.recommendationAuthorDifferent };
+                err.message = `The current author of the recommendation "${tech.recommendandation.author}" 
+                is not the same who is sending the new recommendation "${params.recommendation.author}"`;
+                err.currentAuthor = tech.recommendandation.author;
+                throw err;
+            }
+            tech.recommendandation = params.recommendation;
+            tech.recommendandation.timestamp = new Date(Date.now()).toISOString();
             return { votingEvent, tech, votingEventsCollection };
         }),
         concatMap(updateTechRecommendation),
@@ -477,6 +508,7 @@ export function resetRecommendation(
                 const err = { ...ERRORS.recommendationAuthorDifferent };
                 err.message = `The current author of the recommendation "${tech.recommendandation.author}" 
                 is not the same who is requesting the reset "${params.requester}"`;
+                err.currentAuthor = tech.recommendandation.author;
                 throw err;
             }
             tech.recommendandation = null;

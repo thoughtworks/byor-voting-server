@@ -62,6 +62,7 @@ import {
     moveToNexFlowStep,
     setRecommendationAuthor,
     resetRecommendation,
+    setRecommendation,
 } from './voting-event-apis';
 
 import { executeTwBlipsCollection, findLatestEdition } from './tw-blips-collection-api';
@@ -118,6 +119,8 @@ export function isServiceKnown(service: ServiceNames) {
         service === ServiceNames.closeForRevote ||
         service === ServiceNames.moveToNexFlowStep ||
         service === ServiceNames.setRecommendationAuthor ||
+        service === ServiceNames.setRecommendation ||
+        service === ServiceNames.resetRecommendation ||
         service === ServiceNames.getConfiguration ||
         service === ServiceNames.authenticate ||
         service === ServiceNames.authenticateForVotingEvent ||
@@ -273,6 +276,8 @@ function executeMongoService(
         returnedObservable = moveToNexFlowStep(votingEventColl, votesColl, serviceData);
     } else if (service === ServiceNames.setRecommendationAuthor) {
         returnedObservable = setRecommendationAuthor(votingEventColl, serviceData);
+    } else if (service === ServiceNames.setRecommendation) {
+        returnedObservable = setRecommendation(votingEventColl, serviceData);
     } else if (service === ServiceNames.resetRecommendation) {
         returnedObservable = resetRecommendation(votingEventColl, serviceData);
     } else if (service === ServiceNames.authenticate) {

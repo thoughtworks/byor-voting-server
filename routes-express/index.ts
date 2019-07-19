@@ -129,8 +129,8 @@ router.post('/', function(req: Request, res: Response, _next: NextFunction) {
         sendResponse(serviceName, serviceResult, res);
     } else {
         logDebug('I pass through here default');
-        serviceResult = { error: `Service ${serviceName} not defined` };
-        sendResponse(serviceName, serviceResult, res);
+        const error = { error: `Service ${serviceName} not defined` };
+        sendError(serviceName, error, res, 310);
     }
 });
 

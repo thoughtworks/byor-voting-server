@@ -39,6 +39,7 @@ export enum ServiceNames {
     closeForRevote,
     moveToNexFlowStep,
     setRecommendationAuthor,
+    setRecommendation,
     resetRecommendation,
     getConfiguration,
     authenticate,

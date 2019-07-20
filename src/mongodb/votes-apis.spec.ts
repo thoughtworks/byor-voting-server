@@ -108,7 +108,366 @@ describe('CRUD operations on Votes collection', () => {
             );
     }).timeout(20000);
 
-    it('1.2 saves some votes and then aggreagates them', done => {
+    describe('1.2 saves some votes and then reads the votes of the voter', () => {
+        it(`1.2.1 Use nickName to identify the voter`, done => {
+            const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+            const votingEventName = 'Event where a voter votes using nickName to identify';
+            const voterId = { nickname: 'Nick the Voter' };
+
+            const tech0 = TEST_TECHNOLOGIES[0];
+            const ring0 = 'hold';
+            const tech1 = TEST_TECHNOLOGIES[1];
+            const ring1 = 'adopt';
+            let voterVotes: any[];
+
+            let votes: VoteCredentialized[];
+
+            let votingEvent;
+            let votingEventId;
+
+            initializeVotingEventsAndVotes(cachedDb.dbName)
+                .pipe(
+                    concatMap(() =>
+                        mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName }),
+                    ),
+                    tap(id => (votingEventId = id)),
+                    concatMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
+                    concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                    tap(vEvent => {
+                        votingEvent = vEvent;
+                        voterVotes = [
+                            {
+                                ring: ring0,
+                                technology: tech0,
+                                eventName: votingEvent.name,
+                                eventId: votingEvent._id,
+                                eventRound: 1,
+                            },
+                            {
+                                ring: ring1,
+                                technology: tech1,
+                                eventName: votingEvent.name,
+                                eventId: votingEvent._id,
+                                eventRound: 1,
+                            },
+                        ];
+                        votes = [
+                            {
+                                credentials: { votingEvent, voterId },
+                                votes: voterVotes,
+                            },
+                            {
+                                credentials: { votingEvent, voterId: { nickname: 'three A' } },
+                                votes: [
+                                    {
+                                        ring: 'hold',
+                                        technology: TEST_TECHNOLOGIES[0],
+                                        eventName: votingEvent.name,
+                                        eventId: votingEvent._id,
+                                        eventRound: 1,
+                                    },
+                                ],
+                            },
+                            {
+                                credentials: { votingEvent, voterId: { nickname: 'five A' } },
+                                votes: [
+                                    {
+                                        ring: 'hold',
+                                        technology: TEST_TECHNOLOGIES[0],
+                                        eventName: votingEvent.name,
+                                        eventId: votingEvent._id,
+                                        eventRound: 1,
+                                    },
+                                ],
+                            },
+                            {
+                                credentials: { votingEvent, voterId: { nickname: 'seven A' } },
+                                votes: [
+                                    {
+                                        ring: 'assess',
+                                        technology: TEST_TECHNOLOGIES[1],
+                                        eventName: votingEvent.name,
+                                        eventId: votingEvent._id,
+                                        eventRound: 1,
+                                    },
+                                ],
+                            },
+                        ];
+                    }),
+                    concatMap(() =>
+                        forkJoin(votes.map(vote => mongodbService(cachedDb, ServiceNames.saveVotes, vote))),
+                    ),
+                    concatMap(() => mongodbService(cachedDb, ServiceNames.getVotes, { votingEvent, voterId })),
+                    tap((votes: Vote[]) => {
+                        expect(votes.length).equal(voterVotes.length);
+                        expect(votes[0].technology.name).equal(tech0.name);
+                        expect(votes[0].ring).equal(ring0);
+                        expect(votes[1].technology.name).equal(tech1.name);
+                        expect(votes[1].ring).equal(ring1);
+                    }),
+                    concatMap(() =>
+                        mongodbService(cachedDb, ServiceNames.getVotes, {
+                            votingEvent,
+                            voterId: { nickame: 'I have not Nick' },
+                        }),
+                    ),
+                    tap((votes: Vote[]) => {
+                        expect(votes.length).equal(0);
+                    }),
+                )
+                .subscribe(
+                    null,
+                    err => {
+                        cachedDb.client.close();
+                        done(err);
+                    },
+                    () => {
+                        cachedDb.client.close();
+                        done();
+                    },
+                );
+        }).timeout(20000);
+
+        it(`1.2.2 Use the userId to identify the voter`, done => {
+            const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+            const votingEventName = 'Event where a voter votes using userId to identify';
+            const voterId = { userId: 'UserId the Voter' };
+
+            const tech0 = TEST_TECHNOLOGIES[0];
+            const ring0 = 'hold';
+            const tech1 = TEST_TECHNOLOGIES[1];
+            const ring1 = 'adopt';
+            let voterVotes: any[];
+
+            let votes: VoteCredentialized[];
+
+            let votingEvent;
+            let votingEventId;
+
+            initializeVotingEventsAndVotes(cachedDb.dbName)
+                .pipe(
+                    concatMap(() =>
+                        mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName }),
+                    ),
+                    tap(id => (votingEventId = id)),
+                    concatMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
+                    concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                    tap(vEvent => {
+                        votingEvent = vEvent;
+                        voterVotes = [
+                            {
+                                ring: ring0,
+                                technology: tech0,
+                                eventName: votingEvent.name,
+                                eventId: votingEvent._id,
+                                eventRound: 1,
+                            },
+                            {
+                                ring: ring1,
+                                technology: tech1,
+                                eventName: votingEvent.name,
+                                eventId: votingEvent._id,
+                                eventRound: 1,
+                            },
+                        ];
+                        votes = [
+                            {
+                                credentials: { votingEvent, voterId },
+                                votes: voterVotes,
+                            },
+                            {
+                                credentials: { votingEvent, voterId: { nickname: 'three A' } },
+                                votes: [
+                                    {
+                                        ring: 'hold',
+                                        technology: TEST_TECHNOLOGIES[0],
+                                        eventName: votingEvent.name,
+                                        eventId: votingEvent._id,
+                                        eventRound: 1,
+                                    },
+                                ],
+                            },
+                            {
+                                credentials: { votingEvent, voterId: { nickname: 'five A' } },
+                                votes: [
+                                    {
+                                        ring: 'hold',
+                                        technology: TEST_TECHNOLOGIES[0],
+                                        eventName: votingEvent.name,
+                                        eventId: votingEvent._id,
+                                        eventRound: 1,
+                                    },
+                                ],
+                            },
+                            {
+                                credentials: { votingEvent, voterId: { nickname: 'seven A' } },
+                                votes: [
+                                    {
+                                        ring: 'assess',
+                                        technology: TEST_TECHNOLOGIES[1],
+                                        eventName: votingEvent.name,
+                                        eventId: votingEvent._id,
+                                        eventRound: 1,
+                                    },
+                                ],
+                            },
+                        ];
+                    }),
+                    concatMap(() =>
+                        forkJoin(votes.map(vote => mongodbService(cachedDb, ServiceNames.saveVotes, vote))),
+                    ),
+                    concatMap(() => mongodbService(cachedDb, ServiceNames.getVotes, { votingEvent, voterId })),
+                    tap((votes: Vote[]) => {
+                        expect(votes.length).equal(voterVotes.length);
+                        expect(votes[0].technology.name).equal(tech0.name);
+                        expect(votes[0].ring).equal(ring0);
+                        expect(votes[1].technology.name).equal(tech1.name);
+                        expect(votes[1].ring).equal(ring1);
+                    }),
+                    concatMap(() =>
+                        mongodbService(cachedDb, ServiceNames.getVotes, {
+                            votingEvent,
+                            voterId: { nickame: 'I have not UserId' },
+                        }),
+                    ),
+                    tap((votes: Vote[]) => {
+                        expect(votes.length).equal(0);
+                    }),
+                )
+                .subscribe(
+                    null,
+                    err => {
+                        cachedDb.client.close();
+                        done(err);
+                    },
+                    () => {
+                        cachedDb.client.close();
+                        done();
+                    },
+                );
+        }).timeout(20000);
+
+        it(`1.2.3 Use firstName and lastName to identify the voter`, done => {
+            const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+            const votingEventName = 'Event where a voter votes with firstName and lastName';
+            const voterId = { firstName: 'Voter First Name A', lastName: 'Voter Last Name  A' };
+
+            const tech0 = TEST_TECHNOLOGIES[0];
+            const ring0 = 'hold';
+            const tech1 = TEST_TECHNOLOGIES[1];
+            const ring1 = 'adopt';
+            let voterVotes: any[];
+
+            let votes: VoteCredentialized[];
+
+            let votingEvent;
+            let votingEventId;
+
+            initializeVotingEventsAndVotes(cachedDb.dbName)
+                .pipe(
+                    concatMap(() =>
+                        mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName }),
+                    ),
+                    tap(id => (votingEventId = id)),
+                    concatMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
+                    concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                    tap(vEvent => {
+                        votingEvent = vEvent;
+                        voterVotes = [
+                            {
+                                ring: ring0,
+                                technology: tech0,
+                                eventName: votingEvent.name,
+                                eventId: votingEvent._id,
+                                eventRound: 1,
+                            },
+                            {
+                                ring: ring1,
+                                technology: tech1,
+                                eventName: votingEvent.name,
+                                eventId: votingEvent._id,
+                                eventRound: 1,
+                            },
+                        ];
+                        votes = [
+                            {
+                                credentials: { votingEvent, voterId },
+                                votes: voterVotes,
+                            },
+                            {
+                                credentials: { votingEvent, voterId: { firstName: 'three A', lastName: 'four A' } },
+                                votes: [
+                                    {
+                                        ring: 'hold',
+                                        technology: TEST_TECHNOLOGIES[0],
+                                        eventName: votingEvent.name,
+                                        eventId: votingEvent._id,
+                                        eventRound: 1,
+                                    },
+                                ],
+                            },
+                            {
+                                credentials: { votingEvent, voterId: { firstName: 'five A', lastName: 'six A' } },
+                                votes: [
+                                    {
+                                        ring: 'hold',
+                                        technology: TEST_TECHNOLOGIES[0],
+                                        eventName: votingEvent.name,
+                                        eventId: votingEvent._id,
+                                        eventRound: 1,
+                                    },
+                                ],
+                            },
+                            {
+                                credentials: { votingEvent, voterId: { firstName: 'seven A', lastName: 'eight A' } },
+                                votes: [
+                                    {
+                                        ring: 'assess',
+                                        technology: TEST_TECHNOLOGIES[1],
+                                        eventName: votingEvent.name,
+                                        eventId: votingEvent._id,
+                                        eventRound: 1,
+                                    },
+                                ],
+                            },
+                        ];
+                    }),
+                    concatMap(() =>
+                        forkJoin(votes.map(vote => mongodbService(cachedDb, ServiceNames.saveVotes, vote))),
+                    ),
+                    concatMap(() => mongodbService(cachedDb, ServiceNames.getVotes, { votingEvent, voterId })),
+                    tap((votes: Vote[]) => {
+                        expect(votes.length).equal(voterVotes.length);
+                        expect(votes[0].technology.name).equal(tech0.name);
+                        expect(votes[0].ring).equal(ring0);
+                        expect(votes[1].technology.name).equal(tech1.name);
+                        expect(votes[1].ring).equal(ring1);
+                    }),
+                    concatMap(() =>
+                        mongodbService(cachedDb, ServiceNames.getVotes, {
+                            votingEvent,
+                            voterId: { firstName: 'I have not', lastName: 'voted yet' },
+                        }),
+                    ),
+                    tap((votes: Vote[]) => {
+                        expect(votes.length).equal(0);
+                    }),
+                )
+                .subscribe(
+                    null,
+                    err => {
+                        cachedDb.client.close();
+                        done(err);
+                    },
+                    () => {
+                        cachedDb.client.close();
+                        done();
+                    },
+                );
+        }).timeout(20000);
+    });
+
+    it('1.2.2 saves some votes and then aggreagates them', done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
         const votingEventName = 'event A';
         let votingEvent;

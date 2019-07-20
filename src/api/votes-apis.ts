@@ -24,14 +24,27 @@ import { getObjectId } from './utils';
 import { logError } from '../lib/utils';
 import { Credentials } from '../model/credentials';
 
-export function getVotes(votesColl: Collection, id?: string | { eventId: string }): Observable<Vote[]> {
-    let eventId: any;
-    if (id && typeof id === 'string') {
-        eventId = id;
-    } else if (id) {
-        eventId = id['eventId'];
+export function getVotes(
+    votesColl: Collection,
+    params?: string | { eventId: string; voterId?: any },
+): Observable<Vote[]> {
+    let _eventId: any;
+    if (params && typeof params === 'string') {
+        _eventId = params;
+    } else if (params) {
+        _eventId = params['eventId'];
     }
-    const selector = eventId ? { cancelled: { $exists: false }, eventId } : { cancelled: { $exists: false } };
+    let selector: any = _eventId
+        ? { cancelled: { $exists: false }, eventId: _eventId }
+        : { cancelled: { $exists: false } };
+    if (params && params['voterId']) {
+        const upperCaseVoterId: any = {};
+        const voterId = params['voterId'];
+        for (const key in voterId) {
+            upperCaseVoterId[key] = voterId[key].toUpperCase();
+        }
+        selector.voterId = upperCaseVoterId;
+    }
     return findObs(votesColl, selector).pipe(toArray());
 }
 export function getAllVotes(votesColl: Collection): Observable<Vote[]> {
@@ -122,10 +135,16 @@ function voterIdToUpperCase(voterId: { firstName: string; lastName: string } | C
             lastName: voterId['lastName'].toUpperCase().trim(),
         };
     } else {
-        resp = {
-            nickname: voterId['nickname'] ? voterId['nickname'].toUpperCase().trim() : '',
-            userId: voterId['userId'] ? voterId['userId'].toUpperCase().trim() : '',
-        };
+        if (voterId['nickname']) {
+            resp = {
+                nickname: voterId['nickname'].toUpperCase().trim(),
+            };
+        }
+        if (voterId['userId']) {
+            resp = {
+                userId: voterId['userId'].toUpperCase().trim(),
+            };
+        }
     }
     return resp;
 }

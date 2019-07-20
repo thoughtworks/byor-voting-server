@@ -1,3 +1,17 @@
+# [1.9.0](https://github.com/thoughtworks/byor-voting-server/compare/v1.8.0...v1.9.0) (2019-07-20)
+
+
+### Bug Fixes
+
+* **fetchVotingEvidences api:** reset votingResult any time it is recalculated ([f33fcb2](https://github.com/thoughtworks/byor-voting-server/commit/f33fcb2))
+
+
+### Features
+
+* **getVotes:** getVotes for a single voter ([480d087](https://github.com/thoughtworks/byor-voting-server/commit/480d087))
+* **setRecommendation API:** setRecommendation API added ([e28ab57](https://github.com/thoughtworks/byor-voting-server/commit/e28ab57))
+* **setRecommendationAuthor and resetRecommendation:** setRecommendationAuthor and resetRecommendati ([2258d9a](https://github.com/thoughtworks/byor-voting-server/commit/2258d9a))
+
 # [1.8.0](https://github.com/thoughtworks/byor-voting-server/compare/v1.7.0...v1.8.0) (2019-07-14)
 
 

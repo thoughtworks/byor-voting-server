@@ -133,7 +133,7 @@ describe('Votes', () => {
             assert.calledWith(findObs, votesCollection, { cancelled: { $exists: false } });
         });
         it('when called with string id gets the votes for that id', () => {
-            getVotes(votesCollection, 'abc123').subscribe(
+            getVotes(votesCollection, { eventId: 'abc123' }).subscribe(
                 value => {
                     expect(value).to.deep.equal(votes);
                 },

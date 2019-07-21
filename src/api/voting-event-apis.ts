@@ -70,7 +70,7 @@ function _getVotingEventWithNumberOfCommentsAndVotes(
     _id: any,
 ) {
     const eventId = _id._id ? _id._id : _id;
-    return forkJoin(getVotingEvent(votingEventsCollection, _id), getVotes(votesCollection, eventId)).pipe(
+    return forkJoin(getVotingEvent(votingEventsCollection, _id), getVotes(votesCollection, { eventId })).pipe(
         map(([votingEvent, votes]) => {
             if (!votingEvent) throw Error(`No Voting Event present with ID ${_id}`);
             const technologies = votingEvent.technologies;
@@ -219,7 +219,7 @@ export function undoCancelVotingEvent(
     );
 }
 export function getVoters(votesColl: Collection, params: { votingEvent: any }) {
-    return getVotes(votesColl, params.votingEvent._id).pipe(
+    return getVotes(votesColl, { eventId: params.votingEvent._id }).pipe(
         map(votes => {
             const voters = votes.map(vote => `${vote.voterId.firstName} ${vote.voterId.lastName}`);
             return Array.from(new Set(voters));
@@ -233,7 +233,7 @@ export function calculateWinner(
     params: { votingEvent: any },
 ) {
     // perform the calculation on the votes collection to extract the id of the winner
-    const winnerObs = getVotes(votesColl, params.votingEvent._id).pipe(
+    const winnerObs = getVotes(votesColl, { eventId: params.votingEvent._id }).pipe(
         // as first simulation I take the first one as winner
         map((votes: Vote[]) => votes[0]),
         map(vote => ({ winner: vote.voterId, ipAdrressWinner: vote.ipAddress })),

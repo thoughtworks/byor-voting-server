@@ -6,7 +6,7 @@ import { Collection, ObjectId } from 'mongodb';
 import { map as _map } from 'lodash';
 // import groupBy from 'lodash/groupBy';
 
-import { findObs, dropObs, insertManyObs, aggregateObs, updateOneObs } from 'observable-mongo';
+import { findObs, dropObs, insertManyObs, aggregateObs, updateOneObs, deleteObs } from 'observable-mongo';
 
 import { Vote } from '../model/vote';
 import { VoteCredentialized } from '../model/vote-credentialized';
@@ -26,20 +26,15 @@ import { Credentials } from '../model/credentials';
 
 export function getVotes(
     votesColl: Collection,
-    params?: string | { eventId: string; voterId?: any },
+    params?: { eventId: string; voterId?: { nickname?: string; userId?: string } },
 ): Observable<Vote[]> {
-    let _eventId: any;
-    if (params && typeof params === 'string') {
-        _eventId = params;
-    } else if (params) {
-        _eventId = params['eventId'];
-    }
-    let selector: any = _eventId
-        ? { cancelled: { $exists: false }, eventId: _eventId }
-        : { cancelled: { $exists: false } };
-    if (params && params['voterId']) {
+    let selector: any =
+        params && params.eventId
+            ? { cancelled: { $exists: false }, eventId: params.eventId }
+            : { cancelled: { $exists: false } };
+    if (params && params.voterId) {
         const upperCaseVoterId: any = {};
-        const voterId = params['voterId'];
+        const voterId = params.voterId;
         for (const key in voterId) {
             upperCaseVoterId[key] = voterId[key].toUpperCase();
         }
@@ -118,6 +113,14 @@ export function saveVotes(
         switchMap(() => hasAlreadyVoted(votesColl, votingEventColl, { credentials: vote.credentials })),
         switchMap(alreadyVoted => {
             if (alreadyVoted) {
+                if (vote.override) {
+                    const selector = {
+                        voterId: voterIdToUpperCase(vote.credentials.voterId),
+                    };
+                    return deleteObs(selector, votesColl).pipe(
+                        concatMap(() => insertManyObs(votesToInsert, votesColl)),
+                    );
+                }
                 return throwError(ERRORS.voteAlreadyPresent);
             } else {
                 return insertManyObs(votesToInsert, votesColl);

@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/thoughtworks/byor-voting-server/compare/v1.9.0...v1.10.0) (2019-07-21)
+
+
+### Features
+
+* **saveVotes:** saveVotes allows to override previous vote ([547444c](https://github.com/thoughtworks/byor-voting-server/commit/547444c))
+
 # [1.9.0](https://github.com/thoughtworks/byor-voting-server/compare/v1.8.0...v1.9.0) (2019-07-20)
 
 

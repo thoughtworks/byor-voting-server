@@ -764,6 +764,118 @@ describe('CRUD operations on Votes collection', () => {
             );
     }).timeout(20000);
 
+    it(`1.3.2 submits a vote using the override option even the first time`, done => {
+        const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+
+        const votingEventName = 'an event where the first vote specifies the override option';
+
+        let votingEvent: VotingEvent;
+
+        const voterId1: Credentials = { nickname: 'Nick the overrider' };
+        const voterId2: Credentials = { userId: 'User the overrider' };
+        const credentialsVoter1 = { votingEvent: null, voterId: voterId1 };
+        const credentialsVoter2 = { votingEvent: null, voterId: voterId2 };
+        let credentializedVoteVoter11: VoteCredentialized;
+        let credentializedVote2: VoteCredentialized;
+        let tech1: Technology;
+        let tech2: Technology;
+        const ringVoter1Tech1 = 'hold';
+        const ringVoter1Tech2 = 'adopt';
+        const ringVoter2 = 'hold';
+
+        let votingEventId;
+        initializeVotingEventsAndVotes(cachedDb.dbName)
+            .pipe(
+                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName })),
+                tap(id => (votingEventId = id)),
+                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
+                switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                // both voters vote for the first time
+                tap((vEvent: VotingEvent) => {
+                    votingEvent = vEvent;
+                    tech1 = vEvent.technologies[0];
+                    tech2 = vEvent.technologies[2];
+                    credentialsVoter1.votingEvent = vEvent;
+                    credentialsVoter2.votingEvent = vEvent;
+                    credentializedVoteVoter11 = {
+                        credentials: credentialsVoter1,
+                        votes: [
+                            {
+                                ring: ringVoter1Tech1,
+                                technology: tech1,
+                                eventName: credentialsVoter1.votingEvent.name,
+                                eventId: credentialsVoter1.votingEvent._id,
+                                eventRound: 1,
+                            },
+                            {
+                                ring: ringVoter1Tech2,
+                                technology: tech2,
+                                eventName: credentialsVoter1.votingEvent.name,
+                                eventId: credentialsVoter1.votingEvent._id,
+                                eventRound: 1,
+                            },
+                        ],
+                    };
+                    credentializedVote2 = {
+                        credentials: credentialsVoter2,
+                        votes: [
+                            {
+                                ring: ringVoter2,
+                                technology: tech1,
+                                eventName: credentialsVoter1.votingEvent.name,
+                                eventId: credentialsVoter1.votingEvent._id,
+                                eventRound: 1,
+                            },
+                            {
+                                ring: ringVoter2,
+                                technology: tech2,
+                                eventName: credentialsVoter1.votingEvent.name,
+                                eventId: credentialsVoter1.votingEvent._id,
+                                eventRound: 1,
+                            },
+                        ],
+                    };
+                }),
+                switchMap(() => mongodbService(cachedDb, ServiceNames.saveVotes, credentializedVoteVoter11)),
+                switchMap(() => mongodbService(cachedDb, ServiceNames.saveVotes, credentializedVote2)),
+
+                switchMap(() =>
+                    mongodbService(cachedDb, ServiceNames.getVotes, {
+                        votingEvent,
+                        voterId: voterId1,
+                    }),
+                ),
+                tap((votes: Vote[]) => {
+                    expect(votes.length).to.equal(2);
+                    const v1 = votes.find(v => v.technology.name === tech1.name);
+                    expect(v1.ring).to.equal(ringVoter1Tech1);
+                    const v2 = votes.find(v => v.technology.name === tech2.name);
+                    expect(v2.ring).to.equal(ringVoter1Tech2);
+                }),
+                switchMap(() =>
+                    mongodbService(cachedDb, ServiceNames.getVotes, {
+                        votingEvent,
+                        voterId: voterId2,
+                    }),
+                ),
+                tap((votes: Vote[]) => {
+                    expect(votes.length).to.equal(2);
+                    votes.forEach(v => expect(v.ring).to.equal(ringVoter2));
+                }),
+            )
+            .subscribe(
+                null,
+                err => {
+                    cachedDb.client.close();
+                    done(err);
+                },
+                () => {
+                    cachedDb.client.close();
+                    done();
+                },
+            );
+    }).timeout(20000);
+
     it('1.4 saves some votes on different voting events and reads the ones of one voting event', done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
 

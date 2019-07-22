@@ -6,6 +6,7 @@ export function noAuthServiceNames() {
         ServiceNames[ServiceNames.hasAlreadyVoted],
         ServiceNames[ServiceNames.getVotingEvent],
         ServiceNames[ServiceNames.getConfiguration],
+        ServiceNames[ServiceNames.getVotes],
         ServiceNames[ServiceNames.saveVotes],
         ServiceNames[ServiceNames.addNewTechnologyToEvent],
         ServiceNames[ServiceNames.calculateBlipsFromAllEvents],

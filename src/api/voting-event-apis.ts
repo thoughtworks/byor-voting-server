@@ -443,7 +443,7 @@ export function setRecommendationAuthor(
                 // create a copy of the error to be able to set safely the name of the author of the recommendation in
                 // the error message
                 const err = { ...ERRORS.recommendationAuthorAlreadySet };
-                err.message = `Recommendation already taken by ${tech.recommendandation.author}`;
+                err.message = `Recommendation already taken by "${tech.recommendandation.author}"`;
                 err.currentAuthor = tech.recommendandation.author;
                 throw err;
             }

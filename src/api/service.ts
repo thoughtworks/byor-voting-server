@@ -65,7 +65,7 @@ import {
     setRecommendation,
 } from './voting-event-apis';
 
-import { executeTwBlipsCollection, findLatestEdition } from './tw-blips-collection-api';
+import { executeTwBlipsCollection, findLatestEdition, getBlipHistoryForTech } from './tw-blips-collection-api';
 import { getConfiguration } from './configuration-apis';
 import { authenticate, authenticateForVotingEvent, addUsersWithRole, deleteUsers } from './authentication-api';
 import { saveLog } from './client-log-apis';
@@ -126,7 +126,8 @@ export function isServiceKnown(service: ServiceNames) {
         service === ServiceNames.authenticateForVotingEvent ||
         service === ServiceNames.addUsersWithRole ||
         service === ServiceNames.deleteUsers ||
-        service === ServiceNames.saveLogInfo
+        service === ServiceNames.saveLogInfo ||
+        service === ServiceNames.getBlipHistoryForTech
     );
 }
 
@@ -193,6 +194,7 @@ function executeMongoService(
     const configurationColl = db.collection(config.configurationCollection);
     const usersColl = db.collection(config.usersCollection);
     const logColl = db.collection(config.logCollection);
+    const twBlipsColl = db.collection(config.twBlipsCollection);
 
     let returnedObservable: Observable<any>;
     const timeOut = mongoTimeout ? mongoTimeout : config.defautlTimeout;
@@ -290,6 +292,8 @@ function executeMongoService(
         returnedObservable = deleteUsers(usersColl, serviceData);
     } else if (service === ServiceNames.saveLogInfo) {
         returnedObservable = saveLog(logColl, serviceData, ipAddress);
+    } else if (service === ServiceNames.getBlipHistoryForTech) {
+        returnedObservable = getBlipHistoryForTech(twBlipsColl, serviceData);
     } else {
         const serviceResult = { error: 'Mongo Service ' + service + ' not defined' };
         returnedObservable = throwError(serviceResult);

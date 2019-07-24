@@ -104,7 +104,7 @@ export function saveVotes(
                     tags: v.tags,
                 };
                 if (v.comment) {
-                    const comment = buildComment(v.comment.text, `${voterId.firstName} ${voterId.lastName}`);
+                    const comment = buildComment(v.comment.text, `${voterId.userId || voterId.nickname}`);
                     voteToSave.comment = comment;
                 }
                 return voteToSave;

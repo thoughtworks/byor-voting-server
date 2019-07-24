@@ -47,4 +47,5 @@ export enum ServiceNames {
     addUsersWithRole,
     deleteUsers,
     saveLogInfo,
+    getBlipHistoryForTech,
 }

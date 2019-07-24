@@ -17,5 +17,6 @@ export function noAuthServiceNames() {
         ServiceNames[ServiceNames.noservice],
         ServiceNames[ServiceNames.version],
         ServiceNames[ServiceNames.saveLogInfo],
+        ServiceNames[ServiceNames.getBlipHistoryForTech],
     ];
 }

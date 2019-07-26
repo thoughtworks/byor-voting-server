@@ -19,10 +19,11 @@ else
     vars="AWS_SERVICE_STAGE,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_REGION,MONGO_HOME,MONGO_HOST,MONGO_USER,MONGO_PWD,MONGO_AUTH_DB,MONGO_DB_NAME,MONGO_URI"
     IFS=',' read -r -a vars_list <<< "$vars"
     for var in ${vars_list[@]}; do 
-        if [ -z "${BYOR_ENV}_${var}" ]; then 
-            export "${var}"="${BYOR_ENV}_${var}"; 
+        if [ -z "${BYOR_ENV}_${var}" ]; then
+            BYOR_ENV_VAR="${BYOR_ENV}_${var}"
+            export "${var}"="${!BYOR_ENV_VAR}";
         else 
-            export "${var}"="${var}"; 
+            export "${var}"="${!var}";
         fi
     done
 fi

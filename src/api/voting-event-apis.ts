@@ -17,6 +17,7 @@ import { buildComment, findComment } from '../model/comment';
 import { Comment } from '../model/comment';
 import { CorporateVotingEventFlow } from '../voting-event-flow-templates/corporate-voting-event-flow';
 import { VotingEventFlow } from '../model/voting-event-flow';
+import { Credentials } from '../model/credentials';
 
 // if skynny is true then 'blips' and 'technologies' propertires are removed to reduce the size of the data
 export function getVotingEvents(votingEventsCollection: Collection, params?: { full: boolean; all?: boolean }) {
@@ -115,15 +116,28 @@ export function saveVotingEvents(votingEventsCollection: Collection, votingEvent
 }
 export function createNewVotingEvent(
     votingEventsCollection: Collection,
-    votingEvent: { name: string; flow: VotingEventFlow },
+    params: {
+        name: string;
+        flow?: VotingEventFlow;
+        creator: Credentials;
+        initiativeName?: string;
+        initiativeId?: string;
+    },
 ) {
     const newVotingEvent: VotingEvent = {
-        name: votingEvent.name,
+        name: params.name,
         status: 'closed',
         creationTS: new Date(Date.now()).toISOString(),
+        creator: params.creator,
     };
-    if (votingEvent.flow) {
-        newVotingEvent.flow = votingEvent.flow;
+    if (params.flow) {
+        newVotingEvent.flow = params.flow;
+    }
+    if (params.initiativeName) {
+        newVotingEvent.initiativeName = params.initiativeName;
+    }
+    if (params.initiativeId) {
+        newVotingEvent.initiativeId = params.initiativeId;
     }
     return saveVotingEvents(votingEventsCollection, [newVotingEvent]).pipe(map(ids => ids[0]));
 }

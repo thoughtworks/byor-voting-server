@@ -48,4 +48,8 @@ export enum ServiceNames {
     deleteUsers,
     saveLogInfo,
     getBlipHistoryForTech,
+    createInitiative,
+    getInititives,
+    cancelInitiative,
+    undoCancelInitiative,
 }

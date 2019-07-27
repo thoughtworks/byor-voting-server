@@ -74,6 +74,7 @@ import { defaultTWTechnologies } from '../model/technologies.local-data';
 import { VOTES } from '../model/vote.local-data';
 import { version } from './version';
 import { logError } from '../lib/utils';
+import { createInitiative, getInititives, cancelInitiative } from './initiative-api';
 export interface CachedDB {
     dbName: string;
     db: Db;
@@ -127,7 +128,11 @@ export function isServiceKnown(service: ServiceNames) {
         service === ServiceNames.addUsersWithRole ||
         service === ServiceNames.deleteUsers ||
         service === ServiceNames.saveLogInfo ||
-        service === ServiceNames.getBlipHistoryForTech
+        service === ServiceNames.getBlipHistoryForTech ||
+        service === ServiceNames.createInitiative ||
+        service === ServiceNames.getInititives ||
+        service === ServiceNames.cancelInitiative ||
+        service === ServiceNames.undoCancelInitiative
     );
 }
 
@@ -195,6 +200,7 @@ function executeMongoService(
     const usersColl = db.collection(config.usersCollection);
     const logColl = db.collection(config.logCollection);
     const twBlipsColl = db.collection(config.twBlipsCollection);
+    const initiativeColl = db.collection(config.initiativeCollection);
 
     let returnedObservable: Observable<any>;
     const timeOut = mongoTimeout ? mongoTimeout : config.defautlTimeout;
@@ -294,6 +300,12 @@ function executeMongoService(
         returnedObservable = saveLog(logColl, serviceData, ipAddress);
     } else if (service === ServiceNames.getBlipHistoryForTech) {
         returnedObservable = getBlipHistoryForTech(twBlipsColl, serviceData);
+    } else if (service === ServiceNames.createInitiative) {
+        returnedObservable = createInitiative(initiativeColl, serviceData);
+    } else if (service === ServiceNames.getInititives) {
+        returnedObservable = getInititives(initiativeColl, serviceData);
+    } else if (service === ServiceNames.cancelInitiative) {
+        returnedObservable = cancelInitiative(initiativeColl, votingEventColl, votesColl, serviceData);
     } else {
         const serviceResult = { error: 'Mongo Service ' + service + ' not defined' };
         returnedObservable = throwError(serviceResult);

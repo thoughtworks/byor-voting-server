@@ -13,6 +13,7 @@ export const config = {
     usersCollection: 'users',
     logCollection: 'log',
     migrationsCollection: 'migrations',
+    initiativeCollection: 'initiatives',
 
     thresholdForRevote: 10,
 };

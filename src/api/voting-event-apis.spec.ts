@@ -40,24 +40,28 @@ describe('Voting Events API', () => {
             status: 'open',
             round: 1,
             creationTS: '2019-02-14T14:08:10.410Z',
+            creator: { userId: 'the creator' },
         },
         {
             _id: new ObjectId('111111111111111111111111'),
             name: 'codemotion',
             status: 'closed',
             creationTS: '2019-02-12T14:08:10.410Z',
+            creator: { userId: 'the creator' },
         },
         {
             _id: new ObjectId('222222222222222222222222'),
             name: 'devoox',
             status: 'open',
             creationTS: '2019-02-16T14:08:10.410Z',
+            creator: { userId: 'the creator' },
         },
         {
             _id: new ObjectId('333333333333333333333333'),
             name: 'codemotion',
             status: 'closed',
             creationTS: '2019-02-08T14:08:10.410Z',
+            creator: { userId: 'the creator' },
         },
     ];
 
@@ -241,7 +245,11 @@ describe('Voting Events API', () => {
 
     describe('createNewVotingEvent', () => {
         it('creates a new voting event', () => {
-            createNewVotingEvent(collection, { name: 'Ng-Conf', flow: null }).subscribe(id => {
+            createNewVotingEvent(collection, {
+                name: 'Ng-Conf',
+                flow: null,
+                creator: { userId: 'the creator' },
+            }).subscribe(id => {
                 expect(id).to.equal(1);
             });
             sinon.assert.calledWith(insertManyObs, sinon.match.array, collection);

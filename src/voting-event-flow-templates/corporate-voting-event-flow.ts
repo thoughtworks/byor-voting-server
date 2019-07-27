@@ -1,5 +1,13 @@
 import { VotingEventFlow } from '../model/voting-event-flow';
 
+export const CORPORATE_VOTING_EVENT_TAGS = [
+    'Prod Experience',
+    'Personal Project',
+    'Blogs-Conferences',
+    'Training',
+    'Colleagues',
+];
+
 export const CorporateVotingEventFlow: VotingEventFlow = {
     steps: [
         {
@@ -10,7 +18,7 @@ export const CorporateVotingEventFlow: VotingEventFlow = {
                 parameters: {
                     commentOnVoteBlocked: false,
                     allowTagsOnVote: true,
-                    tags: ['Prod Experience', 'Personal Project', 'Blogs-Conferences', 'Training', 'Colleagues'],
+                    tags: CORPORATE_VOTING_EVENT_TAGS,
                 },
             },
         },
@@ -22,7 +30,7 @@ export const CorporateVotingEventFlow: VotingEventFlow = {
                 parameters: {
                     displayVotesAndCommentNumbers: true,
                     allowTagsOnVote: true,
-                    tags: ['Prod Experience', 'Personal Project', 'Blogs-Conferences', 'Training', 'Colleagues'],
+                    tags: CORPORATE_VOTING_EVENT_TAGS,
                 },
             },
         },

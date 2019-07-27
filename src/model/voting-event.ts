@@ -1,5 +1,6 @@
 import { Technology } from './technology';
 import { VotingEventFlow } from './voting-event-flow';
+import { Credentials } from './credentials';
 
 export type VotingEventStatus = 'open' | 'closed';
 
@@ -16,4 +17,7 @@ export interface VotingEvent {
     hasTechnologiesForRevote?: boolean;
     url?: string;
     flow?: VotingEventFlow;
+    creator: Credentials;
+    initiativeName?: string;
+    initiativeId?: string;
 }

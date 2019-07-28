@@ -122,13 +122,25 @@ export function authenticateForVotingEvent(
     );
 }
 
-export function addUsersWithRole(usersColl: Collection<any>, params: { users: { user: string; role: string }[] }) {
+export function addUsersWithRole(
+    usersColl: Collection<any>,
+    params: { users: { user: string; role: string }[]; initiativeId: string; initiativeName: string },
+) {
     const dataGroupedByUser = groupBy(params.users, 'user');
     const usersWithGroups = Object.keys(dataGroupedByUser).map(user => {
         const groups = dataGroupedByUser[user].map(item => item.role);
         return { user, groups };
     });
-    return forkJoin(usersWithGroups.map(user => updateOneObs({ user: user.user }, user, usersColl, { upsert: true })));
+    return forkJoin(
+        usersWithGroups.map(user =>
+            updateOneObs(
+                { user: user.user, initiativeId: params.initiativeId, initiativeName: params.initiativeName },
+                user,
+                usersColl,
+                { upsert: true },
+            ),
+        ),
+    );
 }
 
 export function deleteUsers(usersColl: Collection<any>, params: { users: string[] }) {

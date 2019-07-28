@@ -260,6 +260,21 @@ export function calculateWinner(
     );
 }
 
+export function setTechologiesForEvent(
+    votingEventsCollection: Collection,
+    params: { _id: string; technologies: Technology[] },
+) {
+    return getVotingEvent(votingEventsCollection, params._id).pipe(
+        concatMap(votingEvent => {
+            if (!votingEvent) {
+                throw ERRORS.votingEventNotExisting;
+            }
+            params.technologies.forEach(t => (t._id = new ObjectId()));
+            const dataToUpdate = { technologies: params.technologies };
+            return updateOneObs({ _id: votingEvent._id }, dataToUpdate, votingEventsCollection);
+        }),
+    );
+}
 export function addNewTechnologyToEvent(
     votingEventsCollection: Collection,
     params: { _id: string; technology: Technology },

@@ -16,7 +16,7 @@ export function getTechnologies(technologiesColl: Collection, options?: { readAl
         map(technologies => ({ technologies })),
     );
 }
-export function laodTechnologies(technologiesColl: Collection, technologies) {
+export function laodTechnologies(technologiesColl: Collection, technologies: Technology[]) {
     return dropObs(technologiesColl).pipe(
         switchMap(() => technologiesColl.insertMany(technologies)),
         map(result => ({ result })),

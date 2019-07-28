@@ -1436,4 +1436,42 @@ describe('Operations on votingevents collection', () => {
                 },
             );
     }).timeout(10000);
+
+    it('2.8 create a voting event and then set its technologies', done => {
+        const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+
+        const newVotingEvent = { name: 'A Voting Event for which we set the technologies' };
+        const technologies: Technology[] = [
+            { name: 'The first tech', description: 'first tech', quadrant: 'tools', isNew: true },
+            { name: 'The second tech', description: 'second tech', quadrant: 'tools', isNew: false },
+        ];
+        let votingEventId: string;
+
+        initializeVotingEventsAndVotes(cachedDb.dbName)
+            .pipe(
+                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, newVotingEvent)),
+                tap(_id => (votingEventId = _id)),
+                switchMap(() =>
+                    mongodbService(cachedDb, ServiceNames.setTechologiesForEvent, { _id: votingEventId, technologies }),
+                ),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, { _id: votingEventId })),
+            )
+            .subscribe(
+                (votingEvent: VotingEvent) => {
+                    expect(votingEvent).to.be.not.undefined;
+                    expect(votingEvent.technologies).to.be.not.undefined;
+                    expect(votingEvent.technologies.length).equal(technologies.length);
+                    expect(votingEvent.technologies[0]._id).to.be.not.undefined;
+                },
+                err => {
+                    cachedDb.client.close();
+                    logError(err);
+                    done(err);
+                },
+                () => {
+                    cachedDb.client.close();
+                    done();
+                },
+            );
+    }).timeout(10000);
 });

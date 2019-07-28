@@ -30,6 +30,7 @@ export enum ServiceNames {
     cancelVotingEvent,
     calculateWinner,
     getVoters,
+    setTechologiesForEvent,
     addNewTechnologyToEvent,
     addCommentToTech,
     addReplyToTechComment,

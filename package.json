@@ -28,7 +28,8 @@
         "cancel-voting-event": "npx ts-node src/mongodb/scripts/cancel-voting-event.exec",
         "semantic-release": "npx semantic-release",
         "serverless": "npx serverless offline start",
-        "load-voting-event-sample": "npx ts-node-dev --nolazy --transpileOnly -- ./src/voting-event-flow-templates/create-voting-events-from-templates"
+        "load-voting-event-sample": "npx ts-node-dev --nolazy --transpileOnly -- ./src/voting-event-flow-templates/create-voting-events-from-templates",
+        "initialize-sample-environment": "npx ts-node-dev --nolazy --transpileOnly -- ./src/mongodb/scripts/initialize-sample-environment/initialize-sample-environment"
     },
     "author": "",
     "license": "ISC",

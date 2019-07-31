@@ -17,7 +17,8 @@ export interface VotingEvent {
     hasTechnologiesForRevote?: boolean;
     url?: string;
     flow?: VotingEventFlow;
-    creator: Credentials;
+    owner: Credentials;
+    administrators?: string[];
     initiativeName?: string;
     initiativeId?: string;
 }

@@ -1,7 +1,7 @@
 import { concatMap, tap, map, finalize, toArray } from 'rxjs/operators';
 import { mongodbService, CachedDB } from '../../../api/service';
 import { config } from '../../../api/config';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import { connectObs, updateOneObs } from 'observable-mongo';
 import { ServiceNames } from '../../../service-names';
 import { VotingEvent } from '../../../model/voting-event';
@@ -9,27 +9,36 @@ import {
     CorporateVotingEventFlow,
     CORPORATE_VOTING_EVENT_TAGS,
 } from '../../../voting-event-flow-templates/corporate-voting-event-flow';
-import { CommunityVotingEventFlow } from '../../../voting-event-flow-templates/community-voting-event-flow';
+// import { CommunityVotingEventFlow } from '../../../voting-event-flow-templates/community-voting-event-flow';
 import { Credentials } from '../../../model/credentials';
 import { VoteCredentialized } from '../../../model/vote-credentialized';
 import { Initiative } from '../../../model/initiative';
 import { pipe } from 'rxjs';
 import { readCsvLineObs$ } from '../../../lib/observables';
+import { User } from '../../../model/user';
+import { createHeaders } from '../../test.utils';
 
 const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
 
 const initiative: Initiative = { name: 'Tech Radar for the Smart Company' };
+const initiativeFirstAdministrator: User = { user: 'init_admin@smart.com' };
+const initiativeFirstAdministratorPwd = 'adminPwd';
+const initiativeOtherAdministrators = [
+    { user: 'jackie@smart.com' },
+    { user: 'jack@smart.com' },
+    initiativeFirstAdministrator, // repeated - should neither generate errors nor create a new user
+];
 
 const companyEvent: VotingEvent = {
     name: 'The Smart Company Tech Radar',
     flow: CorporateVotingEventFlow,
-    creator: { userId: 'the setupper' },
+    owner: { userId: 'the setupper' },
 };
-const communityEvent: VotingEvent = {
-    name: 'A Radar the Smart Company organizes for a Community Event',
-    flow: CommunityVotingEventFlow,
-    creator: { userId: 'the setupper' },
-};
+// const communityEvent: VotingEvent = {
+//     name: 'A Radar the Smart Company organizes for a Community Event',
+//     flow: CommunityVotingEventFlow,
+//     owner: { userId: 'the setupper' },
+// };
 
 const tony_dev: Credentials = { nickname: 'Tony the Dev' };
 const mary_dev: Credentials = { nickname: 'Mary the mighty Dev' };
@@ -49,7 +58,11 @@ initializeConn(cachedDb.dbName)
     .pipe(
         cleanDb(),
         createInitiative(),
+        authenticateInitiativeAdministrator(),
+        loadAdministratorsForInitiative(),
         createSmartCompanyEvent(),
+        loadTechnologiesForVotingEvent(),
+        openVotingEvent(),
         tonyDevVotes(),
         maryDevVotes(),
         kentDevVotes(),
@@ -69,30 +82,96 @@ initializeConn(cachedDb.dbName)
 
 function cleanDb() {
     return pipe(
-        concatMap(() =>
-            mongodbService(cachedDb, ServiceNames.cancelVotingEvent, { name: companyEvent.name, hard: true }),
-        ),
-        concatMap(() =>
-            mongodbService(cachedDb, ServiceNames.cancelVotingEvent, { name: communityEvent.name, hard: true }),
-        ),
+        concatMap(() => mongodbService(cachedDb, ServiceNames.cancelInitiative, { name: initiative.name, hard: true })),
     );
 }
 
 function createInitiative() {
-    return pipe(concatMap(() => mongodbService(cachedDb, ServiceNames.createInitiative, { name: initiative.name })));
+    return pipe(
+        concatMap(() =>
+            mongodbService(cachedDb, ServiceNames.createInitiative, {
+                name: initiative.name,
+                administrator: initiativeFirstAdministrator,
+            }).pipe(map((initiativeId: ObjectId) => initiativeId.toHexString())),
+        ),
+    );
 }
 
+function authenticateInitiativeAdministrator() {
+    let initiativeId: string;
+    return pipe(
+        tap((initId: any) => (initiativeId = initId)),
+        // authenticate
+        concatMap(() =>
+            mongodbService(cachedDb, ServiceNames.authenticateOrSetPwdIfFirstTime, {
+                user: initiativeFirstAdministrator.user,
+                pwd: initiativeFirstAdministratorPwd,
+            }),
+        ),
+        map(data => {
+            return createHeaders(data.token);
+        }),
+        map(headers => ({ headers, initiativeId })),
+    );
+}
+function loadAdministratorsForInitiative() {
+    let initiativeId: string;
+    return pipe(
+        tap((data: any) => (initiativeId = data.initiativeId)),
+        concatMap((data: any) => {
+            return mongodbService(
+                cachedDb,
+                ServiceNames.loadAdministratorsForInitiative,
+                {
+                    name: initiative.name,
+                    _id: initiativeId,
+                    administrators: initiativeOtherAdministrators,
+                },
+                null,
+                data.headers,
+            );
+        }),
+        map(() => initiativeId),
+    );
+}
 function createSmartCompanyEvent() {
-    let eventId: string;
     companyEvent.initiativeName = initiative.name;
     return pipe(
-        tap((inititiaveId: any) => (companyEvent.initiativeId = inititiaveId.toHexString())),
+        tap((inititiaveId: any) => (companyEvent.initiativeId = inititiaveId)),
+        // create a VotingEvent
         concatMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, companyEvent)),
-        tap(id => (eventId = id.toHexString())),
+    );
+}
+function loadTechnologiesForVotingEvent() {
+    let eventId: string;
+    return pipe(
+        tap((id: any) => {
+            eventId = id.toHexString();
+        }),
+        // load the technologies for the VotingEvent
         concatMap(() => readCsvLineObs$(`${__dirname}/technologies.csv`).pipe(toArray())),
         concatMap((technologies: any[]) =>
             mongodbService(cachedDb, ServiceNames.setTechologiesForEvent, { _id: eventId, technologies }),
         ),
+        map(() => eventId),
+    );
+}
+// function loadUsersForVotingEvent() {
+//     let eventId: string;
+//     return pipe(
+//         tap((id: string) => {
+//             eventId = id;
+//         }),
+//         map(() => eventId),
+//     );
+// }
+function openVotingEvent() {
+    let eventId: string;
+    return pipe(
+        tap((id: string) => {
+            eventId = id;
+        }),
+        // open the VotingEvent
         concatMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: eventId })),
         map(() => eventId),
     );
@@ -100,6 +179,9 @@ function createSmartCompanyEvent() {
 
 function tonyDevVotes() {
     return pipe(
+        tap(d => {
+            console.log(d);
+        }),
         concatMap((_id: string) => mongodbService(cachedDb, ServiceNames.getVotingEvent, { _id })),
         concatMap((votingEvent: VotingEvent) => {
             const tech0 = getTechToVote(votingEvent, 0);

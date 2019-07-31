@@ -9,6 +9,7 @@ import { noAuthServiceNames } from '../src/no-auth-service-names';
 import { validateRequestAuthentication } from '../src/api/authentication-api';
 import { logError, logDebug } from '../src/lib/utils';
 import { inspect } from 'util';
+import { IncomingHttpHeaders } from 'http';
 const cachedDb: CachedDB = { dbName: config.dbname, db: null, client: null };
 
 const express = require('express');
@@ -123,7 +124,7 @@ router.post('/', function(req: Request, res: Response, _next: NextFunction) {
         if (!cachedDb.db) {
             logDebug('Connect to the db ' + cachedDb);
         }
-        executeMongoService(cachedDb, serviceName, params, res);
+        executeMongoService(cachedDb, serviceName, params, res, req.headers);
     } else if (service === ServiceNames.noservice) {
         serviceResult = { error: `No Service received` };
         sendResponse(serviceName, serviceResult, res);
@@ -176,9 +177,15 @@ router.post('/closeVotingEvent', function(req: Request, res: Response, _next: Ne
     executeMongoService(cachedDb, serviceName, params, res);
 });
 
-function executeMongoService(cachedDb: CachedDB, serviceName: string, params: any, res: Response) {
+function executeMongoService(
+    cachedDb: CachedDB,
+    serviceName: string,
+    params: any,
+    res: Response,
+    reqHeaders?: IncomingHttpHeaders,
+) {
     const service = ServiceNames[serviceName];
-    mongodbService(cachedDb, service, params, ipAddress).subscribe(
+    mongodbService(cachedDb, service, params, ipAddress, reqHeaders).subscribe(
         serviceResult => sendResponse(serviceName, serviceResult, res),
         error => {
             logError('executeMongoService error' + inspect(error));

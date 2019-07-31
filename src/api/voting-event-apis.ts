@@ -128,7 +128,7 @@ export function createNewVotingEvent(
         name: params.name,
         status: 'closed',
         creationTS: new Date(Date.now()).toISOString(),
-        creator: params.creator,
+        owner: params.creator,
     };
     if (params.flow) {
         newVotingEvent.flow = params.flow;

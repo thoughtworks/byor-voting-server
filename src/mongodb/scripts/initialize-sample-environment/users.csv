@@ -1,7 +1,10 @@
-user,role
-kent,dev
-martin,dev
+user,group
+mary,dev
+tony,dev
+kent,dev,architect
+martin,dev,architect
 dhh,dev
 ryan,dev
+rebecca,architect
 alan,architect
 alonzo,architect

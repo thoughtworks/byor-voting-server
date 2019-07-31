@@ -45,7 +45,8 @@ export function validateRequestAuthentication(headers: any) {
     }
     if (token) {
         try {
-            return verifyJwt(token);
+            const ret = verifyJwt(token);
+            return ret;
         } catch (error) {
             logError('validating auth token failed with error:' + error);
             throw Error('Token is not valid');
@@ -122,25 +123,59 @@ export function authenticateForVotingEvent(
     );
 }
 
+export function authenticateOrSetPwdIfFirstTime(usersColl: Collection, params: { user: string; pwd: string }) {
+    if (!params.user) throw new Error('Parameter user not passed to authenticateForVotingEvent');
+    if (!params.pwd) throw new Error('Parameter pwd not passed to authenticateForVotingEvent');
+    const _user = { user: params.user };
+    return findObs(usersColl, _user).pipe(
+        toArray(),
+        tap(foundUsers => {
+            if (foundUsers.length === 0) {
+                throw ERRORS.userUnknown;
+            }
+            if (foundUsers.length > 1) {
+                throw new Error(`More than one user with the same user id "${_user}"`);
+            }
+        }),
+        concatMap(([foundUser]) => {
+            return foundUser.pwd
+                ? authenticate(usersColl, params).pipe(map(token => ({ token, pwdInserted: false })))
+                : // if the pwd is not found as hash in the db, it means that this is the first time the user tries to login
+                  // in this case we hash it, store it in the db
+                  getPasswordHash$(params.pwd).pipe(
+                      tap(hash => (foundUser.pwd = hash)),
+                      concatMap(() => updateOneObs({ _id: foundUser._id }, { pwd: foundUser.pwd }, usersColl)),
+                      concatMap(() =>
+                          authenticate(usersColl, params).pipe(
+                              map(token => {
+                                  return { token, pwdInserted: true };
+                              }),
+                          ),
+                      ),
+                  );
+        }),
+    );
+}
+
 export function addUsersWithRole(
     usersColl: Collection<any>,
-    params: { users: { user: string; role: string }[]; initiativeId: string; initiativeName: string },
+    params: {
+        users: {
+            user: string;
+            role: string;
+        }[];
+    },
 ) {
     const dataGroupedByUser = groupBy(params.users, 'user');
     const usersWithGroups = Object.keys(dataGroupedByUser).map(user => {
         const groups = dataGroupedByUser[user].map(item => item.role);
         return { user, groups };
     });
-    return forkJoin(
-        usersWithGroups.map(user =>
-            updateOneObs(
-                { user: user.user, initiativeId: params.initiativeId, initiativeName: params.initiativeName },
-                user,
-                usersColl,
-                { upsert: true },
-            ),
-        ),
-    );
+    const obss = usersWithGroups.map(user => {
+        return updateOneObs({ user: user.user }, user, usersColl, { upsert: true });
+    });
+    const ret = forkJoin(obss);
+    return ret;
 }
 
 export function deleteUsers(usersColl: Collection<any>, params: { users: string[] }) {

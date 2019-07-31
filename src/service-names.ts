@@ -53,4 +53,6 @@ export enum ServiceNames {
     getInititives,
     cancelInitiative,
     undoCancelInitiative,
+    loadAdministratorsForInitiative,
+    authenticateOrSetPwdIfFirstTime,
 }

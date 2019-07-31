@@ -118,7 +118,10 @@ describe('1.1 - Voting Event Authentication operations', () => {
                     _userColl = client.db(config.dbname).collection(config.usersCollection);
                 }),
                 concatMap(() => forkJoin(VOTING_EVENT_USERS.map(user => deleteObs({ user: user.user }, _userColl)))),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.addUsersWithRole, { users: VOTING_EVENT_USERS })),
+                concatMap(() => {
+                    const ret = mongodbService(cachedDb, ServiceNames.addUsersWithRole, { users: VOTING_EVENT_USERS });
+                    return ret;
+                }),
                 concatMap(() =>
                     mongodbService(cachedDb, ServiceNames.getVotingEvents).pipe(
                         map(votingEvents => votingEvents.filter(ve => ve.name === votingEventName)),

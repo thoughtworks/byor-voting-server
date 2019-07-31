@@ -68,14 +68,22 @@ import {
 
 import { executeTwBlipsCollection, findLatestEdition, getBlipHistoryForTech } from './tw-blips-collection-api';
 import { getConfiguration } from './configuration-apis';
-import { authenticate, authenticateForVotingEvent, addUsersWithRole, deleteUsers } from './authentication-api';
+import {
+    authenticate,
+    authenticateForVotingEvent,
+    addUsersWithRole,
+    deleteUsers,
+    validateRequestAuthentication,
+    authenticateOrSetPwdIfFirstTime,
+} from './authentication-api';
 import { saveLog } from './client-log-apis';
 
 import { defaultTWTechnologies } from '../model/technologies.local-data';
 import { VOTES } from '../model/vote.local-data';
 import { version } from './version';
 import { logError } from '../lib/utils';
-import { createInitiative, getInititives, cancelInitiative } from './initiative-api';
+import { createInitiative, getInititives, cancelInitiative, loadAdministratorsForInitiative } from './initiative-api';
+import { IncomingHttpHeaders } from 'http';
 export interface CachedDB {
     dbName: string;
     db: Db;
@@ -127,6 +135,7 @@ export function isServiceKnown(service: ServiceNames) {
         service === ServiceNames.getConfiguration ||
         service === ServiceNames.authenticate ||
         service === ServiceNames.authenticateForVotingEvent ||
+        service === ServiceNames.authenticateOrSetPwdIfFirstTime ||
         service === ServiceNames.addUsersWithRole ||
         service === ServiceNames.deleteUsers ||
         service === ServiceNames.saveLogInfo ||
@@ -134,11 +143,18 @@ export function isServiceKnown(service: ServiceNames) {
         service === ServiceNames.createInitiative ||
         service === ServiceNames.getInititives ||
         service === ServiceNames.cancelInitiative ||
-        service === ServiceNames.undoCancelInitiative
+        service === ServiceNames.undoCancelInitiative ||
+        service === ServiceNames.loadAdministratorsForInitiative
     );
 }
 
-export function mongodbService(cachedDb: CachedDB, service: ServiceNames, serviceData?: any, ipAddress?: string) {
+export function mongodbService(
+    cachedDb: CachedDB,
+    service: ServiceNames,
+    serviceData?: any,
+    ipAddress?: string,
+    reqHeaders?: IncomingHttpHeaders,
+) {
     const mongoTimeout = serviceData ? serviceData.timeout : null;
     if (cachedDb.db == null || !cachedDb.client.isConnected(cachedDb.dbName)) {
         return connectObs(config.mongoUri).pipe(
@@ -150,10 +166,12 @@ export function mongodbService(cachedDb: CachedDB, service: ServiceNames, servic
                 logError('Error while connecting to Mongo ' + err);
                 return throwError('Error while connecting to MongoDB');
             }),
-            switchMap(() => executeMongoService(service, cachedDb.db, serviceData, mongoTimeout, ipAddress)),
+            switchMap(() =>
+                executeMongoService(service, cachedDb.db, serviceData, mongoTimeout, ipAddress, reqHeaders),
+            ),
         );
     } else {
-        return executeMongoService(service, cachedDb.db, serviceData, mongoTimeout, ipAddress);
+        return executeMongoService(service, cachedDb.db, serviceData, mongoTimeout, ipAddress, reqHeaders);
     }
 }
 
@@ -194,6 +212,7 @@ function executeMongoService(
     serviceData: any,
     mongoTimeout: number,
     ipAddress?: string,
+    reqHeaders?: IncomingHttpHeaders,
 ) {
     const technologiesColl = db.collection(config.technologiesCollection);
     const votesColl = db.collection(config.votesCollection);
@@ -203,6 +222,17 @@ function executeMongoService(
     const logColl = db.collection(config.logCollection);
     const twBlipsColl = db.collection(config.twBlipsCollection);
     const initiativeColl = db.collection(config.initiativeCollection);
+
+    let user: string;
+    if (reqHeaders && reqHeaders['authorization']) {
+        try {
+            user = validateRequestAuthentication(reqHeaders).user;
+        } catch (err) {
+            if (err.message !== 'Token is not valid') {
+                throwError(err);
+            }
+        }
+    }
 
     let returnedObservable: Observable<any>;
     const timeOut = mongoTimeout ? mongoTimeout : config.defautlTimeout;
@@ -296,6 +326,8 @@ function executeMongoService(
         returnedObservable = authenticate(usersColl, serviceData);
     } else if (service === ServiceNames.authenticateForVotingEvent) {
         returnedObservable = authenticateForVotingEvent(usersColl, votingEventColl, serviceData);
+    } else if (service === ServiceNames.authenticateOrSetPwdIfFirstTime) {
+        returnedObservable = authenticateOrSetPwdIfFirstTime(usersColl, serviceData);
     } else if (service === ServiceNames.addUsersWithRole) {
         returnedObservable = addUsersWithRole(usersColl, serviceData);
     } else if (service === ServiceNames.deleteUsers) {
@@ -305,11 +337,13 @@ function executeMongoService(
     } else if (service === ServiceNames.getBlipHistoryForTech) {
         returnedObservable = getBlipHistoryForTech(twBlipsColl, serviceData);
     } else if (service === ServiceNames.createInitiative) {
-        returnedObservable = createInitiative(initiativeColl, serviceData);
+        returnedObservable = createInitiative(initiativeColl, usersColl, serviceData);
     } else if (service === ServiceNames.getInititives) {
         returnedObservable = getInititives(initiativeColl, serviceData);
     } else if (service === ServiceNames.cancelInitiative) {
-        returnedObservable = cancelInitiative(initiativeColl, votingEventColl, votesColl, serviceData);
+        returnedObservable = cancelInitiative(initiativeColl, votingEventColl, votesColl, usersColl, serviceData);
+    } else if (service === ServiceNames.loadAdministratorsForInitiative) {
+        returnedObservable = loadAdministratorsForInitiative(initiativeColl, usersColl, serviceData, user);
     } else {
         const serviceResult = { error: 'Mongo Service ' + service + ' not defined' };
         returnedObservable = throwError(serviceResult);

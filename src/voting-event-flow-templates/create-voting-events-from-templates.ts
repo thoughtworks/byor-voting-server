@@ -15,12 +15,12 @@ const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
 const corporateEvent: VotingEvent = {
     name: 'A Corporate Event',
     flow: CorporateVotingEventFlow,
-    creator: { userId: 'the setupper' },
+    owner: { userId: 'the setupper' },
 };
 const communityEvent: VotingEvent = {
     name: 'A Community Event',
     flow: CommunityVotingEventFlow,
-    creator: { userId: 'the setupper' },
+    owner: { userId: 'the setupper' },
 };
 
 const kent: Credentials = { nickname: 'Kent' };

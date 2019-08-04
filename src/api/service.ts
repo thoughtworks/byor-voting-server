@@ -71,7 +71,6 @@ import { getConfiguration } from './configuration-apis';
 import {
     authenticate,
     authenticateForVotingEvent,
-    addUsersWithRole,
     deleteUsers,
     validateRequestAuthentication,
     authenticateOrSetPwdIfFirstTime,
@@ -136,7 +135,6 @@ export function isServiceKnown(service: ServiceNames) {
         service === ServiceNames.authenticate ||
         service === ServiceNames.authenticateForVotingEvent ||
         service === ServiceNames.authenticateOrSetPwdIfFirstTime ||
-        service === ServiceNames.addUsersWithRole ||
         service === ServiceNames.deleteUsers ||
         service === ServiceNames.saveLogInfo ||
         service === ServiceNames.getBlipHistoryForTech ||
@@ -277,7 +275,7 @@ function executeMongoService(
     } else if (service === ServiceNames.addReplyToVoteComment) {
         returnedObservable = addReplyToVoteComment(votesColl, serviceData);
     } else if (service === ServiceNames.createVotingEvent) {
-        returnedObservable = createNewVotingEvent(votingEventColl, serviceData);
+        returnedObservable = createNewVotingEvent(votingEventColl, initiativeColl, serviceData, user);
     } else if (service === ServiceNames.getVotingEvents) {
         returnedObservable = getVotingEvents(votingEventColl, serviceData);
     } else if (service === ServiceNames.getVotingEvent) {
@@ -285,17 +283,17 @@ function executeMongoService(
     } else if (service === ServiceNames.getVotingEventWithNumberOfCommentsAndVotes) {
         returnedObservable = getVotingEventWithNumberOfCommentsAndVotes(votingEventColl, votesColl, serviceData);
     } else if (service === ServiceNames.openVotingEvent) {
-        returnedObservable = openVotingEvent(votingEventColl, technologiesColl, serviceData);
+        returnedObservable = openVotingEvent(votingEventColl, technologiesColl, serviceData, user);
     } else if (service === ServiceNames.closeVotingEvent) {
-        returnedObservable = closeVotingEvent(votingEventColl, serviceData);
+        returnedObservable = closeVotingEvent(votingEventColl, serviceData, user);
     } else if (service === ServiceNames.cancelVotingEvent) {
-        returnedObservable = cancelVotingEvent(votingEventColl, votesColl, serviceData);
+        returnedObservable = cancelVotingEvent(votingEventColl, votesColl, serviceData, user);
     } else if (service === ServiceNames.undoCancelVotingEvent) {
         returnedObservable = undoCancelVotingEvent(votingEventColl, votesColl, serviceData);
     } else if (service === ServiceNames.calculateWinner) {
         returnedObservable = calculateWinner(votesColl, votingEventColl, serviceData);
     } else if (service === ServiceNames.setTechologiesForEvent) {
-        returnedObservable = setTechologiesForEvent(votingEventColl, serviceData);
+        returnedObservable = setTechologiesForEvent(votingEventColl, serviceData, user);
     } else if (service === ServiceNames.addNewTechnologyToEvent) {
         returnedObservable = addNewTechnologyToEvent(votingEventColl, serviceData);
     } else if (service === ServiceNames.addCommentToTech) {
@@ -315,7 +313,7 @@ function executeMongoService(
     } else if (service === ServiceNames.getConfiguration) {
         returnedObservable = getConfiguration(configurationColl, serviceData);
     } else if (service === ServiceNames.moveToNexFlowStep) {
-        returnedObservable = moveToNexFlowStep(votingEventColl, votesColl, serviceData);
+        returnedObservable = moveToNexFlowStep(votingEventColl, votesColl, serviceData, user);
     } else if (service === ServiceNames.setRecommendationAuthor) {
         returnedObservable = setRecommendationAuthor(votingEventColl, serviceData);
     } else if (service === ServiceNames.setRecommendation) {
@@ -328,8 +326,6 @@ function executeMongoService(
         returnedObservable = authenticateForVotingEvent(usersColl, votingEventColl, serviceData);
     } else if (service === ServiceNames.authenticateOrSetPwdIfFirstTime) {
         returnedObservable = authenticateOrSetPwdIfFirstTime(usersColl, serviceData);
-    } else if (service === ServiceNames.addUsersWithRole) {
-        returnedObservable = addUsersWithRole(usersColl, serviceData);
     } else if (service === ServiceNames.deleteUsers) {
         returnedObservable = deleteUsers(usersColl, serviceData);
     } else if (service === ServiceNames.saveLogInfo) {
@@ -341,7 +337,7 @@ function executeMongoService(
     } else if (service === ServiceNames.getInititives) {
         returnedObservable = getInititives(initiativeColl, serviceData);
     } else if (service === ServiceNames.cancelInitiative) {
-        returnedObservable = cancelInitiative(initiativeColl, votingEventColl, votesColl, usersColl, serviceData);
+        returnedObservable = cancelInitiative(initiativeColl, votingEventColl, votesColl, serviceData);
     } else if (service === ServiceNames.loadAdministratorsForInitiative) {
         returnedObservable = loadAdministratorsForInitiative(initiativeColl, usersColl, serviceData, user);
     } else {

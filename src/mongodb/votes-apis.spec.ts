@@ -1,6 +1,5 @@
 import { expect } from 'chai';
-import { forkJoin } from 'rxjs';
-import { of, throwError } from 'rxjs';
+import { forkJoin, of, throwError } from 'rxjs';
 import { switchMap, tap, catchError, concatMap } from 'rxjs/operators';
 import { InsertOneWriteOpResult } from 'mongodb';
 import { mongodbService, CachedDB } from '../api/service';
@@ -15,6 +14,7 @@ import { Technology } from '../model/technology';
 import { Comment } from '../model/comment';
 import { Credentials } from '../model/credentials';
 import { VotingEvent } from '../model/voting-event';
+import { createAndOpenVotingEvent, readVotingEvent } from './test.utils';
 
 describe('CRUD operations on Votes collection', () => {
     it('1.0 loads the votes and then read them', done => {
@@ -57,11 +57,11 @@ describe('CRUD operations on Votes collection', () => {
         const commentText = 'this tech is crap';
 
         let votingEventId;
+
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName })),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                 tap(id => (votingEventId = id)),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap(vEvent => {
                     credentials.votingEvent = vEvent;
@@ -125,16 +125,11 @@ describe('CRUD operations on Votes collection', () => {
             let votes: VoteCredentialized[];
 
             let votingEvent;
-            let votingEventId;
 
             initializeVotingEventsAndVotes(cachedDb.dbName)
                 .pipe(
-                    concatMap(() =>
-                        mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName }),
-                    ),
-                    tap(id => (votingEventId = id)),
-                    concatMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
-                    concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                    switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
+                    concatMap(votingEventId => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                     tap(vEvent => {
                         votingEvent = vEvent;
                         voterVotes = [
@@ -248,9 +243,7 @@ describe('CRUD operations on Votes collection', () => {
 
             initializeVotingEventsAndVotes(cachedDb.dbName)
                 .pipe(
-                    concatMap(() =>
-                        mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName }),
-                    ),
+                    switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                     tap(id => (votingEventId = id)),
                     concatMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
                     concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
@@ -367,9 +360,7 @@ describe('CRUD operations on Votes collection', () => {
 
             initializeVotingEventsAndVotes(cachedDb.dbName)
                 .pipe(
-                    concatMap(() =>
-                        mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName }),
-                    ),
+                    switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                     tap(id => (votingEventId = id)),
                     concatMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
                     concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
@@ -476,13 +467,10 @@ describe('CRUD operations on Votes collection', () => {
         let votes: VoteCredentialized[];
         let aggregatedVotes: any[];
 
-        let votingEventId;
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName })),
-                tap(id => (votingEventId = id)),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
+                switchMap(votingEventId => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap(vEvent => {
                     votingEvent = vEvent;
                     votes = [
@@ -569,13 +557,10 @@ describe('CRUD operations on Votes collection', () => {
         let credentializedVote1: VoteCredentialized;
         let credentializedVote2: VoteCredentialized;
 
-        let votingEventId;
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName })),
-                tap(id => (votingEventId = id)),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
+                switchMap(votingEventId => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap(vEvent => {
                     credentials1.votingEvent = vEvent;
                     credentials2.votingEvent = vEvent;
@@ -653,13 +638,10 @@ describe('CRUD operations on Votes collection', () => {
         const ringSecondVoteVoter1Tech1 = 'adopt';
         const ringVoter2 = 'hold';
 
-        let votingEventId;
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName })),
-                tap(id => (votingEventId = id)),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
+                switchMap(votingEventId => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 // both voters vote for the first time
                 tap((vEvent: VotingEvent) => {
                     votingEvent = vEvent;
@@ -783,13 +765,10 @@ describe('CRUD operations on Votes collection', () => {
         const ringVoter1Tech2 = 'adopt';
         const ringVoter2 = 'hold';
 
-        let votingEventId;
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName })),
-                tap(id => (votingEventId = id)),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
+                switchMap(votingEventId => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 // both voters vote for the first time
                 tap((vEvent: VotingEvent) => {
                     votingEvent = vEvent;
@@ -887,14 +866,10 @@ describe('CRUD operations on Votes collection', () => {
         let votingEventId2;
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName1 })),
-                tap(id => {
-                    votingEventId1 = id;
-                }),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName2 })),
-                tap(id => {
-                    votingEventId2 = id;
-                }),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName1)),
+                tap(votingEventId => (votingEventId1 = votingEventId)),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName2)),
+                tap(votingEventId => (votingEventId2 = votingEventId)),
                 switchMap(() =>
                     forkJoin(
                         mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId1),
@@ -927,8 +902,6 @@ describe('CRUD operations on Votes collection', () => {
                         },
                     ];
                 }),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId1 })),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId2 })),
 
                 switchMap(() => forkJoin(votes.map(vote => mongodbService(cachedDb, ServiceNames.saveVotes, vote)))),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVotes, { eventId: votingEventId1 })),
@@ -954,12 +927,10 @@ describe('CRUD operations on Votes collection', () => {
         let votes: VoteCredentialized[];
         let votingEvent;
 
-        let votingEventId;
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName })),
-                tap(id => (votingEventId = id)),
-                tap(() => {
+                switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
+                tap(votingEventId => {
                     votingEvent = { name: votingEventName, _id: votingEventId, round: 1 };
                     votes = [
                         {
@@ -1066,7 +1037,6 @@ describe('CRUD operations on Votes collection', () => {
                         },
                     ];
                 }),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
                 switchMap(() => forkJoin(votes.map(vote => mongodbService(cachedDb, ServiceNames.saveVotes, vote)))),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.calculateBlips, { votingEvent })),
             )
@@ -1109,9 +1079,12 @@ describe('CRUD operations on Votes collection', () => {
         let votingEventId;
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName })),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                 tap(id => (votingEventId = id)),
-                tap(() => {
+                concatMap(() => readVotingEvent(cachedDb, votingEventId.toHexString())),
+                tap(_vEvent => {
+                    const tech0 = _vEvent.technologies[0];
+                    const tech1 = _vEvent.technologies[1];
                     votingEvent = { name: votingEventName, _id: votingEventId, round: 1 };
                     votes = [
                         {
@@ -1119,7 +1092,7 @@ describe('CRUD operations on Votes collection', () => {
                             votes: [
                                 {
                                     ring: 'hold',
-                                    technology: TEST_TECHNOLOGIES[0],
+                                    technology: tech0,
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
                                     eventRound: 1,
@@ -1131,7 +1104,7 @@ describe('CRUD operations on Votes collection', () => {
                             votes: [
                                 {
                                     ring: 'assess',
-                                    technology: TEST_TECHNOLOGIES[0],
+                                    technology: tech0,
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
                                     eventRound: 1,
@@ -1143,7 +1116,7 @@ describe('CRUD operations on Votes collection', () => {
                             votes: [
                                 {
                                     ring: 'hold',
-                                    technology: TEST_TECHNOLOGIES[0],
+                                    technology: tech0,
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
                                     eventRound: 1,
@@ -1155,7 +1128,7 @@ describe('CRUD operations on Votes collection', () => {
                             votes: [
                                 {
                                     ring: 'assess',
-                                    technology: TEST_TECHNOLOGIES[0],
+                                    technology: tech0,
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
                                     eventRound: 1,
@@ -1167,7 +1140,7 @@ describe('CRUD operations on Votes collection', () => {
                             votes: [
                                 {
                                     ring: 'assess',
-                                    technology: TEST_TECHNOLOGIES[1],
+                                    technology: tech1,
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
                                     eventRound: 1,
@@ -1175,11 +1148,14 @@ describe('CRUD operations on Votes collection', () => {
                             ],
                         },
                         {
-                            credentials: { votingEvent, voterId: { firstName: 'eleventh B', lastName: 'twelfth B' } },
+                            credentials: {
+                                votingEvent,
+                                voterId: { firstName: 'eleventh B', lastName: 'twelfth B' },
+                            },
                             votes: [
                                 {
                                     ring: 'trial',
-                                    technology: TEST_TECHNOLOGIES[1],
+                                    technology: tech1,
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
                                     eventRound: 1,
@@ -1187,11 +1163,14 @@ describe('CRUD operations on Votes collection', () => {
                             ],
                         },
                         {
-                            credentials: { votingEvent, voterId: { firstName: 'thirteen B', lastName: 'fourteen B' } },
+                            credentials: {
+                                votingEvent,
+                                voterId: { firstName: 'thirteen B', lastName: 'fourteen B' },
+                            },
                             votes: [
                                 {
                                     ring: 'assess',
-                                    technology: TEST_TECHNOLOGIES[1],
+                                    technology: tech1,
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
                                     eventRound: 1,
@@ -1200,7 +1179,6 @@ describe('CRUD operations on Votes collection', () => {
                         },
                     ];
                 }),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
                 switchMap(() => forkJoin(votes.map(vote => mongodbService(cachedDb, ServiceNames.saveVotes, vote)))),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.calculateBlips, { votingEvent })),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
@@ -1230,14 +1208,10 @@ describe('CRUD operations on Votes collection', () => {
         let votingEventId2;
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName1 })),
-                tap(id => {
-                    votingEventId1 = id;
-                }),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName2 })),
-                tap(id => {
-                    votingEventId2 = id;
-                }),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName1)),
+                tap(votingEventId => (votingEventId1 = votingEventId)),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName2)),
+                tap(votingEventId => (votingEventId2 = votingEventId)),
                 switchMap(() =>
                     forkJoin(
                         mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId1),
@@ -1277,8 +1251,6 @@ describe('CRUD operations on Votes collection', () => {
                         },
                     ];
                 }),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId1 })),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId2 })),
 
                 switchMap(() => forkJoin(votes.map(vote => mongodbService(cachedDb, ServiceNames.saveVotes, vote)))),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.calculateBlipsFromAllEvents)),
@@ -1337,14 +1309,11 @@ describe('CRUD operations on Votes collection', () => {
 
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventNameA })),
-                tap(id => {
-                    votingEventIdA = id;
-                }),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventNameB })),
-                tap(id => {
-                    votingEventIdB = id;
-                }),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventNameA)),
+                tap(votingEventId => (votingEventIdA = votingEventId)),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventNameB)),
+                tap(votingEventId => (votingEventIdB = votingEventId)),
+
                 switchMap(() =>
                     forkJoin(
                         mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventIdA),
@@ -1422,8 +1391,6 @@ describe('CRUD operations on Votes collection', () => {
                         },
                     ];
                 }),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventIdA })),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventIdB })),
                 switchMap(() => forkJoin(votes.map(vote => mongodbService(cachedDb, ServiceNames.saveVotes, vote)))),
                 // now we retrieve all the comments for tech1 and votingEventA
                 switchMap(() =>
@@ -1490,7 +1457,7 @@ describe('CRUD operations on Votes collection', () => {
             );
     }).timeout(20000);
 
-    it('1.9 saves some votes and then calculates the blips for ony one event when votingEvent given ', done => {
+    it('1.9 saves some votes and then calculates the blips for only one event when votingEvent given ', done => {
         let firstVotingEvent;
         let secondVotingEvent;
 
@@ -1502,10 +1469,10 @@ describe('CRUD operations on Votes collection', () => {
 
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: 'event A' })),
-                tap(id => (firstVotingEventId = id)),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: 'event B' })),
-                tap(id => (secondVotingEventId = id)),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, 'event A')),
+                tap(votingEventId => (firstVotingEventId = votingEventId)),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, 'event B')),
+                tap(votingEventId => (secondVotingEventId = votingEventId)),
                 tap(() => {
                     firstVotingEvent = { name: 'event A', _id: firstVotingEventId, round: 1 };
                     secondVotingEvent = { name: 'event B', _id: secondVotingEventId, round: 2 };
@@ -1632,7 +1599,6 @@ describe('CRUD operations on Votes collection', () => {
                         },
                     ];
                 }),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: secondVotingEventId })),
                 switchMap(() => forkJoin(votes.map(vote => mongodbService(cachedDb, ServiceNames.saveVotes, vote)))),
                 switchMap(() =>
                     mongodbService(cachedDb, ServiceNames.calculateBlips, { votingEvent: secondVotingEvent }),
@@ -1667,10 +1633,10 @@ describe('CRUD operations on Votes collection', () => {
 
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: 'event A' })),
-                tap(id => (firstVotingEventId = id)),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: 'event B' })),
-                tap(id => (secondVotingEventId = id)),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, 'event A')),
+                tap(votingEventId => (firstVotingEventId = votingEventId)),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, 'event B')),
+                tap(votingEventId => (secondVotingEventId = votingEventId)),
                 tap(() => {
                     firstVotingEvent = { name: 'event A', _id: firstVotingEventId, round: 1 };
                     secondVotingEvent = { name: 'event B', _id: secondVotingEventId, round: 2 };
@@ -1797,8 +1763,6 @@ describe('CRUD operations on Votes collection', () => {
                         },
                     ];
                 }),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: firstVotingEventId })),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: secondVotingEventId })),
                 switchMap(() => forkJoin(votes.map(vote => mongodbService(cachedDb, ServiceNames.saveVotes, vote)))),
                 switchMap(() =>
                     mongodbService(cachedDb, ServiceNames.calculateBlips, { votingEvent: secondVotingEvent }),
@@ -1829,13 +1793,10 @@ describe('CRUD operations on Votes collection', () => {
 
         const replyText = 'I am the reply';
 
-        let votingEventId;
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                concatMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName })),
-                tap(id => (votingEventId = id)),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
+                switchMap(votingEventId => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap(vEvent => {
                     credentials.votingEvent = vEvent;
                     credentializedVote = {
@@ -1898,13 +1859,10 @@ describe('CRUD operations on Votes collection', () => {
 
         const replyToReplyText = 'I am the reply to the reply';
 
-        let votingEventId;
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                concatMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName })),
-                tap(id => (votingEventId = id)),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
+                switchMap(votingEventId => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap(vEvent => {
                     credentials.votingEvent = vEvent;
                     credentializedVote = {
@@ -1982,10 +1940,8 @@ describe('CRUD operations on Votes collection', () => {
         let votingEventId;
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                concatMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName })),
-                tap(id => (votingEventId = id)),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
+                switchMap(votingEventId => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap(vEvent => {
                     credentials.votingEvent = vEvent;
                     credentializedVote = {
@@ -2088,13 +2044,10 @@ describe('CRUD operations on Votes collection', () => {
         };
         let credentializedVote: VoteCredentialized;
 
-        let votingEventId;
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                concatMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName })),
-                tap(id => (votingEventId = id)),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
+                switchMap(votingEventId => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap(vEvent => {
                     credentials.votingEvent = vEvent;
                     credentializedVote = {

@@ -69,7 +69,7 @@ export const getMongoClient = (mongoUri: string, dbname: string, pipeline: Opera
 
 import * as CryptoJS from 'crypto-js';
 
-export const getPasswordHash$ = (password: string) => {
+export const getPasswordHash$ = (password: string): Observable<string> => {
     console.log(password);
     return Observable.create(
         (observer: Observer<string>): TeardownLogic => {

@@ -11,6 +11,8 @@ import { of, from, forkJoin } from 'rxjs';
 import { getPasswordHash$ } from '../lib/observables';
 import { Collection } from 'mongodb';
 import { VotingEventFlow } from '../model/voting-event-flow';
+import { addUsersWithGroup } from '../api/authentication-api';
+import { createVotingEventForVotingEventTest } from './test.utils';
 
 describe('1.0 - Authentication operations', () => {
     it('loads the users collection and then authenticates one valid user', done => {
@@ -76,9 +78,9 @@ export function laodUsers(usersColl: Collection<any>, users: any[]) {
 describe('1.1 - Voting Event Authentication operations', () => {
     it('load some users from file with no pwd specified and then authenticate some of them', done => {
         const VOTING_EVENT_USERS = [
-            { user: 'Mary', role: 'architect' },
-            { user: 'Mary', role: 'admin' },
-            { user: 'John', role: 'dev' },
+            { user: 'Mary', group: 'architect' },
+            { user: 'Mary', group: 'dev' },
+            { user: 'John', group: 'dev' },
         ];
 
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
@@ -119,8 +121,9 @@ describe('1.1 - Voting Event Authentication operations', () => {
                 }),
                 concatMap(() => forkJoin(VOTING_EVENT_USERS.map(user => deleteObs({ user: user.user }, _userColl)))),
                 concatMap(() => {
-                    const ret = mongodbService(cachedDb, ServiceNames.addUsersWithRole, { users: VOTING_EVENT_USERS });
-                    return ret;
+                    return addUsersWithGroup(_client.db(config.dbname).collection(config.usersCollection), {
+                        users: VOTING_EVENT_USERS,
+                    });
                 }),
                 concatMap(() =>
                     mongodbService(cachedDb, ServiceNames.getVotingEvents).pipe(
@@ -133,12 +136,7 @@ describe('1.1 - Voting Event Authentication operations', () => {
                         }),
                     ),
                 ),
-                concatMap(() =>
-                    mongodbService(cachedDb, ServiceNames.createVotingEvent, {
-                        name: votingEventName,
-                        flow: votingEventFlow,
-                    }),
-                ),
+                concatMap(() => createVotingEventForVotingEventTest(cachedDb, votingEventName, votingEventFlow)),
                 tap(id => (votingEventId = id.toHexString())),
             )
             // run the real test logic

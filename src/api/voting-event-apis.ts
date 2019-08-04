@@ -1,4 +1,4 @@
-import { throwError, forkJoin, Observable, of } from 'rxjs';
+import { throwError, forkJoin, of } from 'rxjs';
 import { toArray, switchMap, map, catchError, tap, concatMap } from 'rxjs/operators';
 import { Collection, ObjectId } from 'mongodb';
 
@@ -17,10 +17,12 @@ import { buildComment, findComment } from '../model/comment';
 import { Comment } from '../model/comment';
 import { CorporateVotingEventFlow } from '../voting-event-flow-templates/corporate-voting-event-flow';
 import { VotingEventFlow } from '../model/voting-event-flow';
-import { Credentials } from '../model/credentials';
+import { User } from '../model/user';
+import { getInititive } from './initiative-api';
+import { Initiative } from '../model/initiative';
 
 // if skynny is true then 'blips' and 'technologies' propertires are removed to reduce the size of the data
-export function getVotingEvents(votingEventsCollection: Collection, params?: { full: boolean; all?: boolean }) {
+export function getVotingEvents(votingEventsCollection: Collection, params?: { full?: boolean; all?: boolean }) {
     const selector = params && params.all ? {} : { cancelled: { $exists: false } };
     let options: any = params && params.full ? {} : { projection: { blips: 0, technologies: 0 } };
     return findObs(votingEventsCollection, selector, options).pipe(
@@ -116,19 +118,22 @@ export function saveVotingEvents(votingEventsCollection: Collection, votingEvent
 }
 export function createNewVotingEvent(
     votingEventsCollection: Collection,
+    initiativeCollection: Collection,
     params: {
         name: string;
         flow?: VotingEventFlow;
-        creator: Credentials;
+        creator: User;
         initiativeName?: string;
         initiativeId?: string;
     },
+    user?: string,
 ) {
     const newVotingEvent: VotingEvent = {
         name: params.name,
         status: 'closed',
         creationTS: new Date(Date.now()).toISOString(),
-        owner: params.creator,
+        owner: { user },
+        roles: { administrators: [user] },
     };
     if (params.flow) {
         newVotingEvent.flow = params.flow;
@@ -139,16 +144,35 @@ export function createNewVotingEvent(
     if (params.initiativeId) {
         newVotingEvent.initiativeId = params.initiativeId;
     }
-    return saveVotingEvents(votingEventsCollection, [newVotingEvent]).pipe(map(ids => ids[0]));
+
+    return getInititive(initiativeCollection, { name: params.initiativeName }).pipe(
+        tap(initiative => {
+            verifyPermissionToCreateVotingEvent(user, initiative);
+        }),
+        concatMap(() => saveVotingEvents(votingEventsCollection, [newVotingEvent])),
+        map(ids => ids[0]),
+    );
+}
+function verifyPermissionToCreateVotingEvent(user: string, initiative: Initiative) {
+    const isAdmin = initiative.roles.administrators.some(a => a === user);
+    if (!isAdmin) {
+        const err = { ...ERRORS.userWithNotTheRequestedRole };
+        err.message = `${user} does not have the required permission to create VotingEvents for Initiative ${
+            initiative.name
+        }`;
+        throw err;
+    }
 }
 export function openVotingEvent(
     votingEventsCollection: Collection,
     technologiesCollection: Collection,
     votingEvent: { _id: string },
+    user: string,
 ) {
-    const votingEventKey = { _id: getObjectId(votingEvent._id) };
+    const _votingEventId = getObjectId(votingEvent._id);
+    const votingEventKey = { _id: _votingEventId };
     const dataToUpdate = { status: 'open', lastOpenedTS: new Date(Date.now()).toISOString() };
-    return getVotingEvent(votingEventsCollection, votingEvent._id).pipe(
+    const operation = getVotingEvent(votingEventsCollection, votingEvent._id).pipe(
         switchMap(votingEvent => {
             if (!votingEvent.round) {
                 // initialize round if this is if this voting event has none yet
@@ -169,11 +193,18 @@ export function openVotingEvent(
         }),
         switchMap(() => updateOneObs(votingEventKey, dataToUpdate, votingEventsCollection)),
     );
+    return verifyPermissionToManageVotingEvent(votingEventsCollection, user, _votingEventId, 'OPEN VOTING EVENT').pipe(
+        concatMap(() => operation),
+    );
 }
-export function closeVotingEvent(votingEventsCollection: Collection, votingEvent: { _id: string }) {
-    const votingEventKey = { _id: getObjectId(votingEvent._id) };
+export function closeVotingEvent(votingEventsCollection: Collection, votingEvent: { _id: string }, user: string) {
+    const _votingEventId = getObjectId(votingEvent._id);
+    const votingEventKey = { _id: _votingEventId };
     const dataToUpdate = { status: 'closed', lastClosedTS: new Date(Date.now()).toISOString() };
-    return updateOneObs(votingEventKey, dataToUpdate, votingEventsCollection);
+    const operation = updateOneObs(votingEventKey, dataToUpdate, votingEventsCollection);
+    return verifyPermissionToManageVotingEvent(votingEventsCollection, user, _votingEventId, 'CLOSE VOTING EVENT').pipe(
+        concatMap(() => operation),
+    );
 }
 export function openForRevote(votingEventsCollection: Collection, votingEvent: { _id: string; round: number }) {
     const votingEventKey = { _id: getObjectId(votingEvent._id) };
@@ -199,39 +230,87 @@ export function openForRevote(votingEventsCollection: Collection, votingEvent: {
 export function closeForRevote(votingEventsCollection: Collection, votingEvent: { _id: string }) {
     const votingEventKey = { _id: getObjectId(votingEvent._id) };
     const dataToUpdate = { openForRevote: false };
-    return updateOneObs(votingEventKey, dataToUpdate, votingEventsCollection);
+    const operation = updateOneObs(votingEventKey, dataToUpdate, votingEventsCollection);
+    return operation;
 }
 export function cancelVotingEvent(
     votingEventsCollection: Collection,
     votesCollection: Collection,
-    params: { name?: string; _id?: any; hard?: boolean },
+    params: { _id: string | ObjectId; name?: string; hard?: boolean },
+    user?: string,
 ) {
-    let retObs: Observable<any>;
-    const votingEventKey = !!params._id ? { _id: getObjectId(params._id) } : { name: params.name };
+    let _votingEventId = typeof params._id === 'string' ? getObjectId(params._id) : params._id;
+    const votingEventKey = !!params._id ? { _id: _votingEventId } : { name: params.name };
     const votesKey = !!params._id ? { eventId: params._id } : { eventName: params.name };
-    if (params.hard) {
-        // do something to differenciate hard remove, i.e. physical cancellation, from soft remove, i.e. "logical cancellation"
-        retObs = forkJoin(deleteObs(votingEventKey, votingEventsCollection), deleteObs(votesKey, votesCollection));
-    } else {
-        retObs = forkJoin(
-            updateManyObs(votingEventKey, { cancelled: true }, votingEventsCollection),
-            updateManyObs(votesKey, { cancelled: true }, votesCollection),
-        );
-    }
-    return retObs;
+
+    return verifyPermissionToManageVotingEvent(
+        votingEventsCollection,
+        user,
+        _votingEventId,
+        'CANCEL VOTING EVENT',
+    ).pipe(
+        concatMap(() => {
+            return params.hard
+                ? forkJoin(deleteObs(votingEventKey, votingEventsCollection), deleteObs(votesKey, votesCollection))
+                : forkJoin(
+                      updateManyObs(votingEventKey, { cancelled: true }, votingEventsCollection),
+                      updateManyObs(votesKey, { cancelled: true }, votesCollection),
+                  );
+        }),
+    );
 }
 export function undoCancelVotingEvent(
     votingEventsCollection: Collection,
     votesCollection: Collection,
-    params: { name?: string; _id?: any },
+    params: { name?: string; _id: string | ObjectId },
+    user?: string,
 ) {
-    const votingEventKey = !!params._id ? { _id: getObjectId(params._id) } : { name: params.name };
+    let _votingEventId = typeof params._id === 'string' ? getObjectId(params._id) : params._id;
+    const votingEventKey = !!params._id ? { _id: _votingEventId } : { name: params.name };
     const votesKey = !!params._id ? { eventId: params._id } : { eventName: params.name };
-    return forkJoin(
+    const operation = forkJoin(
         updateManyObs(votingEventKey, { cancelled: false }, votingEventsCollection),
         updateManyObs(votesKey, { cancelled: false }, votesCollection),
     );
+    return verifyPermissionToManageVotingEvent(
+        votingEventsCollection,
+        user,
+        _votingEventId,
+        'UNDO CANCEL VOTING EVENT',
+    ).pipe(concatMap(() => operation));
 }
+function verifyPermissionToManageVotingEvent(
+    votingEventsCollection: Collection,
+    user: string,
+    votingEventId: ObjectId,
+    operationDescription?: string,
+) {
+    // the operation on a VotingEvent can be issued by internal logic, e.g. when you cancel an Initiative
+    // you cancel all VotingEvents - in this case there is no need to check if the user is authorized since we assume
+    // that the authorization has been already checked for the higher level operation, in this case the 'CancelInitiative'
+    // operation.
+    // If the operation is issued as a result of a request received from a rest call, then the user is passed
+    // and the verification of the authorization is performed
+    return user
+        ? getVotingEvent(votingEventsCollection, votingEventId).pipe(
+              map(votingEvent => {
+                  _verifyPermissionToManageVotingEvent(user, votingEvent, operationDescription);
+              }),
+          )
+        : of(null);
+}
+function _verifyPermissionToManageVotingEvent(user: string, votingEvent: VotingEvent, operationDescription?: string) {
+    const isAdmin = votingEvent.roles.administrators.some(a => a === user);
+    if (!isAdmin) {
+        const _operationDeascription = operationDescription ? operationDescription : 'MANAGE';
+        const err = { ...ERRORS.userWithNotTheRequestedRole };
+        err.message = `${user} does not have the required permission to ${_operationDeascription} VotingEvent ${
+            votingEvent.name
+        }`;
+        throw err;
+    }
+}
+
 export function getVoters(votesColl: Collection, params: { votingEvent: any }) {
     return getVotes(votesColl, { eventId: params.votingEvent._id }).pipe(
         map(votes => {
@@ -263,8 +342,9 @@ export function calculateWinner(
 export function setTechologiesForEvent(
     votingEventsCollection: Collection,
     params: { _id: string; technologies: Technology[] },
+    user: string,
 ) {
-    return getVotingEvent(votingEventsCollection, params._id).pipe(
+    const operation = getVotingEvent(votingEventsCollection, params._id).pipe(
         concatMap(votingEvent => {
             if (!votingEvent) {
                 throw ERRORS.votingEventNotExisting;
@@ -274,6 +354,12 @@ export function setTechologiesForEvent(
             return updateOneObs({ _id: votingEvent._id }, dataToUpdate, votingEventsCollection);
         }),
     );
+    return verifyPermissionToManageVotingEvent(
+        votingEventsCollection,
+        user,
+        new ObjectId(params._id),
+        'SET TECHNOLOGIES FOR VOTING EVENT',
+    ).pipe(concatMap(() => operation));
 }
 export function addNewTechnologyToEvent(
     votingEventsCollection: Collection,
@@ -396,15 +482,27 @@ export function addReplyToTechComment(
     );
 }
 
-export function moveToNexFlowStep(votingEventsCollection: Collection, votesColl: Collection, params: { _id: string }) {
-    return fetchVotingEvidences(votingEventsCollection, votesColl, params).pipe(
+export function moveToNexFlowStep(
+    votingEventsCollection: Collection,
+    votesColl: Collection,
+    params: { _id: string },
+    user: string,
+) {
+    const _votingEventId = getObjectId(params._id);
+    const operation = fetchVotingEvidences(votingEventsCollection, votesColl, params).pipe(
         concatMap(votingEvent => {
-            const votingEventKey = { _id: getObjectId(params._id) };
+            const votingEventKey = { _id: _votingEventId };
             const newRound = votingEvent.round + 1;
             const dataToUpdate = { round: newRound, technologies: votingEvent.technologies };
             return updateOneObs(votingEventKey, dataToUpdate, votingEventsCollection);
         }),
     );
+    return verifyPermissionToManageVotingEvent(
+        votingEventsCollection,
+        user,
+        _votingEventId,
+        'MOVE TO NEXT STEP FOR VOTING EVENT',
+    ).pipe(concatMap(() => operation));
 }
 export function fetchVotingEvidences(
     votingEventsCollection: Collection,
@@ -550,4 +648,40 @@ export function resetRecommendation(
 function updateTechRecommendation({ votingEvent, tech, votingEventsCollection }) {
     const dataToUpdate = { 'technologies.$.recommendandation': tech.recommendandation };
     return updateOneObs({ _id: votingEvent._id, 'technologies._id': tech._id }, dataToUpdate, votingEventsCollection);
+}
+
+export function loadAdministratorsForVotingEvent(
+    votingEventCollection: Collection,
+    params: {
+        votingEventId: string;
+        administrators: string[];
+    },
+    user: string,
+) {
+    if (!params.votingEventId) {
+        throw new Error(`votingEventId are required to identify the VotingEvent`);
+    }
+    if (!user) {
+        throw new Error(`User must be passed when invoking loadAdministratorsForInitiative`);
+    }
+
+    const votingEventKey = { _id: getObjectId(params.votingEventId) };
+
+    return getVotingEvent(votingEventCollection, { _id: params.votingEventId }).pipe(
+        map(votingEvent => verifyPermissionToAddAdministratorsToVotingEvent(user, votingEvent)),
+        concatMap(() => {
+            const dataToUpdate = { $addToSet: { 'roles.administrators': { $each: params.administrators } } };
+            return updateOneObs(votingEventKey, dataToUpdate, votingEventCollection);
+        }),
+    );
+}
+function verifyPermissionToAddAdministratorsToVotingEvent(user: string, votingEvent: VotingEvent) {
+    const isAdmin = votingEvent.roles.administrators.some(a => a === user);
+    if (!isAdmin) {
+        const err = { ...ERRORS.userWithNotTheRequestedRole };
+        err.message = `${user} does not have the required permission to add administators to Voting Event ${
+            votingEvent.name
+        }`;
+        throw err;
+    }
 }

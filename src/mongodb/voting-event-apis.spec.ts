@@ -16,22 +16,34 @@ import { logError } from '../lib/utils';
 import { ObjectId } from 'bson';
 import { Comment } from '../model/comment';
 import { Vote } from '../model/vote';
+import { User } from '../model/user';
+import {
+    authenticateForTest,
+    createVotingEventForTest,
+    createInitiative,
+    readInitiative,
+    readVotingEvent,
+    createVotingEventForVotingEventTest,
+    createVotingEventForVotingEventAndReturnHeaders,
+} from './test.utils';
+import { Initiative } from '../model/initiative';
+import { addUsers } from '../api/authentication-api';
 
 describe('Operations on votingevents collection', () => {
     it('1.0 create a voting event and then reads it', done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
 
-        const newVotingEvent = { name: 'A Voting Event' };
+        const newVotingEventName = 'A Voting Event';
 
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, newVotingEvent)),
+                switchMap(() => createVotingEventForVotingEventTest(cachedDb, newVotingEventName)),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvents)),
             )
             .subscribe(
                 votingEvents => {
                     expect(votingEvents.length).to.equal(1);
-                    expect(votingEvents[0].name).to.equal(newVotingEvent.name);
+                    expect(votingEvents[0].name).to.equal(newVotingEventName);
                     expect(votingEvents[0].creationTS).to.be.not.undefined;
                     expect(votingEvents[0].lastOpenedTS).to.be.undefined;
                     expect(votingEvents[0].lastClosedTS).to.be.undefined;
@@ -51,12 +63,47 @@ describe('Operations on votingevents collection', () => {
     it('1.1 create a voting event and then tries to create a second one with the same name', done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
 
-        const newVotingEvent = { name: 'A Doubled Event 2' };
+        const newVotingEventName = 'A Doubled Event 2';
+        const initiativeName = `Test initiative for VotingEvent ${newVotingEventName}`;
+        const initiativeAdmin = { user: `Admin for initiative ${initiativeName}` };
+        let initiative: Initiative;
+        let headers: {
+            authorization: string;
+        };
 
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, newVotingEvent)),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, newVotingEvent)),
+                concatMap(() => createInitiative(cachedDb, initiativeName, initiativeAdmin)),
+                concatMap(() => readInitiative(cachedDb, initiativeName)),
+                tap(_initiative => (initiative = _initiative)),
+                concatMap(() => authenticateForTest(cachedDb, initiativeAdmin.user, 'my password')),
+                tap(_headers => (headers = _headers)),
+                concatMap(() =>
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.createVotingEvent,
+                        {
+                            newVotingEventName,
+                            initiativeName,
+                            initiativeId: initiative._id,
+                        },
+                        null,
+                        headers,
+                    ),
+                ),
+                concatMap(() =>
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.createVotingEvent,
+                        {
+                            newVotingEventName,
+                            initiativeName,
+                            initiativeId: initiative._id,
+                        },
+                        null,
+                        headers,
+                    ),
+                ),
             )
             .subscribe(
                 null,
@@ -77,19 +124,26 @@ describe('Operations on votingevents collection', () => {
     it('1.2 open a voting event', done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
 
-        const newVotingEvent = { name: 'A an Event to open' };
+        const newVotingEventName = 'A an Event to open';
 
         let votingEventId;
+        let headers;
+
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, newVotingEvent)),
-                tap(id => (votingEventId = id)),
+                switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, newVotingEventName)),
+                tap(data => {
+                    votingEventId = data.votingEventId;
+                    headers = data.headers;
+                }),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvents)),
                 tap(votingEvents => {
                     const votingEvent = votingEvents[0];
                     expect(votingEvent.round).to.be.undefined;
                 }),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
+                switchMap(() =>
+                    mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId }, null, headers),
+                ),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvents)),
             )
             .subscribe(
@@ -114,15 +168,23 @@ describe('Operations on votingevents collection', () => {
     it('1.3 close a voting event', done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
 
-        const newVotingEventName = { name: 'A an Event to close' };
+        const newVotingEventName = 'A an Event to close';
 
         let votingEventId;
+        let headers;
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, newVotingEventName)),
-                tap(id => (votingEventId = id)),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.closeVotingEvent, { _id: votingEventId })),
+                switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, newVotingEventName)),
+                tap(data => {
+                    votingEventId = data.votingEventId;
+                    headers = data.headers;
+                }),
+                switchMap(() =>
+                    mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId }, null, headers),
+                ),
+                switchMap(() =>
+                    mongodbService(cachedDb, ServiceNames.closeVotingEvent, { _id: votingEventId }, null, headers),
+                ),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvents)),
             )
             .subscribe(
@@ -152,12 +214,18 @@ describe('Operations on votingevents collection', () => {
         let credentializedVote: VoteCredentialized;
 
         let votingEventId;
+        let headers;
         let newVotingEvent;
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: newVotingEventName })),
-                tap(id => (votingEventId = id)),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
+                switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, newVotingEventName)),
+                tap(data => {
+                    votingEventId = data.votingEventId;
+                    headers = data.headers;
+                }),
+                switchMap(() =>
+                    mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId }, null, headers),
+                ),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap(vEvent => {
                     newVotingEvent = vEvent;
@@ -176,7 +244,15 @@ describe('Operations on votingevents collection', () => {
                     cancelHardVotingEventParams = { ...vEvent, hard: true };
                 }),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.saveVotes, credentializedVote)),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.cancelVotingEvent, cancelHardVotingEventParams)),
+                switchMap(() =>
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.cancelVotingEvent,
+                        cancelHardVotingEventParams,
+                        null,
+                        headers,
+                    ),
+                ),
                 switchMap(() =>
                     forkJoin(
                         getAllVotingEvents(cachedDb.db.collection(config.votingEventsCollection)),
@@ -209,12 +285,18 @@ describe('Operations on votingevents collection', () => {
         let credentializedVote: VoteCredentialized;
 
         let votingEventId;
+        let headers;
         let newVotingEvent;
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: eventName })),
-                tap(id => (votingEventId = id)),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
+                switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, eventName)),
+                tap(data => {
+                    votingEventId = data.votingEventId;
+                    headers = data.headers;
+                }),
+                switchMap(() =>
+                    mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId }, null, headers),
+                ),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap(vEvent => {
                     newVotingEvent = vEvent;
@@ -233,7 +315,13 @@ describe('Operations on votingevents collection', () => {
                 }),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.saveVotes, credentializedVote)),
                 switchMap(() =>
-                    mongodbService(cachedDb, ServiceNames.cancelVotingEvent, { _id: votingEventId, hard: true }),
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.cancelVotingEvent,
+                        { _id: votingEventId, hard: true },
+                        null,
+                        headers,
+                    ),
                 ),
                 switchMap(() =>
                     forkJoin(
@@ -268,12 +356,18 @@ describe('Operations on votingevents collection', () => {
         let credentializedVote: VoteCredentialized;
 
         let votingEventId;
+        let headers;
         let newVotingEvent;
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: eventName })),
-                tap(id => (votingEventId = id)),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
+                switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, eventName)),
+                tap(data => {
+                    votingEventId = data.votingEventId;
+                    headers = data.headers;
+                }),
+                switchMap(() =>
+                    mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId }, null, headers),
+                ),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap(vEvent => {
                     newVotingEvent = vEvent;
@@ -293,7 +387,9 @@ describe('Operations on votingevents collection', () => {
                 }),
 
                 switchMap(() => mongodbService(cachedDb, ServiceNames.saveVotes, credentializedVote)),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.cancelVotingEvent, cancelSoftVotingEvent)),
+                switchMap(() =>
+                    mongodbService(cachedDb, ServiceNames.cancelVotingEvent, cancelSoftVotingEvent, null, headers),
+                ),
                 switchMap(() =>
                     forkJoin(
                         mongodbService(cachedDb, ServiceNames.getVotingEvents),
@@ -329,18 +425,18 @@ describe('Operations on votingevents collection', () => {
     it('1.6 creates 2 voting events and then reads one', done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
 
-        const newVotingEvent1 = { name: 'A Voting Event - 1' };
-        const newVotingEvent2 = { name: 'A Voting Event - 2' };
+        const newVotingEventName1 = 'A Voting Event - 1';
+        const newVotingEventName2 = 'A Voting Event - 2';
 
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, newVotingEvent1)),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, newVotingEvent2)),
+                switchMap(() => createVotingEventForVotingEventTest(cachedDb, newVotingEventName1)),
+                switchMap(() => createVotingEventForVotingEventTest(cachedDb, newVotingEventName2)),
                 switchMap(id => mongodbService(cachedDb, ServiceNames.getVotingEvent, id)),
             )
             .subscribe(
                 votingEvent => {
-                    expect(votingEvent.name).to.equal(newVotingEvent2.name);
+                    expect(votingEvent.name).to.equal(newVotingEventName2);
                     expect(votingEvent.creationTS).to.be.not.undefined;
                     expect(votingEvent.lastOpenedTS).to.be.undefined;
                     expect(votingEvent.lastClosedTS).to.be.undefined;
@@ -359,12 +455,12 @@ describe('Operations on votingevents collection', () => {
 
     it('1.7 creates a voting event, saves some votes and then calculates the winner', done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
-        const votingEventName = { name: 'event A-winner' };
+        const votingEventName = 'event A-winner';
         let votingEvent;
 
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, votingEventName)),
+                switchMap(() => createVotingEventForVotingEventTest(cachedDb, votingEventName)),
                 switchMap(id => mongodbService(cachedDb, ServiceNames.getVotingEvent, id)),
                 // JSON stringify and parse to simulate what is received and then returned by the client
                 // basically it turns the '_id' of the Voting Event from a mongo ObjectId into a string
@@ -434,12 +530,12 @@ describe('Operations on votingevents collection', () => {
 
     it('1.8 creates a voting event, saves some votes and then gets the list of voters', done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
-        const votingEventName = { name: 'event A-winner' };
+        const votingEventName = 'event A-winner';
         let votingEvent;
 
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, votingEventName)),
+                switchMap(() => createVotingEventForVotingEventTest(cachedDb, votingEventName)),
                 switchMap(id => mongodbService(cachedDb, ServiceNames.getVotingEvent, id)),
                 // JSON stringify and parse to simulate what is received and then returned by the client
                 // basically it turns the '_id' of the Voting Event from a mongo ObjectId into a string
@@ -505,15 +601,22 @@ describe('Operations on votingevents collection', () => {
 
     it('1.9 creates a voting event and then opens it for revote and then closes it for revote', done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
-        const votingEventName = { name: 'event revote' };
+        const votingEventName = 'event revote';
 
         let votingEventId;
+        let headers;
         let round;
+
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, votingEventName)),
-                tap(id => (votingEventId = id)),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
+                switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, votingEventName)),
+                tap(data => {
+                    votingEventId = data.votingEventId;
+                    headers = data.headers;
+                }),
+                switchMap(() =>
+                    mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId }, null, headers),
+                ),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap(votingEvent => {
                     round = votingEvent.round;
@@ -527,7 +630,9 @@ describe('Operations on votingevents collection', () => {
                 tap(event => {
                     expect(event.openForRevote).to.be.true;
                 }),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.closeForRevote, { _id: votingEventId })),
+                switchMap(() =>
+                    mongodbService(cachedDb, ServiceNames.closeForRevote, { _id: votingEventId }, null, headers),
+                ),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
             )
             .subscribe(
@@ -548,15 +653,21 @@ describe('Operations on votingevents collection', () => {
     it(`2.0 creates a voting event, saves some votes, calculates the blips, and then retrieves the voting events 
          first in a skinny mode and then with all details of blips and technologies`, done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
-        const votingEventName = { name: 'event Skinny and Fat' };
+        const votingEventName = 'event Skinny and Fat';
         let votingEvent;
 
         let votingEventId;
+        let headers;
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, votingEventName)),
-                tap(id => (votingEventId = id)),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
+                switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, votingEventName)),
+                tap(data => {
+                    votingEventId = data.votingEventId;
+                    headers = data.headers;
+                }),
+                switchMap(() =>
+                    mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId }, null, headers),
+                ),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 map(_votingEvent => {
                     votingEvent = _votingEvent;
@@ -622,6 +733,7 @@ describe('Operations on votingevents collection', () => {
         };
 
         let votingEventId;
+        let headers;
         mongodbService(cachedDb, ServiceNames.getVotingEvents)
             .pipe(
                 map(votingEvents => votingEvents.filter(ve => ve.name === votingEventName)),
@@ -631,10 +743,19 @@ describe('Operations on votingevents collection', () => {
                     );
                     return votingEvents.length > 0 ? forkJoin(votingEventsDeleteObs) : of(null);
                 }),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName })),
-                tap(id => (votingEventId = id)),
+                switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, votingEventName)),
+                tap(data => {
+                    votingEventId = data.votingEventId;
+                    headers = data.headers;
+                }),
                 switchMap(() =>
-                    mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId, round: 1 }),
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.openVotingEvent,
+                        { _id: votingEventId, round: 1 },
+                        null,
+                        headers,
+                    ),
                 ),
                 // open the even to load the technologies - currently technologies are loaded into the event when the event is opened
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
@@ -704,6 +825,7 @@ describe('Operations on votingevents collection', () => {
         const replyAuthor = ' I am the author of the reply';
 
         let votingEventId;
+        let headers;
         let technology: Technology;
         let techId: string;
         mongodbService(cachedDb, ServiceNames.getVotingEvents)
@@ -715,11 +837,20 @@ describe('Operations on votingevents collection', () => {
                     );
                     return votingEvents.length > 0 ? forkJoin(votingEventsDeleteObs) : of(null);
                 }),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName })),
-                tap(id => (votingEventId = id)),
+                switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, votingEventName)),
+                tap(data => {
+                    votingEventId = data.votingEventId;
+                    headers = data.headers;
+                }),
                 // open the even to load the technologies - currently technologies are loaded into the event when the event is opened
                 switchMap(() =>
-                    mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId, round: 1 }),
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.openVotingEvent,
+                        { _id: votingEventId, round: 1 },
+                        null,
+                        headers,
+                    ),
                 ),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 switchMap(() =>
@@ -823,6 +954,7 @@ describe('Operations on votingevents collection', () => {
         const theAuthor = 'the author of the comment';
 
         let votingEventId;
+        let headers;
         mongodbService(cachedDb, ServiceNames.getVotingEvents)
             .pipe(
                 map(votingEvents => votingEvents.filter(ve => ve.name === votingEventName)),
@@ -832,11 +964,20 @@ describe('Operations on votingevents collection', () => {
                     );
                     return votingEvents.length > 0 ? forkJoin(votingEventsDeleteObs) : of(null);
                 }),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, { name: votingEventName })),
-                tap(id => (votingEventId = id)),
+                switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, votingEventName)),
+                tap(data => {
+                    votingEventId = data.votingEventId;
+                    headers = data.headers;
+                }),
                 // open the even to load the technologies - currently technologies are loaded into the event when the event is opened
                 switchMap(() =>
-                    mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId, round: 1 }),
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.openVotingEvent,
+                        { _id: votingEventId, round: 1 },
+                        null,
+                        headers,
+                    ),
                 ),
                 // add a comment to a technology the is not present in the voting event
                 switchMap(() =>
@@ -869,13 +1010,18 @@ describe('Operations on votingevents collection', () => {
     it('2.4 after setting the cancelled property to false the VotingEvent should be visible again', done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
 
-        const newVotingEvent = { name: 'An Event with cancelled property set to false' };
+        const newVotingEventName = 'An Event with cancelled property set to false';
 
         let votingEventId;
+        let headers;
+
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                concatMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, newVotingEvent)),
-                tap(id => (votingEventId = id)),
+                switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, newVotingEventName)),
+                tap(data => {
+                    votingEventId = data.votingEventId;
+                    headers = data.headers;
+                }),
                 concatMap(() =>
                     mongodbService(cachedDb, ServiceNames.cancelVotingEvent, { _id: votingEventId, hard: false }),
                 ),
@@ -883,10 +1029,12 @@ describe('Operations on votingevents collection', () => {
                 tap(votingEvent => {
                     expect(votingEvent).to.be.undefined;
                 }),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.undoCancelVotingEvent, { _id: votingEventId })),
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.undoCancelVotingEvent, { _id: votingEventId }, null, headers),
+                ),
                 concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, { _id: votingEventId })),
                 tap(votingEvent => {
-                    expect(votingEvent.name).to.equal(newVotingEvent.name);
+                    expect(votingEvent.name).to.equal(newVotingEventName);
                 }),
             )
             .subscribe(
@@ -907,7 +1055,7 @@ describe('Operations on votingevents collection', () => {
     with number of votes and comments`, done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
 
-        const newVotingEvent = { name: 'An Event with votes and comments to be counted' };
+        const newVotingEventName = 'An Event with votes and comments to be counted';
         const nickanmeOfFirstVoter = 'I am the first voter';
 
         let votingEventId;
@@ -916,11 +1064,18 @@ describe('Operations on votingevents collection', () => {
         let tech0: Technology;
         let tech1: Technology;
 
+        let headers;
+
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                concatMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, newVotingEvent)),
-                tap(id => (votingEventId = id)),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
+                switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, newVotingEventName)),
+                tap(data => {
+                    votingEventId = data.votingEventId;
+                    headers = data.headers;
+                }),
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId }, null, headers),
+                ),
                 concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap(vEvent => {
                     votingEvent = vEvent;
@@ -1108,7 +1263,7 @@ describe('Operations on votingevents collection', () => {
     to the next step of the VotingEvent flow`, done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
 
-        const newVotingEvent = { name: 'An Event which moves to the next step of the flow' };
+        const newVotingEventName = 'An Event which moves to the next step of the flow';
 
         let votingEventId;
         let votingEventRound: number;
@@ -1122,11 +1277,18 @@ describe('Operations on votingevents collection', () => {
         const trainingTag = 'Trainig';
         const colleaguesTag = 'Colleagues';
 
+        let headers;
+
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                concatMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, newVotingEvent)),
-                tap(id => (votingEventId = id)),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
+                switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, newVotingEventName)),
+                tap(data => {
+                    votingEventId = data.votingEventId;
+                    headers = data.headers;
+                }),
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId }, null, headers),
+                ),
                 concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap(vEvent => {
                     votingEvent = vEvent;
@@ -1200,7 +1362,9 @@ describe('Operations on votingevents collection', () => {
                 tap(votingEvent => {
                     votingEventRound = votingEvent.round;
                 }),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.moveToNexFlowStep, { _id: votingEventId })),
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.moveToNexFlowStep, { _id: votingEventId }, null, headers),
+                ),
                 concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap((votingEvent: VotingEvent) => {
                     expect(votingEvent.round).to.equal(votingEventRound + 1);
@@ -1222,7 +1386,9 @@ describe('Operations on votingevents collection', () => {
                     expect(t1.votingResult.votesForTag).to.be.undefined;
                 }),
                 // We move to the third step and want to check that the voting results are the same at least in terms of numbers
-                concatMap(() => mongodbService(cachedDb, ServiceNames.moveToNexFlowStep, { _id: votingEventId })),
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.moveToNexFlowStep, { _id: votingEventId }, null, headers),
+                ),
                 concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap((votingEvent: VotingEvent) => {
                     expect(votingEvent.round).to.equal(votingEventRound + 2);
@@ -1257,9 +1423,8 @@ describe('Operations on votingevents collection', () => {
     and then it is reset, then a new recommender is defined and a resommendation is set`, done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
 
-        const newVotingEvent = {
-            name: 'An Event where a person is set as the author of the recommendation of the tecnology',
-        };
+        const newVotingEventName =
+            'An Event where a person is set as the author of the recommendation of the tecnology';
 
         let votingEventId;
         let votes: VoteCredentialized[];
@@ -1280,11 +1445,18 @@ describe('Operations on votingevents collection', () => {
         let resetterImpostorErrorEncountered = false;
         let differentRecommenderErrorEncountered = false;
 
+        let headers;
+
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                concatMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, newVotingEvent)),
-                tap(id => (votingEventId = id)),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
+                switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, newVotingEventName)),
+                tap(data => {
+                    votingEventId = data.votingEventId;
+                    headers = data.headers;
+                }),
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId }, null, headers),
+                ),
                 concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap(vEvent => {
                     votingEvent = vEvent;
@@ -1440,16 +1612,16 @@ describe('Operations on votingevents collection', () => {
     it('2.8 create a voting event and then set its technologies', done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
 
-        const newVotingEvent = { name: 'A Voting Event for which we set the technologies' };
+        const newVotingEventName = 'A Voting Event for which we set the technologies';
         const technologies: Technology[] = [
             { name: 'The first tech', description: 'first tech', quadrant: 'tools', isNew: true },
             { name: 'The second tech', description: 'second tech', quadrant: 'tools', isNew: false },
         ];
-        let votingEventId: string;
+        let votingEventId: ObjectId;
 
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, newVotingEvent)),
+                switchMap(() => createVotingEventForVotingEventTest(cachedDb, newVotingEventName)),
                 tap(_id => (votingEventId = _id)),
                 switchMap(() =>
                     mongodbService(cachedDb, ServiceNames.setTechologiesForEvent, { _id: votingEventId, technologies }),
@@ -1467,6 +1639,90 @@ describe('Operations on votingevents collection', () => {
                     cachedDb.client.close();
                     logError(err);
                     done(err);
+                },
+                () => {
+                    cachedDb.client.close();
+                    done();
+                },
+            );
+    }).timeout(10000);
+
+    it('2.9 the admin of an initiative creates an event for this initiative', done => {
+        const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+
+        const initiativeName = 'The initiative for a voting event to be created';
+        const initiativeAdmin: User = { user: 'Adming of the Initiative for the Voting Event' };
+        let initiative: Initiative;
+
+        const votingEventName = 'A Voting Event created by the admin of the Initiative it belongs to';
+        let votingEventId: string;
+
+        // first clean the db
+        mongodbService(cachedDb, ServiceNames.cancelInitiative, { name: initiativeName, hard: true })
+            // then start the test
+            .pipe(
+                concatMap(() => createInitiative(cachedDb, initiativeName, initiativeAdmin)),
+                concatMap(() => readInitiative(cachedDb, initiativeName)),
+                tap(_initiative => (initiative = _initiative)),
+                concatMap(() => authenticateForTest(cachedDb, initiativeAdmin.user, 'my password')),
+                concatMap(headers =>
+                    createVotingEventForTest(cachedDb, votingEventName, headers, initiativeName, initiative._id),
+                ),
+                tap(_id => (votingEventId = _id.toHexString())),
+                concatMap(() => readVotingEvent(cachedDb, votingEventId)),
+                tap(votingEvent => {
+                    expect(votingEvent).to.be.not.undefined;
+                    expect(votingEvent.name).equal(votingEventName);
+                }),
+            )
+            .subscribe(
+                null,
+                err => {
+                    cachedDb.client.close();
+                    logError(err);
+                    done(err);
+                },
+                () => {
+                    cachedDb.client.close();
+                    done();
+                },
+            );
+    }).timeout(10000);
+
+    it('3.0 a user who is not admin of an initiative tries to create an event for this initiative and fails', done => {
+        const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+
+        const initiativeName = 'The initiative where an admin wannabe tries to create an event';
+        const initiativeAdmin: User = { user: 'The real admin' };
+        const adminWannabe: User = { user: 'admin wannabe' };
+        let initiative: Initiative;
+
+        const votingEventName = 'A Voting Event the admin wannabe would like to create';
+
+        // first clean the db
+        mongodbService(cachedDb, ServiceNames.cancelInitiative, { name: initiativeName, hard: true })
+            // then start the test
+            .pipe(
+                concatMap(() => addUsers(cachedDb.db.collection(config.usersCollection), { users: [adminWannabe] })),
+                concatMap(() => createInitiative(cachedDb, initiativeName, initiativeAdmin)),
+                concatMap(() => readInitiative(cachedDb, initiativeName)),
+                tap(_initiative => (initiative = _initiative)),
+                concatMap(() => authenticateForTest(cachedDb, adminWannabe.user, 'my password')),
+                concatMap(headers =>
+                    createVotingEventForTest(cachedDb, votingEventName, headers, initiativeName, initiative._id),
+                ),
+            )
+            .subscribe(
+                data => {
+                    cachedDb.client.close();
+                    console.error('Data received', data);
+                    const error = 'This test should have generated an error';
+                    done(error);
+                },
+                err => {
+                    expect(err.errorCode).equal(ERRORS.userWithNotTheRequestedRole.errorCode);
+                    cachedDb.client.close();
+                    done();
                 },
                 () => {
                     cachedDb.client.close();

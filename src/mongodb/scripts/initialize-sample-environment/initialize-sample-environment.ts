@@ -32,7 +32,7 @@ const initiativeOtherAdministrators = [
 const companyEvent: VotingEvent = {
     name: 'The Smart Company Tech Radar',
     flow: CorporateVotingEventFlow,
-    owner: { userId: 'the setupper' },
+    owner: initiativeFirstAdministrator,
 };
 // const communityEvent: VotingEvent = {
 //     name: 'A Radar the Smart Company organizes for a Community Event',

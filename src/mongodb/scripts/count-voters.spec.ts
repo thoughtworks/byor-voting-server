@@ -8,6 +8,7 @@ import { config } from '../../api/config';
 import { getVotingEvents } from '../../api/voting-event-apis';
 import { forkJoin } from 'rxjs';
 import { TEST_TECHNOLOGIES } from '../../model/technologies.local-data';
+import { createAndOpenVotingEvent } from '../test.utils';
 
 describe('Script count voters', () => {
     describe('for existing events', () => {
@@ -25,26 +26,16 @@ describe('Script count voters', () => {
                 .pipe(
                     switchMap(() =>
                         forkJoin(
-                            mongodbService(cachedDb, ServiceNames.createVotingEvent, firstVotingEvent).pipe(
-                                switchMap(_id => {
-                                    firstVotingEventId = _id.toHexString();
-                                    return mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id });
-                                }),
-                            ),
-                            mongodbService(cachedDb, ServiceNames.createVotingEvent, secondVotingEvent).pipe(
-                                switchMap(_id => {
-                                    secondVotingEventId = _id.toHexString();
-                                    return mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id });
-                                }),
-                            ),
-                            mongodbService(cachedDb, ServiceNames.createVotingEvent, thirdVotingEvent).pipe(
-                                switchMap(_id => {
-                                    thirdVotingEventId = _id.toHexString();
-                                    return mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id });
-                                }),
-                            ),
+                            createAndOpenVotingEvent(cachedDb, firstVotingEvent.name),
+                            createAndOpenVotingEvent(cachedDb, secondVotingEvent.name),
+                            createAndOpenVotingEvent(cachedDb, thirdVotingEvent.name),
                         ),
                     ),
+                    tap(([_firstVotingEventId, _secondVotingEventId, _thirdVotingEventId]) => {
+                        firstVotingEventId = _firstVotingEventId.toHexString();
+                        secondVotingEventId = _secondVotingEventId.toHexString();
+                        thirdVotingEventId = _thirdVotingEventId.toHexString();
+                    }),
                     switchMap(() => getVotingEvents(cachedDb.db.collection(config.votingEventsCollection))),
                     tap(
                         votingEvents => expect(votingEvents.filter(e => e.status === 'open').length).to.equal(3),

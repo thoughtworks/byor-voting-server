@@ -6,9 +6,10 @@ import { ERRORS } from './errors';
 import { logDebug, logError } from '../lib/utils';
 import { validatePasswordAgainstHash$, generateJwt$, verifyJwt, getPasswordHash$ } from '../lib/observables';
 import { EmptyError, forkJoin } from 'rxjs';
-import { groupBy } from 'lodash';
 import { getVotingEvent } from './voting-event-apis';
 import { VotingEvent } from '../model/voting-event';
+import { User } from '../model/user';
+import { groupBy } from 'lodash';
 
 export function authenticate(usersColl: Collection<any>, credentials: { user: string; pwd: string }) {
     const _user = { user: credentials.user };
@@ -63,18 +64,8 @@ export function authenticateForVotingEvent(
     if (!params.pwd) throw new Error('Parameter pwd not passed to authenticateForVotingEvent');
     if (!params.votingEventId) throw new Error('Parameter votingEventId not passed to authenticateForVotingEvent');
     if (!params.flowStepName) throw new Error('Parameter flowStepName not passed to authenticateForVotingEvent');
-    const _user = { user: params.user };
-    return findObs(usersColl, _user).pipe(
-        toArray(),
-        tap(foundUsers => {
-            if (foundUsers.length === 0) {
-                throw ERRORS.userUnknown;
-            }
-            if (foundUsers.length > 1) {
-                throw new Error(`More than one user with the same user id "${_user}"`);
-            }
-        }),
-        concatMap(([foundUser]) => {
+    return findUsersObs(usersColl, params.user).pipe(
+        concatMap(foundUser => {
             let votingEvent: VotingEvent;
             return getVotingEvent(votingEventColl, params.votingEventId).pipe(
                 tap(votingEvent => {
@@ -110,7 +101,7 @@ export function authenticateForVotingEvent(
                   // in this case we hash it, store it in the db
                   getPasswordHash$(params.pwd).pipe(
                       tap(hash => (foundUser.pwd = hash)),
-                      concatMap(() => updateOneObs({ _id: foundUser._id }, { pwd: foundUser.pwd }, usersColl)),
+                      concatMap(() => updateOneObs({ user: foundUser.user }, { pwd: foundUser.pwd }, usersColl)),
                       concatMap(() =>
                           authenticate(usersColl, params).pipe(
                               map(token => {
@@ -126,25 +117,15 @@ export function authenticateForVotingEvent(
 export function authenticateOrSetPwdIfFirstTime(usersColl: Collection, params: { user: string; pwd: string }) {
     if (!params.user) throw new Error('Parameter user not passed to authenticateForVotingEvent');
     if (!params.pwd) throw new Error('Parameter pwd not passed to authenticateForVotingEvent');
-    const _user = { user: params.user };
-    return findObs(usersColl, _user).pipe(
-        toArray(),
-        tap(foundUsers => {
-            if (foundUsers.length === 0) {
-                throw ERRORS.userUnknown;
-            }
-            if (foundUsers.length > 1) {
-                throw new Error(`More than one user with the same user id "${_user}"`);
-            }
-        }),
-        concatMap(([foundUser]) => {
+    return findUsersObs(usersColl, params.user).pipe(
+        concatMap(foundUser => {
             return foundUser.pwd
                 ? authenticate(usersColl, params).pipe(map(token => ({ token, pwdInserted: false })))
                 : // if the pwd is not found as hash in the db, it means that this is the first time the user tries to login
                   // in this case we hash it, store it in the db
                   getPasswordHash$(params.pwd).pipe(
                       tap(hash => (foundUser.pwd = hash)),
-                      concatMap(() => updateOneObs({ _id: foundUser._id }, { pwd: foundUser.pwd }, usersColl)),
+                      concatMap(() => updateOneObs({ user: foundUser.user }, { pwd: foundUser.pwd }, usersColl)),
                       concatMap(() =>
                           authenticate(usersColl, params).pipe(
                               map(token => {
@@ -157,27 +138,48 @@ export function authenticateOrSetPwdIfFirstTime(usersColl: Collection, params: {
     );
 }
 
-export function addUsersWithRole(
+function findUsersObs(usersColl: Collection, user: string) {
+    return findObs(usersColl, { user }).pipe(
+        toArray(),
+        tap(foundUsers => {
+            if (foundUsers.length === 0) {
+                throw ERRORS.userUnknown;
+            }
+            if (foundUsers.length > 1) {
+                throw new Error(`More than one user with the same user id "${user}"`);
+            }
+        }),
+        map((users: User[]) => users[0]),
+    );
+}
+
+export function deleteUsers(usersColl: Collection<any>, params: { users: string[] }) {
+    return forkJoin(params.users.map(user => deleteObs({ user: user }, usersColl)));
+}
+
+export function addUsers(
+    usersColl: Collection<any>,
+    params: {
+        users: User[];
+    },
+) {
+    const updateOps = params.users.map(u => updateOneObs({ user: u.user }, u, usersColl, { upsert: true }));
+    return forkJoin(updateOps);
+}
+
+export function addUsersWithGroup(
     usersColl: Collection<any>,
     params: {
         users: {
             user: string;
-            role: string;
+            group: string;
         }[];
     },
 ) {
     const dataGroupedByUser = groupBy(params.users, 'user');
     const usersWithGroups = Object.keys(dataGroupedByUser).map(user => {
-        const groups = dataGroupedByUser[user].map(item => item.role);
+        const groups = dataGroupedByUser[user].map(item => item.group);
         return { user, groups };
     });
-    const obss = usersWithGroups.map(user => {
-        return updateOneObs({ user: user.user }, user, usersColl, { upsert: true });
-    });
-    const ret = forkJoin(obss);
-    return ret;
-}
-
-export function deleteUsers(usersColl: Collection<any>, params: { users: string[] }) {
-    return forkJoin(params.users.map(user => deleteObs({ user: user }, usersColl)));
+    return addUsers(usersColl, { users: usersWithGroups });
 }

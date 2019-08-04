@@ -4,6 +4,6 @@ import { findAndUpdateDoc$ } from '../../lib/db-utils';
 
 export function up(next: (error?: any) => any) {
     findAndUpdateDoc$(config.usersCollection, {}, () => ({
-        roles: ['admin', 'event_admin', 'initiative_admin'],
+        roles: ['admin'],
     })).subscribe(nextVal => logObsNext(nextVal), error => logObsError(error), () => logObsCompleted(next));
 }

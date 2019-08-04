@@ -2,18 +2,19 @@ import { Collection } from 'mongodb';
 import { toArray, map, tap, concatMap } from 'rxjs/operators';
 import { Observable, forkJoin } from 'rxjs';
 
-import { insertOneObs, findObs, deleteObs, updateManyObs } from 'observable-mongo';
+import { insertOneObs, findObs, deleteObs, updateManyObs, updateOneObs } from 'observable-mongo';
 
 import { Initiative } from '../model/initiative';
 import { getObjectId } from './utils';
 import { cancelVotingEvent, undoCancelVotingEvent } from './voting-event-apis';
 import { VotingEvent } from '../model/voting-event';
-import { User, INITIATIVE_ADMINISTRATOR } from '../model/user';
+import { User } from '../model/user';
 import { ERRORS } from './errors';
+import { addUsers } from './authentication-api';
 
 export function createInitiative(
     initiativeCollection: Collection,
-    userCollection: Collection,
+    usersCollection: Collection,
     params: { name: string; administrator: User },
 ) {
     if (!params.name) {
@@ -26,32 +27,11 @@ export function createInitiative(
     const newInitiative: Initiative = {
         name: params.name,
         creationTS: new Date(Date.now()).toISOString(),
+        roles: { administrators: [adminId] },
     };
-    return insertOneObs(newInitiative, initiativeCollection).pipe(
-        concatMap(initiativeId =>
-            addUserAsInitiativeAdministrator(adminId, initiativeId.toHexString(), params.name, userCollection).pipe(
-                map(() => initiativeId),
-            ),
-        ),
+    return addUsers(usersCollection, { users: [params.administrator] }).pipe(
+        concatMap(() => insertOneObs(newInitiative, initiativeCollection)),
     );
-}
-function addUserAsInitiativeAdministrator(
-    user: string,
-    initiativeId: string,
-    initiativeName: string,
-    userCollection: Collection,
-) {
-    const dataToUpdateInUserColl = {
-        $set: {
-            user,
-            initiativeId,
-            initiativeName,
-        },
-        $addToSet: { roles: INITIATIVE_ADMINISTRATOR },
-    };
-    return updateManyObs({ user, initiativeId, initiativeName }, dataToUpdateInUserColl, userCollection, {
-        upsert: true,
-    }).pipe(map(() => initiativeId));
 }
 
 export function getInititives(initiativeCollection: Collection, params?: { all?: boolean }) {
@@ -61,45 +41,40 @@ export function getInititives(initiativeCollection: Collection, params?: { all?:
         map((initiatives: Initiative[]) => initiatives.sort()),
     );
 }
+export function getInititive(initiativeCollection: Collection, params: { name: string }) {
+    const selector = { name: params.name, $or: [{ cancelled: { $exists: false } }, { cancelled: false }] };
+    return findObs(initiativeCollection, selector).pipe(
+        toArray(),
+        map((initiatives: Initiative[]) => initiatives[0]),
+    );
+}
 
 export function cancelInitiative(
     initiativeCollection: Collection,
     votingEventsCollection: Collection,
     votesCollection: Collection,
-    usersCollection: Collection,
     params: { name?: string; _id?: any; hard?: boolean },
 ) {
     let retObs: Observable<any>;
     const initiativeKey = !!params._id ? { _id: getObjectId(params._id) } : { name: params.name };
     const votingEventKey = !!params._id ? { initiativeId: params._id } : { initiativeName: params.name };
     if (params.hard) {
-        retObs = forkJoin(
-            deleteObs(initiativeKey, initiativeCollection),
-            findObs(votingEventsCollection, votingEventKey).pipe(
-                // for each VotingEvent create and Observable that represents the operation to cancel it
-                map((votingEvent: VotingEvent) =>
-                    cancelVotingEvent(votingEventsCollection, votesCollection, { name: votingEvent.name, hard: true }),
-                ),
-                toArray(),
+        retObs = findObs(votingEventsCollection, votingEventKey).pipe(
+            map((votingEvent: VotingEvent) =>
+                cancelVotingEvent(votingEventsCollection, votesCollection, { _id: votingEvent._id, hard: true }),
             ),
-        ).pipe(
-            concatMap(() => {
-                const usersInitiativeKey = !!params._id
-                    ? { initiativeId: params._id }
-                    : { initiativeName: params.name };
-                return deleteObs(usersInitiativeKey, usersCollection);
-            }),
+            toArray(),
+            map(operations => [...operations, deleteObs(initiativeKey, initiativeCollection)]),
+            concatMap(operations => forkJoin(operations)),
         );
     } else {
-        retObs = forkJoin(
-            updateManyObs(initiativeKey, { cancelled: true }, initiativeCollection),
-            findObs(votingEventsCollection, votingEventKey).pipe(
-                // for each VotingEvent create and Observable that represents the operation to cancel it
-                map((votingEvent: VotingEvent) =>
-                    cancelVotingEvent(votingEventsCollection, votesCollection, { name: votingEvent.name, hard: false }),
-                ),
-                toArray(),
+        retObs = findObs(votingEventsCollection, votingEventKey).pipe(
+            map((votingEvent: VotingEvent) =>
+                cancelVotingEvent(votingEventsCollection, votesCollection, { _id: votingEvent._id, hard: false }),
             ),
+            toArray(),
+            map(operations => [...operations, updateManyObs(initiativeKey, { cancelled: true }, initiativeCollection)]),
+            concatMap(operations => forkJoin(operations)),
         );
     }
     return retObs;
@@ -115,7 +90,7 @@ export function undoCancelInitiative(
     return findObs(votingEventsCollection, votingEventKey).pipe(
         // for each VotingEvent create and Observable that represents the operation to undo cancel it
         map((votingEvent: VotingEvent) =>
-            undoCancelVotingEvent(votingEventsCollection, votesCollection, { name: votingEvent.name }),
+            undoCancelVotingEvent(votingEventsCollection, votesCollection, { _id: votingEvent._id }),
         ),
         toArray(),
         // add to the array of cancel operations also the operation to undo cancel the initiative
@@ -129,50 +104,50 @@ export function undoCancelInitiative(
 
 export function loadAdministratorsForInitiative(
     initiativeCollection: Collection,
-    userCollection: Collection,
-    params: { name?: string; _id?: any; administrators: User[] },
+    usersCollection: Collection,
+    params: { _id: string; administrators: string[] },
     user: string,
 ) {
-    if (!params.name && !params._id) {
-        throw new Error(`Either _id or name are required to identify the Initiative`);
+    if (!params._id) {
+        throw new Error(`_id is required to identify the Initiative`);
     }
     if (!user) {
         throw new Error(`User must be passed when invoking loadAdministratorsForInitiative`);
     }
-    const initiativeKey = !!params._id ? { _id: getObjectId(params._id) } : { name: params.name };
-    const selectorForUsers = !!params._id ? { user, initiativeId: params._id } : { user, initiativeName: params.name };
 
-    // first check if the user invoking this API has the required role for this Inititative
-    return findObs(userCollection, selectorForUsers).pipe(
-        tap((user: User) => {
-            if (!user) {
-                throw new Error(
-                    `User not found with id ${user} for initiative ${params.name} and initiativeId ${params._id}`,
-                );
-            }
-            if (!user.roles || !user.roles.some(r => r === INITIATIVE_ADMINISTRATOR)) {
-                const err = { ...ERRORS.userWithNotTheRequestedRole };
-                err.message = `${user} is not authorized to load new administrators for the Initiative`;
-                throw err;
-            }
-        }),
+    const initiativeKey = { _id: getObjectId(params._id) };
+
+    // fimd the Inititative
+    return findObs(initiativeCollection, initiativeKey).pipe(
+        toArray(),
         // then check if the Inititative exists
-        concatMap(() => findObs(initiativeCollection, initiativeKey)),
-        tap(initiative => {
-            if (!initiative) {
-                throw new Error(`Initiative not found for id ${params._id} or name ${params.name}`);
+        tap((initiatives: Initiative[]) => {
+            if (initiatives.length === 0) {
+                throw new Error(`Initiative not found for id ${params._id}`);
             }
         }),
-        concatMap((initiative: Initiative) => {
-            const upsertOperations = params.administrators.map(adm => {
-                return addUserAsInitiativeAdministrator(
-                    adm.user,
-                    initiative._id.toHexString(),
-                    params.name,
-                    userCollection,
-                );
-            });
-            return forkJoin(upsertOperations);
+        map(initiatives => initiatives[0]),
+        tap(initiative => verifyPermissionTaAddAdministrator(user, initiative)),
+        concatMap(() => {
+            const users = params.administrators.map(a => ({ user: a }));
+            return addUsers(usersCollection, { users });
+        }),
+        concatMap(() => {
+            const dataToUpdate = {
+                $addToSet: { 'roles.administrators': { $each: params.administrators } },
+            };
+            return updateOneObs(initiativeKey, dataToUpdate, initiativeCollection);
         }),
     );
+}
+
+function verifyPermissionTaAddAdministrator(user: string, initiative: Initiative) {
+    const isAdmin = initiative.roles.administrators.some(a => a === user);
+    if (!isAdmin) {
+        const err = { ...ERRORS.userWithNotTheRequestedRole };
+        err.message = `${user} does not have the required permission to add administators to Initiative ${
+            initiative.name
+        }`;
+        throw err;
+    }
 }

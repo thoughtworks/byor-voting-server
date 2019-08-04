@@ -1,6 +1,7 @@
 import { Technology } from './technology';
 import { VotingEventFlow } from './voting-event-flow';
-import { Credentials } from './credentials';
+import { User } from './user';
+import { Roles } from './roles';
 
 export type VotingEventStatus = 'open' | 'closed';
 
@@ -17,8 +18,8 @@ export interface VotingEvent {
     hasTechnologiesForRevote?: boolean;
     url?: string;
     flow?: VotingEventFlow;
-    owner: Credentials;
-    administrators?: string[];
+    owner: User;
+    roles?: Roles;
     initiativeName?: string;
     initiativeId?: string;
 }

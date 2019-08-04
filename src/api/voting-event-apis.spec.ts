@@ -3,16 +3,12 @@ import * as mango from 'observable-mongo';
 import {
     cancelVotingEvent,
     closeForRevote,
-    closeVotingEvent,
-    createNewVotingEvent,
     deleteVotingEvents,
     getAllVotingEvents,
-    // getVoters,
     getVotingEvent,
     getVotingEvents,
     laodVotingEvents,
     openForRevote,
-    openVotingEvent,
     saveVotingEvents,
 } from './voting-event-apis';
 import { from, of, EMPTY, Observable } from 'rxjs';
@@ -40,28 +36,28 @@ describe('Voting Events API', () => {
             status: 'open',
             round: 1,
             creationTS: '2019-02-14T14:08:10.410Z',
-            owner: { userId: 'the creator' },
+            owner: { user: 'the creator' },
         },
         {
             _id: new ObjectId('111111111111111111111111'),
             name: 'codemotion',
             status: 'closed',
             creationTS: '2019-02-12T14:08:10.410Z',
-            owner: { userId: 'the creator' },
+            owner: { user: 'the creator' },
         },
         {
             _id: new ObjectId('222222222222222222222222'),
             name: 'devoox',
             status: 'open',
             creationTS: '2019-02-16T14:08:10.410Z',
-            owner: { userId: 'the creator' },
+            owner: { user: 'the creator' },
         },
         {
             _id: new ObjectId('333333333333333333333333'),
             name: 'codemotion',
             status: 'closed',
             creationTS: '2019-02-08T14:08:10.410Z',
-            owner: { userId: 'the creator' },
+            owner: { user: 'the creator' },
         },
     ];
 
@@ -240,41 +236,6 @@ describe('Voting Events API', () => {
                 },
             );
             sinon.assert.calledWith(insertManyObsErr, votingEvents, collection);
-        });
-    });
-
-    describe('createNewVotingEvent', () => {
-        it('creates a new voting event', () => {
-            createNewVotingEvent(collection, {
-                name: 'Ng-Conf',
-                flow: null,
-                creator: { userId: 'the creator' },
-            }).subscribe(id => {
-                expect(id).to.equal(1);
-            });
-            sinon.assert.calledWith(insertManyObs, sinon.match.array, collection);
-        });
-    });
-
-    describe('openVotingEvent', () => {
-        const techCollection: any = { collectionName: 'technologies' };
-        it('opens an event for voting', () => {
-            const votingEvent = { _id: votingEvents[0]._id };
-            findObs.onCall(1).returns(EMPTY);
-            openVotingEvent(collection, techCollection, votingEvent).subscribe(id => {
-                expect(id).to.deep.equal({ result: { ok: 1, n: 1 } });
-            });
-            sinon.assert.calledWith(updateOneObs, votingEvent, sinon.match.has('status', 'open'), collection);
-        });
-    });
-
-    describe('closeVotingEvent', () => {
-        it('closes the event for voting', () => {
-            let votingEvent = { _id: '000000000000000000000000' };
-            closeVotingEvent(collection, votingEvent).subscribe(id => {
-                expect(id).to.deep.equal({ result: { ok: 1, n: 1 } });
-            });
-            sinon.assert.calledWith(updateOneObs, sinon.match.any, sinon.match.has('status', 'closed'), collection);
         });
     });
 

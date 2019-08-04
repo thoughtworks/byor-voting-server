@@ -405,9 +405,7 @@ describe('Operations on votingevents collection', () => {
                     expect(votes.length).to.equal(0);
                     expect(allVotingEvents.length).to.equal(1);
 
-                    const votesOnNewEvent = allVotes.filter(
-                        vote => vote.eventId.id.toString() === newVotingEvent._id.id.toString(),
-                    );
+                    const votesOnNewEvent = allVotes.filter(vote => vote.eventId === newVotingEvent._id.toHexString());
                     expect(votesOnNewEvent.length).to.equal(1);
                 },
                 err => {
@@ -1151,7 +1149,9 @@ describe('Operations on votingevents collection', () => {
                     expect(t0.numberOfVotes).to.equal(3);
                     expect(t1.numberOfVotes).to.equal(2);
                 }),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotes, { eventId: votingEventId })),
+                concatMap(() => {
+                    return mongodbService(cachedDb, ServiceNames.getVotes, { eventId: votingEventId });
+                }),
                 concatMap((votes: Vote[]) => {
                     const theVote = votes.find(
                         v => v.voterId.nickname.toUpperCase() === nickanmeOfFirstVoter.toUpperCase(),

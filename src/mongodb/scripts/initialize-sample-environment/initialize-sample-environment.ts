@@ -1,7 +1,7 @@
-import { concatMap, tap, map, finalize, toArray } from 'rxjs/operators';
+import { concatMap, map, toArray, tap } from 'rxjs/operators';
 import { mongodbService, CachedDB } from '../../../api/service';
 import { config } from '../../../api/config';
-import { MongoClient, ObjectId } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { connectObs, updateOneObs } from 'observable-mongo';
 import { ServiceNames } from '../../../service-names';
 import { VotingEvent } from '../../../model/voting-event';
@@ -13,7 +13,6 @@ import {
 import { Credentials } from '../../../model/credentials';
 import { VoteCredentialized } from '../../../model/vote-credentialized';
 import { Initiative } from '../../../model/initiative';
-import { pipe } from 'rxjs';
 import { readCsvLineObs$ } from '../../../lib/observables';
 import { User } from '../../../model/user';
 import { createHeaders } from '../../test.utils';
@@ -46,115 +45,110 @@ const kent_dev: Credentials = { nickname: 'Kent the old dev' };
 const martin_dev: Credentials = { nickname: 'Martin the shy dev' };
 
 const initializeConn = (dbName: string) => {
-    let mongoClient: MongoClient;
     return connectObs(config.mongoUri).pipe(
-        tap(client => (mongoClient = client)),
-        map(client => client.db(dbName)),
-        finalize(() => mongoClient.close()),
+        tap(_client => (cachedDb.client = _client)),
+        tap(_client => (cachedDb.db = _client.db(dbName))),
     );
 };
 
 initializeConn(cachedDb.dbName)
     .pipe(
-        cleanDb(),
-        createInitiative(),
-        authenticateInitiativeAdministrator(),
-        loadAdministratorsForInitiative(),
-        createSmartCompanyEvent(),
-        loadTechnologiesForVotingEvent(),
-        openVotingEvent(),
-        tonyDevVotes(),
-        maryDevVotes(),
-        kentDevVotes(),
-        martinDevVotes(),
-        enableVotingEventFlow(),
+        concatMap(() => cleanDb()),
+        concatMap(() => createInitiative()),
+        concatMap(initiativeId => authenticateInitiativeAdministrator(initiativeId)),
+        concatMap(({ headers, initiativeId }) => {
+            return loadAdministratorsForInitiative({ headers, initiativeId });
+        }),
+        concatMap(({ headers, initiativeId }) => {
+            return createSmartCompanyEvent({ headers, initiativeId });
+        }),
+        concatMap(eventId => loadTechnologiesForVotingEvent(eventId)),
+        concatMap(eventId => openVotingEvent(eventId)),
+        concatMap(eventId => tonyDevVotes(eventId)),
+        concatMap(eventId => maryDevVotes(eventId)),
+        concatMap(eventId => kentDevVotes(eventId)),
+        concatMap(eventId => martinDevVotes(eventId)),
+        concatMap(() => enableVotingEventFlow()),
     )
     .subscribe(
         null,
         err => {
             cachedDb.client.close();
+            console.log('client>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', cachedDb.client);
             console.error(err);
         },
         () => {
             cachedDb.client.close();
+            console.log('DONE');
         },
     );
 
 function cleanDb() {
-    return pipe(
-        concatMap(() => mongodbService(cachedDb, ServiceNames.cancelInitiative, { name: initiative.name, hard: true })),
-    );
+    return mongodbService(cachedDb, ServiceNames.cancelInitiative, { name: initiative.name, hard: true });
 }
 
 function createInitiative() {
-    return pipe(
-        concatMap(() =>
-            mongodbService(cachedDb, ServiceNames.createInitiative, {
-                name: initiative.name,
-                administrator: initiativeFirstAdministrator,
-            }).pipe(map((initiativeId: ObjectId) => initiativeId.toHexString())),
-        ),
-    );
+    return mongodbService(cachedDb, ServiceNames.createInitiative, {
+        name: initiative.name,
+        administrator: initiativeFirstAdministrator,
+    }).pipe(map((initiativeId: ObjectId) => initiativeId));
 }
 
-function authenticateInitiativeAdministrator() {
-    let initiativeId: string;
-    return pipe(
-        tap((initId: any) => (initiativeId = initId)),
-        // authenticate
-        concatMap(() =>
-            mongodbService(cachedDb, ServiceNames.authenticateOrSetPwdIfFirstTime, {
-                user: initiativeFirstAdministrator.user,
-                pwd: initiativeFirstAdministratorPwd,
-            }),
-        ),
+function authenticateInitiativeAdministrator(initiativeId: ObjectId) {
+    return mongodbService(cachedDb, ServiceNames.authenticateOrSetPwdIfFirstTime, {
+        user: initiativeFirstAdministrator.user,
+        pwd: initiativeFirstAdministratorPwd,
+    }).pipe(
         map(data => {
             return createHeaders(data.token);
         }),
         map(headers => ({ headers, initiativeId })),
     );
 }
-function loadAdministratorsForInitiative() {
-    let initiativeId: string;
-    return pipe(
-        tap((data: any) => (initiativeId = data.initiativeId)),
-        concatMap((data: any) => {
-            return mongodbService(
-                cachedDb,
-                ServiceNames.loadAdministratorsForInitiative,
-                {
-                    name: initiative.name,
-                    _id: initiativeId,
-                    administrators: initiativeOtherAdministrators,
-                },
-                null,
-                data.headers,
-            );
-        }),
-        map(() => initiativeId),
-    );
+function loadAdministratorsForInitiative({
+    headers,
+    initiativeId,
+}: {
+    headers: {
+        authorization: string;
+    };
+    initiativeId: ObjectId;
+}) {
+    return mongodbService(
+        cachedDb,
+        ServiceNames.loadAdministratorsForInitiative,
+        {
+            name: initiative.name,
+            _id: initiativeId.toHexString(),
+            administrators: initiativeOtherAdministrators.map(u => u.user),
+        },
+        null,
+        headers,
+    ).pipe(map(() => ({ headers, initiativeId })));
 }
-function createSmartCompanyEvent() {
+function createSmartCompanyEvent({
+    headers,
+    initiativeId,
+}: {
+    headers: {
+        authorization: string;
+    };
+    initiativeId: ObjectId;
+}) {
     companyEvent.initiativeName = initiative.name;
-    return pipe(
-        tap((inititiaveId: any) => (companyEvent.initiativeId = inititiaveId)),
-        // create a VotingEvent
-        concatMap(() => mongodbService(cachedDb, ServiceNames.createVotingEvent, companyEvent)),
-    );
+    companyEvent.initiativeId = initiativeId.toHexString();
+    return mongodbService(cachedDb, ServiceNames.createVotingEvent, companyEvent, null, headers);
 }
-function loadTechnologiesForVotingEvent() {
-    let eventId: string;
-    return pipe(
-        tap((id: any) => {
-            eventId = id.toHexString();
-        }),
-        // load the technologies for the VotingEvent
-        concatMap(() => readCsvLineObs$(`${__dirname}/technologies.csv`).pipe(toArray())),
-        concatMap((technologies: any[]) =>
-            mongodbService(cachedDb, ServiceNames.setTechologiesForEvent, { _id: eventId, technologies }),
-        ),
-        map(() => eventId),
-    );
+function loadTechnologiesForVotingEvent(eventId: ObjectId) {
+    let _eventId = eventId.toHexString();
+    return readCsvLineObs$(`${__dirname}/technologies.csv`)
+        .pipe(toArray())
+        .pipe(
+            concatMap((technologies: any[]) =>
+                mongodbService(cachedDb, ServiceNames.setTechologiesForEvent, { _id: _eventId, technologies }),
+            ),
+            map(() => eventId),
+        );
 }
 // function loadUsersForVotingEvent() {
 //     let eventId: string;
@@ -165,24 +159,14 @@ function loadTechnologiesForVotingEvent() {
 //         map(() => eventId),
 //     );
 // }
-function openVotingEvent() {
-    let eventId: string;
-    return pipe(
-        tap((id: string) => {
-            eventId = id;
-        }),
-        // open the VotingEvent
-        concatMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: eventId })),
-        map(() => eventId),
+function openVotingEvent(eventId: ObjectId) {
+    return mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: eventId }).pipe(
+        map(() => eventId.toHexString()),
     );
 }
 
-function tonyDevVotes() {
-    return pipe(
-        tap(d => {
-            console.log(d);
-        }),
-        concatMap((_id: string) => mongodbService(cachedDb, ServiceNames.getVotingEvent, { _id })),
+function tonyDevVotes(eventId: string) {
+    return mongodbService(cachedDb, ServiceNames.getVotingEvent, { _id: eventId }).pipe(
         concatMap((votingEvent: VotingEvent) => {
             const tech0 = getTechToVote(votingEvent, 0);
             const tech1 = getTechToVote(votingEvent, 1);
@@ -205,13 +189,12 @@ function tonyDevVotes() {
                     },
                 ],
             };
-            return mongodbService(cachedDb, ServiceNames.saveVotes, votes).pipe(map(() => votingEvent._id));
+            return mongodbService(cachedDb, ServiceNames.saveVotes, votes).pipe(map(() => eventId));
         }),
     );
 }
-function maryDevVotes() {
-    return pipe(
-        concatMap((_id: string) => mongodbService(cachedDb, ServiceNames.getVotingEvent, { _id })),
+function maryDevVotes(eventId: string) {
+    return mongodbService(cachedDb, ServiceNames.getVotingEvent, { _id: eventId }).pipe(
         concatMap((votingEvent: VotingEvent) => {
             const tech0 = getTechToVote(votingEvent, 0);
             const tech1 = getTechToVote(votingEvent, 1);
@@ -234,13 +217,12 @@ function maryDevVotes() {
                     },
                 ],
             };
-            return mongodbService(cachedDb, ServiceNames.saveVotes, votes).pipe(map(() => votingEvent._id));
+            return mongodbService(cachedDb, ServiceNames.saveVotes, votes).pipe(map(() => eventId));
         }),
     );
 }
-function kentDevVotes() {
-    return pipe(
-        concatMap((_id: string) => mongodbService(cachedDb, ServiceNames.getVotingEvent, { _id })),
+function kentDevVotes(eventId: string) {
+    return mongodbService(cachedDb, ServiceNames.getVotingEvent, { _id: eventId }).pipe(
         concatMap((votingEvent: VotingEvent) => {
             const tech0 = getTechToVote(votingEvent, 0);
             const tech1 = getTechToVote(votingEvent, 1);
@@ -271,13 +253,12 @@ function kentDevVotes() {
                     },
                 ],
             };
-            return mongodbService(cachedDb, ServiceNames.saveVotes, votes).pipe(map(() => votingEvent._id));
+            return mongodbService(cachedDb, ServiceNames.saveVotes, votes).pipe(map(() => eventId));
         }),
     );
 }
-function martinDevVotes() {
-    return pipe(
-        concatMap((_id: string) => mongodbService(cachedDb, ServiceNames.getVotingEvent, { _id })),
+function martinDevVotes(eventId: string) {
+    return mongodbService(cachedDb, ServiceNames.getVotingEvent, { _id: eventId }).pipe(
         concatMap((votingEvent: VotingEvent) => {
             const tech0 = getTechToVote(votingEvent, 0);
             const tech1 = getTechToVote(votingEvent, 1);
@@ -312,7 +293,7 @@ function martinDevVotes() {
                     },
                 ],
             };
-            return mongodbService(cachedDb, ServiceNames.saveVotes, votes).pipe(map(() => votingEvent._id));
+            return mongodbService(cachedDb, ServiceNames.saveVotes, votes).pipe(map(() => eventId));
         }),
     );
 }
@@ -330,14 +311,10 @@ function getVoteCredentials(votingEvent: VotingEvent, voter: Credentials) {
 }
 
 function enableVotingEventFlow() {
-    return pipe(
-        concatMap(() =>
-            updateOneObs(
-                { user: { $exists: false } },
-                { 'config.enableVotingEventFlow': true },
-                cachedDb.db.collection(config.configurationCollection),
-                { upsert: true },
-            ),
-        ),
+    return updateOneObs(
+        { user: { $exists: false } },
+        { 'config.enableVotingEventFlow': true },
+        cachedDb.db.collection(config.configurationCollection),
+        { upsert: true },
     );
 }

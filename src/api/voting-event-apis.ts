@@ -72,7 +72,8 @@ function _getVotingEventWithNumberOfCommentsAndVotes(
     votesCollection: Collection,
     _id: any,
 ) {
-    const eventId = _id._id ? _id._id : _id;
+    const _eventId = _id._id ? _id._id : _id;
+    const eventId = typeof _eventId === 'string' ? _eventId : _eventId.toHexString();
     return forkJoin(getVotingEvent(votingEventsCollection, _id), getVotes(votesCollection, { eventId })).pipe(
         map(([votingEvent, votes]) => {
             if (!votingEvent) throw Error(`No Voting Event present with ID ${_id}`);
@@ -240,8 +241,9 @@ export function cancelVotingEvent(
     user?: string,
 ) {
     let _votingEventId = typeof params._id === 'string' ? getObjectId(params._id) : params._id;
+    let _votingEventIdAsString = typeof params._id === 'string' ? params._id : params._id.toHexString();
     const votingEventKey = !!params._id ? { _id: _votingEventId } : { name: params.name };
-    const votesKey = !!params._id ? { eventId: params._id } : { eventName: params.name };
+    const votesKey = !!params._id ? { eventId: _votingEventIdAsString } : { eventName: params.name };
 
     return verifyPermissionToManageVotingEvent(
         votingEventsCollection,
@@ -325,8 +327,10 @@ export function calculateWinner(
     votingEventsCollection: Collection,
     params: { votingEvent: any },
 ) {
+    const eventId =
+        typeof params.votingEvent._id === 'string' ? params.votingEvent._id : params.votingEvent._id.toHexString();
     // perform the calculation on the votes collection to extract the id of the winner
-    const winnerObs = getVotes(votesColl, { eventId: params.votingEvent._id }).pipe(
+    const winnerObs = getVotes(votesColl, { eventId }).pipe(
         // as first simulation I take the first one as winner
         map((votes: Vote[]) => votes[0]),
         map(vote => ({ winner: vote.voterId, ipAdrressWinner: vote.ipAddress })),

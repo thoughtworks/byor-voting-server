@@ -26,12 +26,19 @@ import { Credentials } from '../model/credentials';
 
 export function getVotes(
     votesColl: Collection,
-    params?: { eventId: string; voterId?: { nickname?: string; userId?: string } },
+    params?: { eventId: any; voterId?: { nickname?: string; userId?: string } },
 ): Observable<Vote[]> {
+    let eventId;
+    if (params) {
+        if (params.eventId && typeof params.eventId !== 'string') {
+            eventId = params.eventId.toHexString();
+        } else {
+            eventId = params.eventId;
+        }
+    }
+
     let selector: any =
-        params && params.eventId
-            ? { cancelled: { $exists: false }, eventId: params.eventId }
-            : { cancelled: { $exists: false } };
+        params && params.eventId ? { cancelled: { $exists: false }, eventId } : { cancelled: { $exists: false } };
     if (params && params.voterId) {
         const upperCaseVoterId: any = {};
         const voterId = params.voterId;
@@ -60,7 +67,8 @@ export function hasAlreadyVoted(
     credObj: { credentials: VoteCredentials },
 ) {
     const vId = credObj.credentials.voterId;
-    const eventId = credObj.credentials.votingEvent._id;
+    const _eventId = credObj.credentials.votingEvent._id;
+    const eventId = typeof _eventId === 'string' ? _eventId : _eventId.toHexString();
     const voterId = voterIdToUpperCase(vId);
     const selector = { voterId, eventId };
     return forkJoin(findObs(votesColl, selector).pipe(toArray<Vote>()), getVotingEvent(votingEventColl, eventId)).pipe(
@@ -84,7 +92,10 @@ export function saveVotes(
         logError('Credentials empty' + JSON.stringify(vote, null, 2) + 'ip' + ipAddress);
     }
     const voterId = voterIdToUpperCase(vote.credentials.voterId);
-    const eventId = vote.credentials.votingEvent._id;
+    const eventId =
+        typeof vote.credentials.votingEvent._id === 'string'
+            ? vote.credentials.votingEvent._id
+            : vote.credentials.votingEvent._id.toHexString();
     let eventName;
     let eventRound;
     let votesToInsert;
@@ -158,9 +169,14 @@ export function aggregateVotes(
     votesColl: Collection,
     params?: { votingEvent: { _id: string | ObjectId } },
 ): Observable<AggregatedVote[]> {
+    let eventId;
+    if (params) {
+        const _eventId = params.votingEvent._id;
+        eventId = typeof _eventId === 'string' ? _eventId : _eventId.toHexString();
+    }
     const aggregationPipeline = [];
     if (params && params.votingEvent) {
-        aggregationPipeline.push({ $match: { eventId: params.votingEvent._id } });
+        aggregationPipeline.push({ $match: { eventId } });
     }
     aggregationPipeline.push(
         ...[
@@ -366,7 +382,7 @@ export function getVotesCommentsForTech(
     votesColl: Collection,
     params: {
         technologyId: string;
-        eventId?: string;
+        eventId?: any;
     },
 ) {
     const selector: any = {
@@ -374,7 +390,9 @@ export function getVotesCommentsForTech(
         'technology._id': params.technologyId,
     };
     if (params.eventId) {
-        selector.eventId = params.eventId;
+        const _eventId = params.eventId;
+        const eventId = typeof _eventId === 'string' ? _eventId : _eventId.toHexString();
+        selector.eventId = eventId;
     }
     return findObs(votesColl, selector).pipe(
         map((vote: Vote) => vote.comment),
@@ -388,7 +406,7 @@ export function getVotesWithCommentsForTechAndEvent(
     votesColl: Collection,
     params: {
         technologyId: string;
-        eventId: string;
+        eventId: any;
     },
 ) {
     const selector: any = {
@@ -396,6 +414,11 @@ export function getVotesWithCommentsForTechAndEvent(
         'technology._id': params.technologyId,
         eventId: params.eventId,
     };
+    if (params.eventId) {
+        const _eventId = params.eventId;
+        const eventId = typeof _eventId === 'string' ? _eventId : _eventId.toHexString();
+        selector.eventId = eventId;
+    }
     return findObs(votesColl, selector).pipe(
         filter(vote => (vote.comment ? true : false)),
         toArray(),

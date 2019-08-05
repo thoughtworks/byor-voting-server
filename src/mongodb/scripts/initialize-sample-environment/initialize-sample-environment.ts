@@ -14,10 +14,12 @@ import { Credentials } from '../../../model/credentials';
 import { VoteCredentialized } from '../../../model/vote-credentialized';
 import { Initiative } from '../../../model/initiative';
 import { readCsvLineObs$ } from '../../../lib/observables';
-import { User } from '../../../model/user';
+import { User, APPLICATION_ADMIN } from '../../../model/user';
 import { createHeaders } from '../../test.utils';
 
 const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+
+const applicationAdministrator: User = { user: 'abc', pwd: '123', roles: [APPLICATION_ADMIN] };
 
 const initiative: Initiative = { name: 'Tech Radar for the Smart Company' };
 const initiativeFirstAdministrator: User = { user: 'init_admin@smart.com' };
@@ -53,8 +55,9 @@ const initializeConn = (dbName: string) => {
 
 initializeConn(cachedDb.dbName)
     .pipe(
-        concatMap(() => cleanDb()),
-        concatMap(() => createInitiative()),
+        concatMap(() => authenticateApplicationAdministrator()),
+        concatMap(headers => cleanDb(headers)),
+        concatMap(headers => createInitiative(headers)),
         concatMap(initiativeId => authenticateInitiativeAdministrator(initiativeId)),
         concatMap(({ headers, initiativeId }) => {
             return loadAdministratorsForInitiative({ headers, initiativeId });
@@ -74,7 +77,6 @@ initializeConn(cachedDb.dbName)
         null,
         err => {
             cachedDb.client.close();
-            console.log('client>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', cachedDb.client);
             console.error(err);
         },
         () => {
@@ -83,15 +85,38 @@ initializeConn(cachedDb.dbName)
         },
     );
 
-function cleanDb() {
-    return mongodbService(cachedDb, ServiceNames.cancelInitiative, { name: initiative.name, hard: true });
+function cleanDb(headers: { authorization: string }) {
+    return mongodbService(
+        cachedDb,
+        ServiceNames.cancelInitiative,
+        { name: initiative.name, hard: true },
+        null,
+        headers,
+    ).pipe(map(() => headers));
 }
 
-function createInitiative() {
-    return mongodbService(cachedDb, ServiceNames.createInitiative, {
-        name: initiative.name,
-        administrator: initiativeFirstAdministrator,
-    }).pipe(map((initiativeId: ObjectId) => initiativeId));
+function createInitiative(headers: { authorization: string }) {
+    return mongodbService(
+        cachedDb,
+        ServiceNames.createInitiative,
+        {
+            name: initiative.name,
+            administrator: initiativeFirstAdministrator,
+        },
+        null,
+        headers,
+    ).pipe(map((initiativeId: ObjectId) => initiativeId));
+}
+
+function authenticateApplicationAdministrator() {
+    return mongodbService(cachedDb, ServiceNames.authenticateOrSetPwdIfFirstTime, {
+        user: applicationAdministrator.user,
+        pwd: applicationAdministrator.pwd,
+    }).pipe(
+        map(data => {
+            return createHeaders(data.token);
+        }),
+    );
 }
 
 function authenticateInitiativeAdministrator(initiativeId: ObjectId) {

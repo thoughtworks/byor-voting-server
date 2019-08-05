@@ -81,7 +81,13 @@ import { defaultTWTechnologies } from '../model/technologies.local-data';
 import { VOTES } from '../model/vote.local-data';
 import { version } from './version';
 import { logError } from '../lib/utils';
-import { createInitiative, getInititives, cancelInitiative, loadAdministratorsForInitiative } from './initiative-api';
+import {
+    createInitiative,
+    getInitiatives,
+    cancelInitiative,
+    loadAdministratorsForInitiative,
+    undoCancelInitiative,
+} from './initiative-api';
 import { IncomingHttpHeaders } from 'http';
 export interface CachedDB {
     dbName: string;
@@ -139,7 +145,7 @@ export function isServiceKnown(service: ServiceNames) {
         service === ServiceNames.saveLogInfo ||
         service === ServiceNames.getBlipHistoryForTech ||
         service === ServiceNames.createInitiative ||
-        service === ServiceNames.getInititives ||
+        service === ServiceNames.getInitiatives ||
         service === ServiceNames.cancelInitiative ||
         service === ServiceNames.undoCancelInitiative ||
         service === ServiceNames.loadAdministratorsForInitiative
@@ -333,11 +339,20 @@ function executeMongoService(
     } else if (service === ServiceNames.getBlipHistoryForTech) {
         returnedObservable = getBlipHistoryForTech(twBlipsColl, serviceData);
     } else if (service === ServiceNames.createInitiative) {
-        returnedObservable = createInitiative(initiativeColl, usersColl, serviceData);
-    } else if (service === ServiceNames.getInititives) {
-        returnedObservable = getInititives(initiativeColl, serviceData);
+        returnedObservable = createInitiative(initiativeColl, usersColl, serviceData, user);
+    } else if (service === ServiceNames.getInitiatives) {
+        returnedObservable = getInitiatives(initiativeColl, serviceData);
     } else if (service === ServiceNames.cancelInitiative) {
-        returnedObservable = cancelInitiative(initiativeColl, votingEventColl, votesColl, serviceData);
+        returnedObservable = cancelInitiative(initiativeColl, votingEventColl, votesColl, usersColl, serviceData, user);
+    } else if (service === ServiceNames.undoCancelInitiative) {
+        returnedObservable = undoCancelInitiative(
+            initiativeColl,
+            votingEventColl,
+            votesColl,
+            usersColl,
+            serviceData,
+            user,
+        );
     } else if (service === ServiceNames.loadAdministratorsForInitiative) {
         returnedObservable = loadAdministratorsForInitiative(initiativeColl, usersColl, serviceData, user);
     } else {

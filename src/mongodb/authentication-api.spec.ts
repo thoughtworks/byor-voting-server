@@ -4,7 +4,7 @@ import { switchMap, map, tap, catchError, mergeMap, toArray, concatMap } from 'r
 
 import { CachedDB, mongodbService } from '../api/service';
 import { config } from '../api/config';
-import { connectObs, dropObs, insertManyObs, deleteObs } from 'observable-mongo';
+import { connectObs, insertManyObs, deleteObs } from 'observable-mongo';
 import { ServiceNames } from '../service-names';
 import { ERRORS } from '../api/errors';
 import { of, from, forkJoin } from 'rxjs';
@@ -13,12 +13,13 @@ import { Collection } from 'mongodb';
 import { VotingEventFlow } from '../model/voting-event-flow';
 import { addUsersWithGroup } from '../api/authentication-api';
 import { createVotingEventForVotingEventTest } from './test.utils';
+import { User } from '../model/user';
 
 describe('1.0 - Authentication operations', () => {
     it('loads the users collection and then authenticates one valid user', done => {
-        const USERS = [{ user: 'abc', pwd: 'cde' }, { user: '123', pwd: '456' }];
+        const USERS: User[] = [{ user: 'litte', pwd: '123' }, { user: '123', pwd: '456' }];
         const validCredentials = USERS[0];
-        const wrongPwdCredentials = { user: 'abc', pwd: '123' };
+        const wrongPwdCredentials = { user: 'litte', pwd: 'xyz' };
         const notExistingUserCredentials = { user: '321', pwd: '123' };
 
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
@@ -71,8 +72,9 @@ describe('1.0 - Authentication operations', () => {
 });
 
 // If used only for test, then does not need test
-export function laodUsers(usersColl: Collection<any>, users: any[]) {
-    return dropObs(usersColl).pipe(switchMap(() => insertManyObs(users, usersColl)));
+export function laodUsers(usersColl: Collection<any>, users: User[]) {
+    const usersNames = users.map(u => u.user);
+    return deleteObs({ user: { $in: usersNames } }, usersColl).pipe(switchMap(() => insertManyObs(users, usersColl)));
 }
 
 describe('1.1 - Voting Event Authentication operations', () => {

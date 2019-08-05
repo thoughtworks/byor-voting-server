@@ -138,7 +138,7 @@ export function authenticateOrSetPwdIfFirstTime(usersColl: Collection, params: {
     );
 }
 
-function findUsersObs(usersColl: Collection, user: string) {
+export function findUsersObs(usersColl: Collection, user: string) {
     return findObs(usersColl, { user }).pipe(
         toArray(),
         tap(foundUsers => {

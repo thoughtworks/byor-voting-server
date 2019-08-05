@@ -20,11 +20,11 @@ import { User } from '../model/user';
 import {
     authenticateForTest,
     createVotingEventForTest,
-    createInitiative,
     readInitiative,
     readVotingEvent,
     createVotingEventForVotingEventTest,
     createVotingEventForVotingEventAndReturnHeaders,
+    cancelAndCreateInitiative,
 } from './test.utils';
 import { Initiative } from '../model/initiative';
 import { addUsers } from '../api/authentication-api';
@@ -73,7 +73,7 @@ describe('Operations on votingevents collection', () => {
 
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                concatMap(() => createInitiative(cachedDb, initiativeName, initiativeAdmin)),
+                concatMap(() => cancelAndCreateInitiative(cachedDb, initiativeName, initiativeAdmin, true)),
                 concatMap(() => readInitiative(cachedDb, initiativeName)),
                 tap(_initiative => (initiative = _initiative)),
                 concatMap(() => authenticateForTest(cachedDb, initiativeAdmin.user, 'my password')),
@@ -1658,10 +1658,9 @@ describe('Operations on votingevents collection', () => {
         let votingEventId: string;
 
         // first clean the db
-        mongodbService(cachedDb, ServiceNames.cancelInitiative, { name: initiativeName, hard: true })
+        cancelAndCreateInitiative(cachedDb, initiativeName, initiativeAdmin, true)
             // then start the test
             .pipe(
-                concatMap(() => createInitiative(cachedDb, initiativeName, initiativeAdmin)),
                 concatMap(() => readInitiative(cachedDb, initiativeName)),
                 tap(_initiative => (initiative = _initiative)),
                 concatMap(() => authenticateForTest(cachedDb, initiativeAdmin.user, 'my password')),
@@ -1700,11 +1699,10 @@ describe('Operations on votingevents collection', () => {
         const votingEventName = 'A Voting Event the admin wannabe would like to create';
 
         // first clean the db
-        mongodbService(cachedDb, ServiceNames.cancelInitiative, { name: initiativeName, hard: true })
+        cancelAndCreateInitiative(cachedDb, initiativeName, initiativeAdmin, true)
             // then start the test
             .pipe(
                 concatMap(() => addUsers(cachedDb.db.collection(config.usersCollection), { users: [adminWannabe] })),
-                concatMap(() => createInitiative(cachedDb, initiativeName, initiativeAdmin)),
                 concatMap(() => readInitiative(cachedDb, initiativeName)),
                 tap(_initiative => (initiative = _initiative)),
                 concatMap(() => authenticateForTest(cachedDb, adminWannabe.user, 'my password')),

@@ -6,6 +6,7 @@ import * as sinon from 'sinon';
 import { validatePasswordAgainstHash } from '../lib/mocks';
 import * as observable from '../lib/observables';
 import * as jwtDecode from 'jwt-decode';
+import { APPLICATION_ADMIN } from '../model/user';
 
 describe('Authentication', () => {
     let sandbox;
@@ -27,7 +28,7 @@ describe('Authentication', () => {
 
     describe('on valid user from collection', () => {
         it('authenticates the user', () => {
-            const expectedPayload = { user: 'abc', roles: ['admin'] };
+            const expectedPayload = { user: 'abc', roles: [APPLICATION_ADMIN] };
             validatePasswordAgainstHash$.returns(validatePasswordAgainstHash('pwd', 'pwd'));
             findObs.once().returns(of({ ...expectedPayload, pwd: 'pwd' }));
             authenticate(collection, { ...expectedPayload, pwd: 'pwd' }).subscribe(token => {

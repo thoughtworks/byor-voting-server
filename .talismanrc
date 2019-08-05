@@ -64,5 +64,5 @@ fileignoreconfig:
 - filename: .make/utils/get_byor_env.sh
   ignore_detectors: [filename]
 - filename: src/mongodb/scripts/initialize-sample-environment/initialize-sample-environment.ts
-  checksum: b826251cdd19804dec8846bc601dc8faa1a6d3ca283f826e2141a27a697dbc27
+  checksum: d368b280e8d6c19a868e149aad7c8276b55be04dddcc0ad49bc3be38dc2392f8
   ignore_detectors: []

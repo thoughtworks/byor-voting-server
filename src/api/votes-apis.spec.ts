@@ -242,36 +242,6 @@ describe('Votes', () => {
                 },
             );
         });
-
-        it('throws error when user has already voted', () => {
-            findObs.onCall(0).returns(of(votingEvent));
-            findObs.onCall(2).returns(of({ ...votingEvent, round: 2 }));
-            saveVotes(votesCollection, votingCollection, credObj, '10.20.10.10').subscribe(
-                () => {
-                    expect.fail('Should throw error for vote present');
-                },
-                error => {
-                    expect(error.message).to.equal('vote already present');
-                },
-            );
-
-            assert.calledThrice(findObs);
-            assert.calledWith(findObs, votingCollection, {
-                _id: votingEvent._id,
-                $or: [{ cancelled: { $exists: false } }, { cancelled: false }],
-            });
-            assert.calledWith(findObs, votesCollection, {
-                eventId: votingEvent._id,
-                voterId: {
-                    firstName: 'DYNAMIC',
-                    lastName: 'MANGO',
-                },
-            });
-            assert.calledWith(findObs, votingCollection, {
-                _id: votingEvent._id,
-                $or: [{ cancelled: { $exists: false } }, { cancelled: false }],
-            });
-        });
     });
 
     describe('aggregateVotes', () => {

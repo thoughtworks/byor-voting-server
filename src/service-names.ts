@@ -49,7 +49,7 @@ export enum ServiceNames {
     saveLogInfo,
     getBlipHistoryForTech,
     createInitiative,
-    getInititives,
+    getInitiatives,
     cancelInitiative,
     undoCancelInitiative,
     loadAdministratorsForInitiative,

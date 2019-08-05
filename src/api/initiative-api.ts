@@ -1,6 +1,6 @@
 import { Collection } from 'mongodb';
-import { toArray, map, tap, concatMap } from 'rxjs/operators';
-import { Observable, forkJoin } from 'rxjs';
+import { toArray, map, tap, concatMap, catchError } from 'rxjs/operators';
+import { Observable, forkJoin, throwError } from 'rxjs';
 
 import { insertOneObs, findObs, deleteObs, updateManyObs, updateOneObs } from 'observable-mongo';
 
@@ -8,33 +8,71 @@ import { Initiative } from '../model/initiative';
 import { getObjectId } from './utils';
 import { cancelVotingEvent, undoCancelVotingEvent } from './voting-event-apis';
 import { VotingEvent } from '../model/voting-event';
-import { User } from '../model/user';
+import { User, APPLICATION_ADMIN } from '../model/user';
 import { ERRORS } from './errors';
-import { addUsers } from './authentication-api';
+import { addUsers, findUsersObs } from './authentication-api';
 
 export function createInitiative(
     initiativeCollection: Collection,
     usersCollection: Collection,
     params: { name: string; administrator: User },
+    user: string,
 ) {
     if (!params.name) {
         throw new Error(`parameter name has not been passed and is required`);
     }
-    if (!params.administrator) {
-        throw new Error(`parameter administrator has not been passed and is required`);
-    }
-    const adminId = params.administrator.user;
+    const adminId = params.administrator ? params.administrator.user : user;
     const newInitiative: Initiative = {
         name: params.name,
         creationTS: new Date(Date.now()).toISOString(),
         roles: { administrators: [adminId] },
     };
-    return addUsers(usersCollection, { users: [params.administrator] }).pipe(
-        concatMap(() => insertOneObs(newInitiative, initiativeCollection)),
+    const insertInitiativeOperation = insertOneObs(newInitiative, initiativeCollection);
+    const insertInitiativeAndUserOperation = params.administrator
+        ? addUsers(usersCollection, { users: [params.administrator] }).pipe(concatMap(() => insertInitiativeOperation))
+        : insertInitiativeOperation;
+    return verifyPermissionToManageInitiatives(usersCollection, user, newInitiative.name, 'CREATE INITIATIVE').pipe(
+        concatMap(() => insertInitiativeAndUserOperation),
+        catchError(err => {
+            if (err.code === ERRORS.votingEventAlreadyPresent.mongoErrorCode) {
+                const errInitiativePresent = { ...ERRORS.initiativeAlreadyPresent };
+                errInitiativePresent.message = `Initiative "${newInitiative.name}" already present`;
+                return throwError(errInitiativePresent);
+            } else {
+                return throwError(err);
+            }
+        }),
+    );
+}
+function verifyPermissionToManageInitiatives(
+    usersCollection: Collection,
+    user: string,
+    initiativeName: string,
+    operationName: string,
+) {
+    return findUsersObs(usersCollection, user).pipe(
+        catchError(err => {
+            if (err.errorCode === ERRORS.userUnknown.errorCode) {
+                const _err = { ...ERRORS.noUserProvidedForAuthorization };
+                _err.message = `No user provided to authorize operation ${operationName} on initiative ${initiativeName}`;
+                throw err;
+            }
+            throw err;
+        }),
+        tap(user => {
+            const isAdmin = user.roles && user.roles.some(r => r === APPLICATION_ADMIN);
+            if (!isAdmin) {
+                const err = { ...ERRORS.userWithNotTheRequestedRole };
+                err.message = `The user "${
+                    user.user
+                }" does not have the required permission to authorize operation ${operationName} on the initiative "${initiativeName}"`;
+                throw err;
+            }
+        }),
     );
 }
 
-export function getInititives(initiativeCollection: Collection, params?: { all?: boolean }) {
+export function getInitiatives(initiativeCollection: Collection, params?: { all?: boolean }) {
     const selector = params && params.all ? {} : { $or: [{ cancelled: { $exists: false } }, { cancelled: false }] };
     return findObs(initiativeCollection, selector).pipe(
         toArray(),
@@ -53,7 +91,9 @@ export function cancelInitiative(
     initiativeCollection: Collection,
     votingEventsCollection: Collection,
     votesCollection: Collection,
+    usersCollection: Collection,
     params: { name?: string; _id?: any; hard?: boolean },
+    user: string,
 ) {
     let retObs: Observable<any>;
     const initiativeKey = !!params._id ? { _id: getObjectId(params._id) } : { name: params.name };
@@ -77,17 +117,24 @@ export function cancelInitiative(
             concatMap(operations => forkJoin(operations)),
         );
     }
-    return retObs;
+    return verifyPermissionToManageInitiatives(
+        usersCollection,
+        user,
+        params.name || params._id,
+        'CANCEL INITIATIVE',
+    ).pipe(concatMap(() => retObs));
 }
 export function undoCancelInitiative(
     initiativeCollection: Collection,
     votingEventsCollection: Collection,
     votesCollection: Collection,
+    usersCollection: Collection,
     params: { name?: string; _id?: any },
+    user: string,
 ) {
     const initiativeKey = !!params._id ? { _id: getObjectId(params._id) } : { name: params.name };
     const votingEventKey = !!params._id ? { initiativeId: params._id } : { initiativeName: params.name };
-    return findObs(votingEventsCollection, votingEventKey).pipe(
+    const operation = findObs(votingEventsCollection, votingEventKey).pipe(
         // for each VotingEvent create and Observable that represents the operation to undo cancel it
         map((votingEvent: VotingEvent) =>
             undoCancelVotingEvent(votingEventsCollection, votesCollection, { _id: votingEvent._id }),
@@ -98,8 +145,14 @@ export function undoCancelInitiative(
             return undoOperations.push(updateManyObs(initiativeKey, { cancelled: false }, initiativeCollection));
         }),
         // return the observable which executes all the operations in parallel
-        map(undoOperations => forkJoin(undoOperations)),
+        concatMap(undoOperations => forkJoin(undoOperations)),
     );
+    return verifyPermissionToManageInitiatives(
+        usersCollection,
+        user,
+        params.name || params._id,
+        'UNDO CANCEL INITIATIVE',
+    ).pipe(concatMap(() => operation));
 }
 
 export function loadAdministratorsForInitiative(

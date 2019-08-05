@@ -6,12 +6,14 @@ import { ServiceNames } from '../service-names';
 import { IncomingHttpHeaders } from 'http';
 import { Initiative } from '../model/initiative';
 import { VotingEvent } from '../model/voting-event';
-import { User } from '../model/user';
+import { User, APPLICATION_ADMIN } from '../model/user';
 import { ObjectId } from 'mongodb';
 import { VotingEventFlow } from '../model/voting-event-flow';
 
+const applicationAdministrator: User = { user: 'abc', pwd: '123', roles: [APPLICATION_ADMIN] };
+
 //********************************************************************************************** */
-// Utils for VotingEvents
+// Utils for Authentication
 export function createHeaders(token: string) {
     const tokenForHeader = 'Bearer ' + token;
     const headers = {
@@ -29,29 +31,92 @@ export function authenticateForTest(cachedDb: CachedDB, user: string, pwd: strin
         }),
     );
 }
+export function authenticateAsAdminForTest(cachedDb: CachedDB) {
+    return authenticateForTest(cachedDb, applicationAdministrator.user, applicationAdministrator.pwd);
+}
 //********************************************************************************************** */
 
 //********************************************************************************************** */
 // Utils for Initiatives
 export function createInitiative(cachedDb: CachedDB, name: string, administrator: User) {
-    return mongodbService(cachedDb, ServiceNames.createInitiative, {
-        name,
-        administrator,
-    });
+    return authenticateForTest(cachedDb, applicationAdministrator.user, applicationAdministrator.pwd).pipe(
+        concatMap(headers => {
+            return mongodbService(
+                cachedDb,
+                ServiceNames.createInitiative,
+                {
+                    name,
+                    administrator,
+                },
+                null,
+                headers,
+            );
+        }),
+    );
+}
+export function cancelAndCreateInitiative(cachedDb: CachedDB, name: string, administrator: User, cancelHard: boolean) {
+    let headers: {
+        authorization: string;
+    };
+    return authenticateForTest(cachedDb, applicationAdministrator.user, applicationAdministrator.pwd).pipe(
+        tap(_headers => (headers = _headers)),
+        concatMap(() => {
+            return mongodbService(
+                cachedDb,
+                ServiceNames.cancelInitiative,
+                {
+                    name,
+                    hard: cancelHard,
+                },
+                null,
+                headers,
+            );
+        }),
+        concatMap(() => {
+            return mongodbService(
+                cachedDb,
+                ServiceNames.createInitiative,
+                {
+                    name,
+                    administrator,
+                },
+                null,
+                headers,
+            );
+        }),
+        map(() => headers),
+    );
 }
 export function readInitiative(cachedDb: CachedDB, initiativeName: string, options?: any) {
-    return mongodbService(cachedDb, ServiceNames.getInititives, options).pipe(
+    return mongodbService(cachedDb, ServiceNames.getInitiatives, options).pipe(
         map((initiatives: Initiative[]) => {
             return initiatives.find(i => i.name === initiativeName);
         }),
     );
 }
-export function cancelInitiative(cachedDb: CachedDB, initiativeName: string, options?: any) {
+export function cancelInitiative(
+    cachedDb: CachedDB,
+    initiativeName: string,
+    headers: {
+        authorization: string;
+    },
+    options?: any,
+) {
     let params = { name: initiativeName };
     if (options) {
         params = { ...params, ...options };
     }
-    return mongodbService(cachedDb, ServiceNames.cancelInitiative, params);
+    return mongodbService(cachedDb, ServiceNames.cancelInitiative, params, null, headers);
+}
+export function undoCancelInitiative(
+    cachedDb: CachedDB,
+    initiativeName: string,
+    headers: {
+        authorization: string;
+    },
+) {
+    const params = { name: initiativeName };
+    return mongodbService(cachedDb, ServiceNames.undoCancelInitiative, params, null, headers);
 }
 //********************************************************************************************** */
 
@@ -86,8 +151,7 @@ export function createVotingEventForVotingEventAndReturnHeaders(
     const initiativeName = `Test initiative for VotingEvent ${newVotingEvent}`;
     const initiativeAdmin = { user: `Admin for initiative ${initiativeName}` };
     let initiative: Initiative;
-    return mongodbService(cachedDb, ServiceNames.cancelInitiative, { name: initiativeName, hard: true }).pipe(
-        concatMap(() => createInitiative(cachedDb, initiativeName, initiativeAdmin)),
+    return cancelAndCreateInitiative(cachedDb, initiativeName, initiativeAdmin, true).pipe(
         concatMap(() => readInitiative(cachedDb, initiativeName)),
         tap(_initiative => (initiative = _initiative)),
         concatMap(() => authenticateForTest(cachedDb, initiativeAdmin.user, 'my password')),
@@ -134,5 +198,12 @@ export function readVotingEvents(
     options?: { full?: boolean; all?: boolean },
 ): Observable<VotingEvent[]> {
     return mongodbService(cachedDb, ServiceNames.getVotingEvents, options);
+}
+//********************************************************************************************** */
+
+//********************************************************************************************** */
+// Utils for Users
+export function deleteUsers(cachedDb: CachedDB, users: string[]) {
+    return mongodbService(cachedDb, ServiceNames.deleteUsers, { users });
 }
 //********************************************************************************************** */

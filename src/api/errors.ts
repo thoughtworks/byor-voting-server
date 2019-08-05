@@ -26,6 +26,8 @@ export const ERRORS = {
     pwdInvalid: { errorCode: 'A-01', message: `password not valid` },
     userUnknown: { errorCode: 'A-02', message: `user not known` },
     userWithNotTheRequestedRole: { errorCode: 'A-03', message: `user does not have the requested role` },
+    userWithNotTheRequestedGroup: { errorCode: 'A-04', message: `user does not have the requested Group` },
+    noUserProvidedForAuthorization: { errorCode: 'A-05', message: `no user has been provide for authorization` },
     technologyAlreadyPresent: {
         errorCode: 'V-T-01',
         mongoErrorCode: 11000,
@@ -38,4 +40,9 @@ export const ERRORS = {
     is not the person who actually is the recommender`,
         currentAuthor: null,
     },
+    initiativeAlreadyPresent: {
+        errorCode: 'I-01',
+        mongoErrorCode: 11000,
+        message: `Initiative already present`,
+    } as MongoError,
 };

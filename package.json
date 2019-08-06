@@ -9,7 +9,7 @@
         "lint:fix": "npm run lint -- --fix",
         "test": "npx mocha -r ts-node/register --watch-extensions ts src/api/*.spec.ts src/api/**/*.spec.ts src/services/*.spec.ts src/services/**/*.spec.ts src/lib/*.spec.ts src/lib/**/*.spec.ts src/model/*.spec.ts src/model/**/*.spec.ts",
         "test:watch": "npm run test -- --watch",
-        "test:integration": "npx mocha -r ts-node/register --exit --watch-extensions ts src/mongodb/*.spec.ts src/mongodb/**/*.spec.ts",
+        "test:integration": "npm run migrate:ts:up && npx mocha -r ts-node/register --exit --watch-extensions ts src/mongodb/*.spec.ts src/mongodb/**/*.spec.ts",
         "test:integration:watch": "npm run test:integration -- --watch",
         "test:single": "npm mocha -r ts-node/register --inspect=0.0.0.0:9228",
         "test:currentfile": "npx mocha -r ts-node/register --inspect --debug-brk ",

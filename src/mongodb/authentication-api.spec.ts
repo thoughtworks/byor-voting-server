@@ -11,7 +11,7 @@ import { of, from, forkJoin } from 'rxjs';
 import { getPasswordHash$ } from '../lib/observables';
 import { Collection } from 'mongodb';
 import { VotingEventFlow } from '../model/voting-event-flow';
-import { addUsersWithGroup } from '../api/authentication-api';
+import { addUsersWithGroup, findJustOneUserObs } from '../api/authentication-api';
 import { createVotingEventForVotingEventTest } from './test.utils';
 import { User } from '../model/user';
 
@@ -35,7 +35,7 @@ describe('1.0 - Authentication operations', () => {
                             _client = client;
                             return client.db(config.dbname).collection(config.usersCollection);
                         }),
-                        switchMap(collection => laodUsers(collection, users)),
+                        switchMap(collection => loadUsers(collection, users)),
                         switchMap(() => mongodbService(cachedDb, ServiceNames.authenticate, validCredentials)),
                         tap(resp => {
                             expect(resp).to.be.string;
@@ -72,7 +72,7 @@ describe('1.0 - Authentication operations', () => {
 });
 
 // If used only for test, then does not need test
-export function laodUsers(usersColl: Collection<any>, users: User[]) {
+export function loadUsers(usersColl: Collection<any>, users: User[]) {
     const usersNames = users.map(u => u.user);
     return deleteObs({ user: { $in: usersNames } }, usersColl).pipe(switchMap(() => insertManyObs(users, usersColl)));
 }
@@ -248,6 +248,58 @@ describe('1.1 - Voting Event Authentication operations', () => {
                     expect(errorUserUnknownEncountered).to.be.true;
                     expect(errorUserUnknownBecauseDeletedEncountered).to.be.true;
                     cachedDb.client.close();
+                    _client.close();
+                    done();
+                },
+            );
+    }).timeout(10000);
+});
+
+describe('2.1 - Load users', () => {
+    it('load some users from file and check that the Groups are correct', done => {
+        const tina = 'Tina@my.com';
+        const donald = 'Donald@my.com';
+        const VOTING_EVENT_USERS = [
+            { user: tina, group: 'architect' },
+            { user: tina, group: 'dev' },
+            { user: donald, group: 'dev' },
+        ];
+
+        let _client;
+        let _userColl;
+
+        connectObs(config.mongoUri)
+            // clean the test data
+            .pipe(
+                tap(client => {
+                    _client = client;
+                    _userColl = client.db(config.dbname).collection(config.usersCollection);
+                }),
+                concatMap(() => forkJoin(VOTING_EVENT_USERS.map(user => deleteObs({ user: user.user }, _userColl)))),
+            )
+            // run the real test logic
+            .pipe(
+                concatMap(() => {
+                    return addUsersWithGroup(_userColl, {
+                        users: VOTING_EVENT_USERS,
+                    });
+                }),
+                concatMap(() => findJustOneUserObs(_userColl, tina)),
+                tap(user => {
+                    expect(user.groups.length).equal(2);
+                }),
+                concatMap(() => findJustOneUserObs(_userColl, donald)),
+                tap(user => {
+                    expect(user.groups.length).equal(1);
+                }),
+            )
+            .subscribe(
+                null,
+                err => {
+                    _client.close();
+                    done(err);
+                },
+                () => {
                     _client.close();
                     done();
                 },

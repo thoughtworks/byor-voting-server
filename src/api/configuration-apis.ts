@@ -14,7 +14,7 @@ export function getConfiguration(configurationColl: Collection<any>, _params?: {
             const defaultConfig = configRecords.find(r => !r.user);
             if (_params && _params.user) {
                 const userConfig = configRecords.find(r => r.user === _params.user);
-                return { ...defaultConfig.config, ...userConfig.config };
+                return userConfig ? { ...defaultConfig.config, ...userConfig.config } : defaultConfig.config;
             }
             return defaultConfig.config;
         }),

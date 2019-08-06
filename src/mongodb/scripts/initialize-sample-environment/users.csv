@@ -1,8 +1,10 @@
 user,group
 mary,dev
 tony,dev
-kent,dev,architect
-martin,dev,architect
+kent,dev
+kent,architect
+martin,dev
+martin,architect
 dhh,dev
 ryan,dev
 rebecca,architect

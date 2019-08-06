@@ -1,10 +1,8 @@
 import { Observable, throwError, forkJoin } from 'rxjs';
 import { toArray, switchMap, map, tap, filter, concatMap } from 'rxjs/operators';
-// import {groupBy as rxGroupBy} from 'rxjs/operators'
 import { Collection, ObjectId } from 'mongodb';
 
 import { map as _map } from 'lodash';
-// import groupBy from 'lodash/groupBy';
 
 import { findObs, dropObs, insertManyObs, aggregateObs, updateOneObs, deleteObs } from 'observable-mongo';
 

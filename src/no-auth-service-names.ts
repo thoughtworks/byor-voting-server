@@ -18,5 +18,6 @@ export function noAuthServiceNames() {
         ServiceNames[ServiceNames.version],
         ServiceNames[ServiceNames.saveLogInfo],
         ServiceNames[ServiceNames.getBlipHistoryForTech],
+        ServiceNames[ServiceNames.authenticateForVotingEvent],
     ];
 }

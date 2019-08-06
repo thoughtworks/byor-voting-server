@@ -186,7 +186,9 @@ function executeMongoService(
 ) {
     const service = ServiceNames[serviceName];
     mongodbService(cachedDb, service, params, ipAddress, reqHeaders).subscribe(
-        serviceResult => sendResponse(serviceName, serviceResult, res),
+        serviceResult => {
+            sendResponse(serviceName, serviceResult, res);
+        },
         error => {
             logError('executeMongoService error' + inspect(error));
             sendError(serviceName, error, res, 300);

@@ -5,7 +5,7 @@ import { findObs, updateOneObs, deleteObs } from 'observable-mongo';
 import { ERRORS } from './errors';
 import { logDebug, logError } from '../lib/utils';
 import { validatePasswordAgainstHash$, generateJwt$, verifyJwt, getPasswordHash$ } from '../lib/observables';
-import { EmptyError, forkJoin } from 'rxjs';
+import { EmptyError, forkJoin, Observable, throwError } from 'rxjs';
 import { getVotingEvent } from './voting-event-apis';
 import { VotingEvent } from '../model/voting-event';
 import { User } from '../model/user';
@@ -64,15 +64,15 @@ export function authenticateForVotingEvent(
     if (!params.pwd) throw new Error('Parameter pwd not passed to authenticateForVotingEvent');
     if (!params.votingEventId) throw new Error('Parameter votingEventId not passed to authenticateForVotingEvent');
     if (!params.flowStepName) throw new Error('Parameter flowStepName not passed to authenticateForVotingEvent');
-    return findUsersObs(usersColl, params.user).pipe(
+    return findJustOneUserObs(usersColl, params.user).pipe(
         concatMap(foundUser => {
             let votingEvent: VotingEvent;
             return getVotingEvent(votingEventColl, params.votingEventId).pipe(
-                tap(votingEvent => {
-                    if (!votingEvent) {
+                tap(_votingEvent => {
+                    if (!_votingEvent) {
                         throw new Error(`No Voting Event found with id "${params.votingEventId}"`);
                     }
-                    votingEvent = votingEvent;
+                    votingEvent = _votingEvent;
                 }),
                 map(votingEvent => votingEvent.flow),
                 map(flow => flow.steps.find(step => step.name === params.flowStepName)),
@@ -84,12 +84,18 @@ export function authenticateForVotingEvent(
                     }
                     const groupsAllowedInStep = step.identification.groups;
                     const userGroups = foundUser.groups;
-                    const isGroupAllowed = groupsAllowedInStep
-                        ? groupsAllowedInStep.some(role => userGroups.includes(role))
-                        : true;
+                    const isGroupAllowed =
+                        !!userGroups &&
+                        (groupsAllowedInStep ? groupsAllowedInStep.some(role => userGroups.includes(role)) : true);
                     if (!isGroupAllowed) {
                         throw ERRORS.userWithNotTheRequestedRole;
                     }
+                }),
+                catchError(err => {
+                    if ((err.errorCode = ERRORS.userWithNotTheRequestedRole.errorCode)) {
+                        return throwError(err);
+                    }
+                    throw err;
                 }),
                 map(() => foundUser),
             );
@@ -117,7 +123,7 @@ export function authenticateForVotingEvent(
 export function authenticateOrSetPwdIfFirstTime(usersColl: Collection, params: { user: string; pwd: string }) {
     if (!params.user) throw new Error('Parameter user not passed to authenticateForVotingEvent');
     if (!params.pwd) throw new Error('Parameter pwd not passed to authenticateForVotingEvent');
-    return findUsersObs(usersColl, params.user).pipe(
+    return findJustOneUserObs(usersColl, params.user).pipe(
         concatMap(foundUser => {
             return foundUser.pwd
                 ? authenticate(usersColl, params).pipe(map(token => ({ token, pwdInserted: false })))
@@ -138,9 +144,11 @@ export function authenticateOrSetPwdIfFirstTime(usersColl: Collection, params: {
     );
 }
 
-export function findUsersObs(usersColl: Collection, user: string) {
-    return findObs(usersColl, { user }).pipe(
-        toArray(),
+export function findUsersObs(usersColl: Collection, user: string): Observable<User[]> {
+    return findObs(usersColl, { user }).pipe(toArray());
+}
+export function findJustOneUserObs(usersColl: Collection, user: string) {
+    return findUsersObs(usersColl, user).pipe(
         tap(foundUsers => {
             if (foundUsers.length === 0) {
                 throw ERRORS.userUnknown;

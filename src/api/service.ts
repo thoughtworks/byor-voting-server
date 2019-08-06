@@ -64,6 +64,8 @@ import {
     resetRecommendation,
     setRecommendation,
     setTechologiesForEvent,
+    addUsersForVotingEvent,
+    loadUsersForVotingEvent,
 } from './voting-event-apis';
 
 import { executeTwBlipsCollection, findLatestEdition, getBlipHistoryForTech } from './tw-blips-collection-api';
@@ -120,6 +122,7 @@ export function isServiceKnown(service: ServiceNames) {
         service === ServiceNames.getVotingEvent ||
         service === ServiceNames.getVotingEventWithNumberOfCommentsAndVotes ||
         service === ServiceNames.createVotingEvent ||
+        service === ServiceNames.addUsersForVotingEvent ||
         service === ServiceNames.openVotingEvent ||
         service === ServiceNames.closeVotingEvent ||
         service === ServiceNames.cancelVotingEvent ||
@@ -282,6 +285,10 @@ function executeMongoService(
         returnedObservable = addReplyToVoteComment(votesColl, serviceData);
     } else if (service === ServiceNames.createVotingEvent) {
         returnedObservable = createNewVotingEvent(votingEventColl, initiativeColl, serviceData, user);
+    } else if (service === ServiceNames.addUsersForVotingEvent) {
+        returnedObservable = addUsersForVotingEvent(votingEventColl, usersColl, serviceData, user);
+    } else if (service === ServiceNames.loadUsersForVotingEvent) {
+        returnedObservable = loadUsersForVotingEvent(votingEventColl, usersColl, serviceData, user);
     } else if (service === ServiceNames.getVotingEvents) {
         returnedObservable = getVotingEvents(votingEventColl, serviceData);
     } else if (service === ServiceNames.getVotingEvent) {

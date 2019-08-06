@@ -27,7 +27,7 @@ import {
     cancelAndCreateInitiative,
 } from './test.utils';
 import { Initiative } from '../model/initiative';
-import { addUsers } from '../api/authentication-api';
+import { addUsers, findJustOneUserObs } from '../api/authentication-api';
 
 describe('Operations on votingevents collection', () => {
     it('1.0 create a voting event and then reads it', done => {
@@ -1721,6 +1721,46 @@ describe('Operations on votingevents collection', () => {
                     expect(err.errorCode).equal(ERRORS.userWithNotTheRequestedRole.errorCode);
                     cachedDb.client.close();
                     done();
+                },
+                () => {
+                    cachedDb.client.close();
+                    done();
+                },
+            );
+    }).timeout(10000);
+
+    it('3.1 a user who is an admin of a VotingEvent adds some users with some Groups', done => {
+        const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+
+        const votingEventName = 'The cool Voting Event for which we add some users with Groups';
+        const userName = 'The user with Groups';
+        const userGroups = [`Architect for "${votingEventName}"`];
+
+        const users: User[] = [{ user: userName, groups: userGroups }];
+
+        initializeVotingEventsAndVotes(cachedDb.dbName)
+            .pipe(
+                switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, votingEventName)),
+                concatMap(resp => {
+                    const votingEventId = resp.votingEventId;
+                    const params = {
+                        votingEventId,
+                        users,
+                    };
+                    return mongodbService(cachedDb, ServiceNames.addUsersForVotingEvent, params, null, resp.headers);
+                }),
+                concatMap(() => findJustOneUserObs(cachedDb.db.collection(config.usersCollection), userName)),
+                tap(user => {
+                    expect(user.groups.length).equal(userGroups.length);
+                    expect(user.groups[0]).equal(userGroups[0]);
+                }),
+            )
+            .subscribe(
+                null,
+                err => {
+                    cachedDb.client.close();
+                    logError(err);
+                    done(err);
                 },
                 () => {
                     cachedDb.client.close();

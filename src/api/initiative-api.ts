@@ -10,7 +10,7 @@ import { cancelVotingEvent, undoCancelVotingEvent } from './voting-event-apis';
 import { VotingEvent } from '../model/voting-event';
 import { User, APPLICATION_ADMIN } from '../model/user';
 import { ERRORS } from './errors';
-import { addUsers, findUsersObs } from './authentication-api';
+import { addUsers, findJustOneUserObs } from './authentication-api';
 
 export function createInitiative(
     initiativeCollection: Collection,
@@ -50,7 +50,7 @@ function verifyPermissionToManageInitiatives(
     initiativeName: string,
     operationName: string,
 ) {
-    return findUsersObs(usersCollection, user).pipe(
+    return findJustOneUserObs(usersCollection, user).pipe(
         catchError(err => {
             if (err.errorCode === ERRORS.userUnknown.errorCode) {
                 const _err = { ...ERRORS.noUserProvidedForAuthorization };

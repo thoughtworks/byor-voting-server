@@ -55,10 +55,13 @@ const initializeConn = (dbName: string) => {
 
 initializeConn(cachedDb.dbName)
     .pipe(
+        concatMap(() => enableVotingEventFlow()),
+        // log as Administator of the BYOR application and create the Initiative
         concatMap(() => authenticateApplicationAdministrator()),
         concatMap(headers => cleanDb(headers)),
         concatMap(headers => createInitiative(headers)),
         concatMap(initiativeId => authenticateInitiativeAdministrator(initiativeId)),
+        // log as the administrator of the Initiative and create the Voting Event
         concatMap(({ headers, initiativeId }) => {
             return loadAdministratorsForInitiative({ headers, initiativeId });
         }),
@@ -66,12 +69,13 @@ initializeConn(cachedDb.dbName)
             return createSmartCompanyEvent({ headers, initiativeId });
         }),
         concatMap(eventId => loadTechnologiesForVotingEvent(eventId)),
+        concatMap(eventId => loadUsersForVotingEvent(eventId)),
         concatMap(eventId => openVotingEvent(eventId)),
+        // Anonymous voters cast their vote using a nickname
         concatMap(eventId => tonyDevVotes(eventId)),
         concatMap(eventId => maryDevVotes(eventId)),
         concatMap(eventId => kentDevVotes(eventId)),
         concatMap(eventId => martinDevVotes(eventId)),
-        concatMap(() => enableVotingEventFlow()),
     )
     .subscribe(
         null,
@@ -166,24 +170,26 @@ function createSmartCompanyEvent({
 }
 function loadTechnologiesForVotingEvent(eventId: ObjectId) {
     let _eventId = eventId.toHexString();
-    return readCsvLineObs$(`${__dirname}/technologies.csv`)
-        .pipe(toArray())
-        .pipe(
-            concatMap((technologies: any[]) =>
-                mongodbService(cachedDb, ServiceNames.setTechologiesForEvent, { _id: _eventId, technologies }),
-            ),
-            map(() => eventId),
-        );
+    return readCsvLineObs$(`${__dirname}/technologies.csv`).pipe(
+        toArray(),
+        concatMap((technologies: any[]) =>
+            mongodbService(cachedDb, ServiceNames.setTechologiesForEvent, { _id: _eventId, technologies }),
+        ),
+        map(() => eventId),
+    );
 }
-// function loadUsersForVotingEvent() {
-//     let eventId: string;
-//     return pipe(
-//         tap((id: string) => {
-//             eventId = id;
-//         }),
-//         map(() => eventId),
-//     );
-// }
+function loadUsersForVotingEvent(eventId: ObjectId) {
+    return readCsvLineObs$(`${__dirname}/users.csv`).pipe(
+        toArray(),
+        concatMap((users: any[]) =>
+            mongodbService(cachedDb, ServiceNames.loadUsersForVotingEvent, {
+                votingEventId: eventId,
+                users,
+            }),
+        ),
+        map(() => eventId),
+    );
+}
 function openVotingEvent(eventId: ObjectId) {
     return mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: eventId }).pipe(
         map(() => eventId.toHexString()),

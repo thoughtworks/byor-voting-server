@@ -20,6 +20,7 @@ import { VotingEventFlow } from '../model/voting-event-flow';
 import { User } from '../model/user';
 import { getInititive } from './initiative-api';
 import { Initiative } from '../model/initiative';
+import { addUsers, addUsersWithGroup } from './authentication-api';
 
 // if skynny is true then 'blips' and 'technologies' propertires are removed to reduce the size of the data
 export function getVotingEvents(votingEventsCollection: Collection, params?: { full?: boolean; all?: boolean }) {
@@ -136,6 +137,9 @@ export function createNewVotingEvent(
         owner: { user },
         roles: { administrators: [user] },
     };
+    if (!params.initiativeId && !params.initiativeName) {
+        throw `Either the id of the initiative or its name are required`;
+    }
     if (params.flow) {
         newVotingEvent.flow = params.flow;
     }
@@ -663,7 +667,7 @@ export function loadAdministratorsForVotingEvent(
     user: string,
 ) {
     if (!params.votingEventId) {
-        throw new Error(`votingEventId are required to identify the VotingEvent`);
+        throw new Error(`votingEventId is required to identify the VotingEvent for loading administrators`);
     }
     if (!user) {
         throw new Error(`User must be passed when invoking loadAdministratorsForInitiative`);
@@ -688,4 +692,69 @@ function verifyPermissionToAddAdministratorsToVotingEvent(user: string, votingEv
         }`;
         throw err;
     }
+}
+
+export function addUsersForVotingEvent(
+    votingEventCollection: Collection,
+    usersCollection: Collection,
+    params: {
+        votingEventId: ObjectId;
+        users: User[];
+    },
+    user: string,
+) {
+    if (!params.votingEventId) {
+        throw new Error(`votingEventId is required to identify the VotingEven when you want to add users`);
+    }
+    if (!user) {
+        throw new Error(`User must be passed when invoking addUsersForVotingEvent`);
+    }
+
+    return verifyPermissionToManageVotingEvent(
+        votingEventCollection,
+        user,
+        params.votingEventId,
+        'ADD USERS FOR VOTING EVENT',
+    ).pipe(
+        concatMap(() => {
+            return addUsers(usersCollection, { users: params.users });
+        }),
+    );
+}
+
+// to be used to load Users read from a csv file, where for every role of a user there is one row, which means that a user with
+// different roles will have more than one row
+// USERS = [
+//     { user: 'Mary', group: 'architect' },
+//     { user: 'Mary', group: 'dev' },
+//     { user: 'John', group: 'dev' },
+// ]
+export function loadUsersForVotingEvent(
+    votingEventCollection: Collection,
+    usersCollection: Collection,
+    params: {
+        votingEventId: ObjectId;
+        users: { user: string; group: string }[];
+    },
+    user: string,
+) {
+    if (!params.votingEventId) {
+        throw new Error(`votingEventId is required to identify the VotingEven when you want to add users`);
+    }
+    // the user  is not required if this operation is performed as part of the execution of an outer operation
+    // the user will be filled if this api is called as a REST api
+    // if (!user) {
+    //     throw new Error(`User must be passed when invoking loadUsersForVotingEvent`);
+    // }
+
+    return verifyPermissionToManageVotingEvent(
+        votingEventCollection,
+        user,
+        params.votingEventId,
+        'LOAD USERS FOR VOTING EVENT',
+    ).pipe(
+        concatMap(() => {
+            return addUsersWithGroup(usersCollection, { users: params.users });
+        }),
+    );
 }

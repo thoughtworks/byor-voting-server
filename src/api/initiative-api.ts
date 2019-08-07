@@ -63,6 +63,7 @@ function verifyPermissionToManageInitiatives(
             const isAdmin = user.roles && user.roles.some(r => r === APPLICATION_ADMIN);
             if (!isAdmin) {
                 const err = { ...ERRORS.userWithNotTheRequestedRole };
+                err.user = user.user;
                 err.message = `The user "${
                     user.user
                 }" does not have the required permission to authorize operation ${operationName} on the initiative "${initiativeName}"`;
@@ -198,6 +199,7 @@ function verifyPermissionTaAddAdministrator(user: string, initiative: Initiative
     const isAdmin = initiative.roles.administrators.some(a => a === user);
     if (!isAdmin) {
         const err = { ...ERRORS.userWithNotTheRequestedRole };
+        err.user = user;
         err.message = `${user} does not have the required permission to add administators to Initiative ${
             initiative.name
         }`;

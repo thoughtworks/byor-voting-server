@@ -24,8 +24,8 @@ export const ERRORS = {
     },
     voteAlreadyPresent: { errorCode: 'V-01', mongoErrorCode: 11000, message: `vote already present` } as MongoError,
     pwdInvalid: { errorCode: 'A-01', message: `password not valid` },
-    userUnknown: { errorCode: 'A-02', message: `user not known` },
-    userWithNotTheRequestedRole: { errorCode: 'A-03', message: `user does not have the requested role` },
+    userUnknown: { errorCode: 'A-02', message: `user not known`, userId: null },
+    userWithNotTheRequestedRole: { errorCode: 'A-03', message: `user does not have the requested role`, user: null },
     userWithNotTheRequestedGroup: { errorCode: 'A-04', message: `user does not have the requested Group` },
     noUserProvidedForAuthorization: { errorCode: 'A-05', message: `no user has been provide for authorization` },
     technologyAlreadyPresent: {

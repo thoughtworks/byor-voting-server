@@ -212,7 +212,7 @@ describe('1.1 - Voting Event Authentication operations', () => {
                 }),
                 catchError(err => {
                     errorUserUnknownEncountered = true;
-                    expect(err).to.equal(ERRORS.userUnknown);
+                    expect(err.errorCode).to.equal(ERRORS.userUnknown.errorCode);
                     return of(err);
                 }),
                 // I delete a user and then try to log in with its credentials
@@ -230,7 +230,7 @@ describe('1.1 - Voting Event Authentication operations', () => {
                 }),
                 catchError(err => {
                     errorUserUnknownBecauseDeletedEncountered = true;
-                    expect(err).to.equal(ERRORS.userUnknown);
+                    expect(err.errorCode).to.equal(ERRORS.userUnknown.errorCode);
                     return of(err);
                 }),
             )

@@ -31,7 +31,11 @@ export function authenticate(usersColl: Collection<any>, credentials: { user: st
         ),
         last(),
         catchError(err => {
-            if (err instanceof EmptyError) throw ERRORS.userUnknown;
+            if (err instanceof EmptyError) {
+                const error = { ...ERRORS.userUnknown };
+                error.userId = credentials.user;
+                throw error;
+            }
             throw err;
         }),
     );
@@ -88,6 +92,8 @@ export function authenticateForVotingEvent(
                         !!userGroups &&
                         (groupsAllowedInStep ? groupsAllowedInStep.some(role => userGroups.includes(role)) : true);
                     if (!isGroupAllowed) {
+                        const error = { ...ERRORS.userWithNotTheRequestedRole };
+                        error.user = foundUser.user;
                         throw ERRORS.userWithNotTheRequestedRole;
                     }
                 }),
@@ -151,7 +157,9 @@ export function findJustOneUserObs(usersColl: Collection, user: string) {
     return findUsersObs(usersColl, user).pipe(
         tap(foundUsers => {
             if (foundUsers.length === 0) {
-                throw ERRORS.userUnknown;
+                const error = { ...ERRORS.userUnknown };
+                error.userId = user;
+                throw error;
             }
             if (foundUsers.length > 1) {
                 throw new Error(`More than one user with the same user id "${user}"`);

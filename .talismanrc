@@ -35,7 +35,7 @@ fileignoreconfig:
   checksum: 746c807855541749ef6e8aa49cf694bb4809cf44184f511f3c98639c900335a7
   ignore_detectors: []
 - filename: src/mongodb/scripts/set-admin-user-and-pwd.exec.ts
-  checksum: 0c9ea2aef185d28f32bcc5b94957966043e9caa1b500e7ab221bffcf6a83d575
+  checksum: ee67010ac888b33618047ecee8902f74e74a5407c677b62540b3dc0e2589c74f
   ignore_detectors: []
 - filename: src/lib/mocks.ts
   checksum: 13df871cd92418c24b741f060b9149d864c64dd0d57d408fd7b95342b357dccc
@@ -63,6 +63,12 @@ fileignoreconfig:
   ignore_detectors: []
 - filename: .make/utils/get_byor_env.sh
   ignore_detectors: [filename]
+- filename: src/mongodb/scripts/initialize-sample-environment/document-byor-setup.utils.ts
+  checksum: 7cdd4a64457b1043a993f0e507dbbb7926fd817db9542f01ec56042774bfd297
+  ignore_detectors: []
+- filename: src/mongodb/scripts/set-admin-user-and-pwd.ts
+  checksum: 3978df4c9c7534cfb637a270b38e3f879c389b9bebd8b5cb13b100b0c6051243
+  ignore_detectors: []
 - filename: src/mongodb/scripts/initialize-sample-environment/initialize-sample-environment.ts
   checksum: 754e9baf8d31ea187e4f3c1928651c9a17f848d8f05579ada93f85a50f70c6ba
   ignore_detectors: []

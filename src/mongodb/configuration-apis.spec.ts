@@ -9,7 +9,7 @@ import { connectObs, findObs } from 'observable-mongo';
 import { ServiceNames } from '../service-names';
 import { Collection } from 'mongodb';
 
-describe.only('Operations on Configuration collection', () => {
+describe('Operations on Configuration collection', () => {
     it('1.0 - loads the configuration and then reads it - at the end restores the original configuration', done => {
         const testToggle1 = false;
         const testToggle2 = true;

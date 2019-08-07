@@ -162,6 +162,7 @@ function verifyPermissionToCreateVotingEvent(user: string, initiative: Initiativ
     const isAdmin = initiative.roles.administrators.some(a => a === user);
     if (!isAdmin) {
         const err = { ...ERRORS.userWithNotTheRequestedRole };
+        err.user = user;
         err.message = `${user} does not have the required permission to create VotingEvents for Initiative ${
             initiative.name
         }`;
@@ -310,6 +311,7 @@ function _verifyPermissionToManageVotingEvent(user: string, votingEvent: VotingE
     if (!isAdmin) {
         const _operationDeascription = operationDescription ? operationDescription : 'MANAGE';
         const err = { ...ERRORS.userWithNotTheRequestedRole };
+        err.user = user;
         err.message = `${user} does not have the required permission to ${_operationDeascription} VotingEvent ${
             votingEvent.name
         }`;
@@ -687,6 +689,7 @@ function verifyPermissionToAddAdministratorsToVotingEvent(user: string, votingEv
     const isAdmin = votingEvent.roles.administrators.some(a => a === user);
     if (!isAdmin) {
         const err = { ...ERRORS.userWithNotTheRequestedRole };
+        err.user = user;
         err.message = `${user} does not have the required permission to add administators to Voting Event ${
             votingEvent.name
         }`;

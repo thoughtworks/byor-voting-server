@@ -66,6 +66,7 @@ import {
     setTechologiesForEvent,
     addUsersForVotingEvent,
     loadUsersForVotingEvent,
+    loadAdministratorsForVotingEvent,
 } from './voting-event-apis';
 
 import { executeTwBlipsCollection, findLatestEdition, getBlipHistoryForTech } from './tw-blips-collection-api';
@@ -76,6 +77,7 @@ import {
     deleteUsers,
     validateRequestAuthentication,
     authenticateOrSetPwdIfFirstTime,
+    setAdminUserAndPwd,
 } from './authentication-api';
 import { saveLog } from './client-log-apis';
 
@@ -123,6 +125,8 @@ export function isServiceKnown(service: ServiceNames) {
         service === ServiceNames.getVotingEventWithNumberOfCommentsAndVotes ||
         service === ServiceNames.createVotingEvent ||
         service === ServiceNames.addUsersForVotingEvent ||
+        service === ServiceNames.loadAdministratorsForVotingEvent ||
+        service === ServiceNames.loadUsersForVotingEvent ||
         service === ServiceNames.openVotingEvent ||
         service === ServiceNames.closeVotingEvent ||
         service === ServiceNames.cancelVotingEvent ||
@@ -151,7 +155,8 @@ export function isServiceKnown(service: ServiceNames) {
         service === ServiceNames.getInitiatives ||
         service === ServiceNames.cancelInitiative ||
         service === ServiceNames.undoCancelInitiative ||
-        service === ServiceNames.loadAdministratorsForInitiative
+        service === ServiceNames.loadAdministratorsForInitiative ||
+        service === ServiceNames.setAdminUserAndPwd
     );
 }
 
@@ -287,6 +292,8 @@ function executeMongoService(
         returnedObservable = createNewVotingEvent(votingEventColl, initiativeColl, serviceData, user);
     } else if (service === ServiceNames.addUsersForVotingEvent) {
         returnedObservable = addUsersForVotingEvent(votingEventColl, usersColl, serviceData, user);
+    } else if (service === ServiceNames.loadAdministratorsForVotingEvent) {
+        returnedObservable = loadAdministratorsForVotingEvent(votingEventColl, serviceData, user);
     } else if (service === ServiceNames.loadUsersForVotingEvent) {
         returnedObservable = loadUsersForVotingEvent(votingEventColl, usersColl, serviceData, user);
     } else if (service === ServiceNames.getVotingEvents) {
@@ -362,6 +369,8 @@ function executeMongoService(
         );
     } else if (service === ServiceNames.loadAdministratorsForInitiative) {
         returnedObservable = loadAdministratorsForInitiative(initiativeColl, usersColl, serviceData, user);
+    } else if (service === ServiceNames.setAdminUserAndPwd) {
+        returnedObservable = setAdminUserAndPwd(usersColl, serviceData);
     } else {
         const serviceResult = { error: 'Mongo Service ' + service + ' not defined' };
         returnedObservable = throwError(serviceResult);

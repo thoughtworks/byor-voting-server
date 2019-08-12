@@ -24,6 +24,7 @@ export enum ServiceNames {
     createVotingEvent,
     addUsersForVotingEvent,
     loadUsersForVotingEvent,
+    loadAdministratorsForVotingEvent,
     getVotingEvents,
     getVotingEvent,
     getVotingEventWithNumberOfCommentsAndVotes,
@@ -56,4 +57,5 @@ export enum ServiceNames {
     undoCancelInitiative,
     loadAdministratorsForInitiative,
     authenticateOrSetPwdIfFirstTime,
+    setAdminUserAndPwd,
 }

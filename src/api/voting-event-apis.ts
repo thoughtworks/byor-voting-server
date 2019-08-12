@@ -124,7 +124,6 @@ export function createNewVotingEvent(
     params: {
         name: string;
         flow?: VotingEventFlow;
-        creator: User;
         initiativeName?: string;
         initiativeId?: string;
     },

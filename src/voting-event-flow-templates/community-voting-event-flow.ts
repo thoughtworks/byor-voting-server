@@ -1,6 +1,7 @@
 import { VotingEventFlow } from '../model/voting-event-flow';
 
 export const CommunityVotingEventFlow: VotingEventFlow = {
+    name: 'Voting Event flow for a Community event',
     steps: [
         {
             name: 'vote all techs',

@@ -93,6 +93,7 @@ describe('1.1 - Voting Event Authentication operations', () => {
         const firstStepName = 'first step';
         const secondStepName = 'second step';
         const votingEventFlow: VotingEventFlow = {
+            name: 'Voting Event Flow',
             steps: [
                 {
                     name: firstStepName,

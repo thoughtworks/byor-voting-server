@@ -8,7 +8,7 @@ import { validatePasswordAgainstHash$, generateJwt$, verifyJwt, getPasswordHash$
 import { EmptyError, forkJoin, Observable, throwError } from 'rxjs';
 import { getVotingEvent } from './voting-event-apis';
 import { VotingEvent } from '../model/voting-event';
-import { User } from '../model/user';
+import { User, APPLICATION_ADMIN } from '../model/user';
 import { groupBy } from 'lodash';
 
 export function authenticate(usersColl: Collection<any>, credentials: { user: string; pwd: string }) {
@@ -198,4 +198,34 @@ export function addUsersWithGroup(
         return { user, groups };
     });
     return addUsers(usersColl, { users: usersWithGroups });
+}
+
+function verifyIfUserIsUserAdmin(user: User) {
+    if (!user) {
+        throw `Try to reset the administrator passing a userId "${user.user}" which does not exist`;
+    }
+    const isAdmin = user.roles.some(r => r === APPLICATION_ADMIN);
+    if (!isAdmin) {
+        const err = { ...ERRORS.userWithNotTheRequestedRole };
+        err.user = user;
+        err.message = `Try to add a new administrator butthe user "${user.user}" is not an Administrator`;
+        throw err;
+    }
+}
+
+export function setAdminUserAndPwd(
+    usersColl: Collection<any>,
+    params: { adminUserName: string; adminPwd: string; newAdminUsername: string; newAdminPassword: string },
+) {
+    return findUsersObs(usersColl, params.adminUserName).pipe(
+        map(users => users[0]),
+        tap(user => {
+            verifyIfUserIsUserAdmin(user);
+        }),
+        concatMap(() => getPasswordHash$(params.newAdminPassword)),
+        concatMap(hash => {
+            const newAdmin: User = { user: params.newAdminUsername, pwd: hash, roles: [APPLICATION_ADMIN] };
+            return updateOneObs({ user: params.newAdminUsername }, newAdmin, usersColl, { upsert: true });
+        }),
+    );
 }

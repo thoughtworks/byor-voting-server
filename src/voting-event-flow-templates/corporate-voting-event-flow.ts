@@ -9,6 +9,7 @@ export const CORPORATE_VOTING_EVENT_TAGS = [
 ];
 
 export const CorporateVotingEventFlow: VotingEventFlow = {
+    name: 'Voting Event flow for a Corporate event',
     steps: [
         {
             name: 'vote all techs',

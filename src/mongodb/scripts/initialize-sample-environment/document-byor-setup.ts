@@ -6,10 +6,10 @@ import { addBYORAdmin, authenticate, cancelInitiative, ExecutionContext } from '
 
 //*******************************  START OF THE DOCUMENTATION   **************************************************** */
 
-// One evenening, the CIO and the CTO of the SmartCompany attended at a presentation of the BYOR application and decided to try
-// it at their Company, i.e. the SmartCompany.
+// One evenening, the CEO of the SmartCompany attended at a presentation of the BYOR application and decided to try
+// it at SmartCompany itself.
 
-// The morning after the CIO called the Rebecca, the chief architect, told her about the BYOR and got her excited.
+// The morning after the CEO called the Rebecca, the chief architect, told her about the BYOR and got her excited.
 // Rebecca, when back at her room, downloaded immediately the code and installed on a newly created simple environment,
 // just a couple of servers.
 

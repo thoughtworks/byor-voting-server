@@ -9,6 +9,10 @@ import { VotingEvent } from '../model/voting-event';
 import { User, APPLICATION_ADMIN } from '../model/user';
 import { ObjectId } from 'mongodb';
 import { VotingEventFlow } from '../model/voting-event-flow';
+import { cancelInitiative as cancelInitiativeApi } from '../api/initiative-api';
+import { createInitiative as createInitiativeApi } from '../api/initiative-api';
+import { config } from '../api/config';
+import { openVotingEventVerified, cancelVotingEventVerified } from '../api/voting-event-apis';
 
 const applicationAdministrator: User = { user: 'abc', pwd: '123', roles: [APPLICATION_ADMIN] };
 
@@ -58,30 +62,34 @@ export function cancelAndCreateInitiative(cachedDb: CachedDB, name: string, admi
     let headers: {
         authorization: string;
     };
+    let initiativeColl;
+    let votingEventColl;
+    let votesColl;
+    let usersColl;
     return authenticateForTest(cachedDb, applicationAdministrator.user, applicationAdministrator.pwd).pipe(
         tap(_headers => (headers = _headers)),
+        tap(() => {
+            initiativeColl = cachedDb.db.collection(config.initiativeCollection);
+            votingEventColl = cachedDb.db.collection(config.votingEventsCollection);
+            votesColl = cachedDb.db.collection(config.votesCollection);
+            usersColl = cachedDb.db.collection(config.usersCollection);
+        }),
         concatMap(() => {
-            return mongodbService(
-                cachedDb,
-                ServiceNames.cancelInitiative,
-                {
-                    name,
-                    hard: cancelHard,
-                },
-                null,
-                headers,
+            return cancelInitiativeApi(
+                initiativeColl,
+                votingEventColl,
+                votesColl,
+                usersColl,
+                { name, hard: cancelHard },
+                applicationAdministrator.user,
             );
         }),
         concatMap(() => {
-            return mongodbService(
-                cachedDb,
-                ServiceNames.createInitiative,
-                {
-                    name,
-                    administrator,
-                },
-                null,
-                headers,
+            return createInitiativeApi(
+                initiativeColl,
+                usersColl,
+                { name, administrator },
+                applicationAdministrator.user,
             );
         }),
         map(() => headers),
@@ -173,19 +181,19 @@ export function createVotingEventForVotingEventTest(
 }
 export function createAndOpenVotingEvent(cachedDb: CachedDB, votingEventName: string) {
     let votingEventId;
-    let headers;
     return createVotingEventForVotingEventAndReturnHeaders(cachedDb, votingEventName).pipe(
         tap(data => {
-            votingEventId = data.votingEventId;
-            headers = data.headers;
+            votingEventId = data.votingEventId.toHexString();
         }),
-        concatMap(() => openVotingEvent(cachedDb, votingEventId, headers)),
+        concatMap(() => openVotingEvent(cachedDb, votingEventId)),
     );
 }
-export function openVotingEvent(cachedDb: CachedDB, votingEventId: ObjectId, headers) {
-    return mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId }, null, headers).pipe(
-        map(() => votingEventId),
-    );
+export function openVotingEvent(cachedDb: CachedDB, votingEventId: string) {
+    return openVotingEventVerified(
+        cachedDb.db.collection(config.votingEventsCollection),
+        cachedDb.db.collection(config.technologiesCollection),
+        votingEventId,
+    ).pipe(map(() => votingEventId));
 }
 export function readVotingEvent(cachedDb: CachedDB, votingEventId: string): Observable<VotingEvent> {
     if (typeof votingEventId !== 'string') {
@@ -198,6 +206,15 @@ export function readVotingEvents(
     options?: { full?: boolean; all?: boolean },
 ): Observable<VotingEvent[]> {
     return mongodbService(cachedDb, ServiceNames.getVotingEvents, options);
+}
+export function cancelVotingEvent(cachedDb: CachedDB, votingEventId: ObjectId, hard: boolean) {
+    return cancelVotingEventVerified(
+        cachedDb.db.collection(config.votingEventsCollection),
+        cachedDb.db.collection(config.votesCollection),
+        votingEventId,
+        null,
+        hard,
+    );
 }
 //********************************************************************************************** */
 

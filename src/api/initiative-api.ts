@@ -6,7 +6,7 @@ import { insertOneObs, findObs, deleteObs, updateManyObs, updateOneObs } from 'o
 
 import { Initiative } from '../model/initiative';
 import { getObjectId } from './utils';
-import { cancelVotingEvent, undoCancelVotingEvent } from './voting-event-apis';
+import { cancelVotingEventVerified, undoCancelVotingEventVerified } from './voting-event-apis';
 import { VotingEvent } from '../model/voting-event';
 import { User, APPLICATION_ADMIN } from '../model/user';
 import { ERRORS } from './errors';
@@ -102,7 +102,7 @@ export function cancelInitiative(
     if (params.hard) {
         retObs = findObs(votingEventsCollection, votingEventKey).pipe(
             map((votingEvent: VotingEvent) =>
-                cancelVotingEvent(votingEventsCollection, votesCollection, { _id: votingEvent._id, hard: true }),
+                cancelVotingEventVerified(votingEventsCollection, votesCollection, votingEvent._id, null, true),
             ),
             toArray(),
             map(operations => [...operations, deleteObs(initiativeKey, initiativeCollection)]),
@@ -111,7 +111,7 @@ export function cancelInitiative(
     } else {
         retObs = findObs(votingEventsCollection, votingEventKey).pipe(
             map((votingEvent: VotingEvent) =>
-                cancelVotingEvent(votingEventsCollection, votesCollection, { _id: votingEvent._id, hard: false }),
+                cancelVotingEventVerified(votingEventsCollection, votesCollection, votingEvent._id, null, false),
             ),
             toArray(),
             map(operations => [...operations, updateManyObs(initiativeKey, { cancelled: true }, initiativeCollection)]),
@@ -138,12 +138,12 @@ export function undoCancelInitiative(
     const operation = findObs(votingEventsCollection, votingEventKey).pipe(
         // for each VotingEvent create and Observable that represents the operation to undo cancel it
         map((votingEvent: VotingEvent) =>
-            undoCancelVotingEvent(votingEventsCollection, votesCollection, { _id: votingEvent._id }),
+            undoCancelVotingEventVerified(votingEventsCollection, votesCollection, votingEvent._id),
         ),
         toArray(),
         // add to the array of cancel operations also the operation to undo cancel the initiative
         tap((undoOperations: Observable<any>[]) => {
-            return undoOperations.push(updateManyObs(initiativeKey, { cancelled: false }, initiativeCollection));
+            undoOperations.push(updateManyObs(initiativeKey, { cancelled: false }, initiativeCollection));
         }),
         // return the observable which executes all the operations in parallel
         concatMap(undoOperations => forkJoin(undoOperations)),

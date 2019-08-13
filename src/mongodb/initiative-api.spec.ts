@@ -275,6 +275,71 @@ describe('2 - create an Initiative and then a VotingEvent on this Initiative', (
                 },
             );
     }).timeout(10000);
+
+    it('Create an Initiative, then a VotigEvent on it, reads it and then delete it soft and eventually undo the cancel operation', done => {
+        const initiativeName = 'The initiative first cancelled and then restored';
+        const initiativeAdmin: User = { user: 'The admin of the initiative first cancelled and then restored' };
+        const votingEventName = 'The VotingEvent on an Initiative first cancelled and then restored';
+        let initiative: Initiative;
+        let votingEventId: string;
+
+        const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+        let headers: {
+            authorization: string;
+        };
+
+        // first clean the db
+        cancelAndCreateInitiative(cachedDb, initiativeName, initiativeAdmin, true)
+            // then start the test
+            .pipe(
+                tap(_headers => (headers = _headers)),
+                concatMap(() => readInitiative(cachedDb, initiativeName)),
+                tap(_initiative => (initiative = _initiative)),
+                concatMap(() => authenticateForTest(cachedDb, initiativeAdmin.user, 'my password')),
+                concatMap(_headers =>
+                    createVotingEventForTest(cachedDb, votingEventName, _headers, initiativeName, initiative._id),
+                ),
+                tap(_id => (votingEventId = _id.toHexString())),
+                concatMap(() => readVotingEvent(cachedDb, votingEventId)),
+                tap(votingEvent => {
+                    expect(votingEvent).to.be.not.undefined;
+                    expect(votingEvent.name).equal(votingEventName);
+                }),
+                // cancel soft the Initiative
+                concatMap(() => cancelInitiative(cachedDb, initiativeName, headers)),
+                // now the voting event should not be found but should result cancelled logically
+                concatMap(() => readVotingEvent(cachedDb, votingEventId)),
+                tap(votingEvent => {
+                    expect(votingEvent).to.be.undefined;
+                }),
+                concatMap(() => readVotingEvents(cachedDb, { all: true })),
+                tap(votingEvents => {
+                    const vEvent = votingEvents.find(e => e.name === votingEventName);
+                    expect(vEvent).to.be.not.undefined;
+                }),
+                // now the cancel operation is undone
+                concatMap(() => undoCancelInitiative(cachedDb, initiativeName, headers)),
+                // now the voting event should be found
+                concatMap(() => readVotingEvent(cachedDb, votingEventId)),
+                tap(votingEvent => {
+                    expect(votingEvent).to.be.not.undefined;
+                }),
+                // clean the db
+                concatMap(() => cancelInitiative(cachedDb, initiativeName, headers, { hard: true })),
+            )
+            .subscribe(
+                null,
+                err => {
+                    cachedDb.client.close();
+                    logError(err);
+                    done(err);
+                },
+                () => {
+                    cachedDb.client.close();
+                    done();
+                },
+            );
+    }).timeout(10000);
 });
 
 describe('3 - administrators', () => {

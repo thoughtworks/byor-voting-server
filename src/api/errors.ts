@@ -13,6 +13,7 @@ export const ERRORS = {
     votingEventNotExisting: {
         errorCode: 'V-E-02',
         message: `voting event does not exist`,
+        votingEventId: null,
     },
     techPresentInVotingEvent: {
         errorCode: 'V-E-03',

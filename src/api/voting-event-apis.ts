@@ -32,7 +32,7 @@ export function getVotingEvents(votingEventsCollection: Collection, params?: { f
         tap(votingEvents => votingEvents.map(ve => (ve.flow = ve.flow ? ve.flow : CorporateVotingEventFlow))),
     );
 }
-export function getVotingEvent(votingEventsCollection: Collection, _id: any) {
+export function getVotingEvent(votingEventsCollection: Collection, _id: any, viewCancelled = false) {
     let thisId = _id;
     if (_id._id) {
         thisId = _id._id;
@@ -46,7 +46,9 @@ export function getVotingEvent(votingEventsCollection: Collection, _id: any) {
     } catch (err) {
         return throwError(err);
     }
-    const selector = { $or: [{ cancelled: { $exists: false } }, { cancelled: false }], _id: eventId };
+    const selector = viewCancelled
+        ? { _id: eventId }
+        : { $or: [{ cancelled: { $exists: false } }, { cancelled: false }], _id: eventId };
     return findObs(votingEventsCollection, selector).pipe(
         // take(1), does not close the cursor
         toArray(),
@@ -175,9 +177,19 @@ export function openVotingEvent(
     user: string,
 ) {
     const _votingEventId = getObjectId(votingEvent._id);
+    return verifyPermissionToManageVotingEvent(votingEventsCollection, user, _votingEventId, 'OPEN VOTING EVENT').pipe(
+        concatMap(() => openVotingEventVerified(votingEventsCollection, technologiesCollection, votingEvent._id)),
+    );
+}
+export function openVotingEventVerified(
+    votingEventsCollection: Collection,
+    technologiesCollection: Collection,
+    votingEventId: string | ObjectId,
+) {
+    const _votingEventId = typeof votingEventId === 'string' ? getObjectId(votingEventId) : votingEventId;
     const votingEventKey = { _id: _votingEventId };
     const dataToUpdate = { status: 'open', lastOpenedTS: new Date(Date.now()).toISOString() };
-    const operation = getVotingEvent(votingEventsCollection, votingEvent._id).pipe(
+    return getVotingEvent(votingEventsCollection, votingEventId).pipe(
         switchMap(votingEvent => {
             if (!votingEvent.round) {
                 // initialize round if this is if this voting event has none yet
@@ -197,9 +209,6 @@ export function openVotingEvent(
             }
         }),
         switchMap(() => updateOneObs(votingEventKey, dataToUpdate, votingEventsCollection)),
-    );
-    return verifyPermissionToManageVotingEvent(votingEventsCollection, user, _votingEventId, 'OPEN VOTING EVENT').pipe(
-        concatMap(() => operation),
     );
 }
 export function closeVotingEvent(votingEventsCollection: Collection, votingEvent: { _id: string }, user: string) {
@@ -245,9 +254,6 @@ export function cancelVotingEvent(
     user?: string,
 ) {
     let _votingEventId = typeof params._id === 'string' ? getObjectId(params._id) : params._id;
-    let _votingEventIdAsString = typeof params._id === 'string' ? params._id : params._id.toHexString();
-    const votingEventKey = !!params._id ? { _id: _votingEventId } : { name: params.name };
-    const votesKey = !!params._id ? { eventId: _votingEventIdAsString } : { eventName: params.name };
 
     return verifyPermissionToManageVotingEvent(
         votingEventsCollection,
@@ -256,14 +262,33 @@ export function cancelVotingEvent(
         'CANCEL VOTING EVENT',
     ).pipe(
         concatMap(() => {
-            return params.hard
-                ? forkJoin(deleteObs(votingEventKey, votingEventsCollection), deleteObs(votesKey, votesCollection))
-                : forkJoin(
-                      updateManyObs(votingEventKey, { cancelled: true }, votingEventsCollection),
-                      updateManyObs(votesKey, { cancelled: true }, votesCollection),
-                  );
+            return cancelVotingEventVerified(
+                votingEventsCollection,
+                votesCollection,
+                params._id,
+                params.name,
+                params.hard,
+            );
         }),
     );
+}
+export function cancelVotingEventVerified(
+    votingEventsCollection,
+    votesCollection,
+    _id: string | ObjectId,
+    name?: string,
+    hard = false,
+) {
+    let _votingEventId = typeof _id === 'string' ? getObjectId(_id) : _id;
+    let _votingEventIdAsString = typeof _id === 'string' ? _id : _id.toHexString();
+    const votingEventKey = !!_id ? { _id: _votingEventId } : { name: name };
+    const votesKey = !!_id ? { eventId: _votingEventIdAsString } : { eventName: name };
+    return hard
+        ? forkJoin(deleteObs(votingEventKey, votingEventsCollection), deleteObs(votesKey, votesCollection))
+        : forkJoin(
+              updateManyObs(votingEventKey, { cancelled: true }, votingEventsCollection),
+              updateManyObs(votesKey, { cancelled: true }, votesCollection),
+          );
 }
 export function undoCancelVotingEvent(
     votingEventsCollection: Collection,
@@ -271,19 +296,31 @@ export function undoCancelVotingEvent(
     params: { name?: string; _id: string | ObjectId },
     user?: string,
 ) {
-    let _votingEventId = typeof params._id === 'string' ? getObjectId(params._id) : params._id;
-    const votingEventKey = !!params._id ? { _id: _votingEventId } : { name: params.name };
-    const votesKey = !!params._id ? { eventId: params._id } : { eventName: params.name };
-    const operation = forkJoin(
-        updateManyObs(votingEventKey, { cancelled: false }, votingEventsCollection),
-        updateManyObs(votesKey, { cancelled: false }, votesCollection),
-    );
+    const _votingEventId = typeof params._id === 'string' ? getObjectId(params._id) : params._id;
     return verifyPermissionToManageVotingEvent(
         votingEventsCollection,
         user,
         _votingEventId,
         'UNDO CANCEL VOTING EVENT',
-    ).pipe(concatMap(() => operation));
+    ).pipe(
+        concatMap(() =>
+            undoCancelVotingEventVerified(votingEventsCollection, votesCollection, params._id, params.name),
+        ),
+    );
+}
+export function undoCancelVotingEventVerified(
+    votingEventsCollection: Collection,
+    votesCollection: Collection,
+    votingEventId: string | ObjectId,
+    name?: string,
+) {
+    let _votingEventId = typeof votingEventId === 'string' ? getObjectId(votingEventId) : votingEventId;
+    const votingEventKey = !!votingEventId ? { _id: _votingEventId } : { name };
+    const votesKey = !!votingEventId ? { eventId: votingEventId } : { eventName: name };
+    return forkJoin(
+        updateManyObs(votingEventKey, { cancelled: false }, votingEventsCollection),
+        updateManyObs(votesKey, { cancelled: false }, votesCollection),
+    );
 }
 function verifyPermissionToManageVotingEvent(
     votingEventsCollection: Collection,
@@ -291,19 +328,11 @@ function verifyPermissionToManageVotingEvent(
     votingEventId: ObjectId,
     operationDescription?: string,
 ) {
-    // the operation on a VotingEvent can be issued by internal logic, e.g. when you cancel an Initiative
-    // you cancel all VotingEvents - in this case there is no need to check if the user is authorized since we assume
-    // that the authorization has been already checked for the higher level operation, in this case the 'CancelInitiative'
-    // operation.
-    // If the operation is issued as a result of a request received from a rest call, then the user is passed
-    // and the verification of the authorization is performed
-    return user
-        ? getVotingEvent(votingEventsCollection, votingEventId).pipe(
-              map(votingEvent => {
-                  _verifyPermissionToManageVotingEvent(user, votingEvent, operationDescription);
-              }),
-          )
-        : of(null);
+    return getVotingEvent(votingEventsCollection, votingEventId, true).pipe(
+        map(votingEvent => {
+            _verifyPermissionToManageVotingEvent(user, votingEvent, operationDescription);
+        }),
+    );
 }
 function _verifyPermissionToManageVotingEvent(user: string, votingEvent: VotingEvent, operationDescription?: string) {
     const isAdmin = votingEvent.roles.administrators.some(a => a === user);
@@ -353,22 +382,31 @@ export function setTechologiesForEvent(
     params: { _id: string; technologies: Technology[] },
     user: string,
 ) {
-    const operation = getVotingEvent(votingEventsCollection, params._id).pipe(
-        concatMap(votingEvent => {
-            if (!votingEvent) {
-                throw ERRORS.votingEventNotExisting;
-            }
-            params.technologies.forEach(t => (t._id = new ObjectId()));
-            const dataToUpdate = { technologies: params.technologies };
-            return updateOneObs({ _id: votingEvent._id }, dataToUpdate, votingEventsCollection);
-        }),
-    );
     return verifyPermissionToManageVotingEvent(
         votingEventsCollection,
         user,
         new ObjectId(params._id),
         'SET TECHNOLOGIES FOR VOTING EVENT',
-    ).pipe(concatMap(() => operation));
+    ).pipe(concatMap(() => setTechologiesForEventVerified(votingEventsCollection, params._id, params.technologies)));
+}
+export function setTechologiesForEventVerified(
+    votingEventsCollection: Collection,
+    votingEventId: string | ObjectId,
+    technologies: Technology[],
+) {
+    const _votingEventId = typeof votingEventId === 'string' ? getObjectId(votingEventId) : votingEventId;
+    return getVotingEvent(votingEventsCollection, _votingEventId).pipe(
+        concatMap(votingEvent => {
+            if (!votingEvent) {
+                const err = { ...ERRORS.votingEventNotExisting };
+                err.votingEventId = votingEventId;
+                throw err;
+            }
+            technologies.forEach(t => (t._id = new ObjectId()));
+            const dataToUpdate = { technologies: technologies };
+            return updateOneObs({ _id: votingEvent._id }, dataToUpdate, votingEventsCollection);
+        }),
+    );
 }
 export function addNewTechnologyToEvent(
     votingEventsCollection: Collection,
@@ -743,11 +781,6 @@ export function loadUsersForVotingEvent(
     if (!params.votingEventId) {
         throw new Error(`votingEventId is required to identify the VotingEven when you want to add users`);
     }
-    // the user  is not required if this operation is performed as part of the execution of an outer operation
-    // the user will be filled if this api is called as a REST api
-    // if (!user) {
-    //     throw new Error(`User must be passed when invoking loadUsersForVotingEvent`);
-    // }
 
     return verifyPermissionToManageVotingEvent(
         votingEventCollection,

@@ -1010,7 +1010,7 @@ describe('Operations on votingevents collection', () => {
 
         const newVotingEventName = 'An Event with cancelled property set to false';
 
-        let votingEventId;
+        let votingEventId: ObjectId;
         let headers;
 
         initializeVotingEventsAndVotes(cachedDb.dbName)
@@ -1021,7 +1021,13 @@ describe('Operations on votingevents collection', () => {
                     headers = data.headers;
                 }),
                 concatMap(() =>
-                    mongodbService(cachedDb, ServiceNames.cancelVotingEvent, { _id: votingEventId, hard: false }),
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.cancelVotingEvent,
+                        { _id: votingEventId, hard: false },
+                        null,
+                        headers,
+                    ),
                 ),
                 concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, { _id: votingEventId })),
                 tap(votingEvent => {
@@ -1618,13 +1624,23 @@ describe('Operations on votingevents collection', () => {
             { name: 'The second tech', description: 'second tech', quadrant: 'tools', isNew: false },
         ];
         let votingEventId: ObjectId;
+        let headers;
 
         initializeVotingEventsAndVotes(cachedDb.dbName)
             .pipe(
-                switchMap(() => createVotingEventForVotingEventTest(cachedDb, newVotingEventName)),
-                tap(_id => (votingEventId = _id)),
+                switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, newVotingEventName)),
+                tap(data => {
+                    votingEventId = data.votingEventId;
+                    headers = data.headers;
+                }),
                 switchMap(() =>
-                    mongodbService(cachedDb, ServiceNames.setTechologiesForEvent, { _id: votingEventId, technologies }),
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.setTechologiesForEvent,
+                        { _id: votingEventId, technologies },
+                        null,
+                        headers,
+                    ),
                 ),
                 concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, { _id: votingEventId })),
             )

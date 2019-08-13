@@ -14,7 +14,7 @@ import { Technology } from '../model/technology';
 import { Comment } from '../model/comment';
 import { Credentials } from '../model/credentials';
 import { VotingEvent } from '../model/voting-event';
-import { createAndOpenVotingEvent, readVotingEvent } from './test.utils';
+import { createAndOpenVotingEvent, readVotingEvent, openVotingEvent } from './test.utils';
 
 describe('CRUD operations on Votes collection', () => {
     it('1.0 loads the votes and then read them', done => {
@@ -79,7 +79,7 @@ describe('CRUD operations on Votes collection', () => {
                         ],
                     };
                 }),
-                switchMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
+                switchMap(() => openVotingEvent(cachedDb, votingEventId)),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.hasAlreadyVoted, { credentials })),
                 tap(hasVoted => {
                     expect(hasVoted).to.be.false;
@@ -245,7 +245,7 @@ describe('CRUD operations on Votes collection', () => {
                 .pipe(
                     switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                     tap(id => (votingEventId = id)),
-                    concatMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
+                    concatMap(() => openVotingEvent(cachedDb, votingEventId)),
                     concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                     tap(vEvent => {
                         votingEvent = vEvent;
@@ -362,7 +362,7 @@ describe('CRUD operations on Votes collection', () => {
                 .pipe(
                     switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                     tap(id => (votingEventId = id)),
-                    concatMap(() => mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId })),
+                    concatMap(() => openVotingEvent(cachedDb, votingEventId)),
                     concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                     tap(vEvent => {
                         votingEvent = vEvent;
@@ -1081,7 +1081,7 @@ describe('CRUD operations on Votes collection', () => {
             .pipe(
                 switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                 tap(id => (votingEventId = id)),
-                concatMap(() => readVotingEvent(cachedDb, votingEventId.toHexString())),
+                concatMap(() => readVotingEvent(cachedDb, votingEventId)),
                 tap(_vEvent => {
                     const tech0 = _vEvent.technologies[0];
                     const tech1 = _vEvent.technologies[1];

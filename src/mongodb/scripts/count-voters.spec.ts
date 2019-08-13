@@ -32,9 +32,9 @@ describe('Script count voters', () => {
                         ),
                     ),
                     tap(([_firstVotingEventId, _secondVotingEventId, _thirdVotingEventId]) => {
-                        firstVotingEventId = _firstVotingEventId.toHexString();
-                        secondVotingEventId = _secondVotingEventId.toHexString();
-                        thirdVotingEventId = _thirdVotingEventId.toHexString();
+                        firstVotingEventId = _firstVotingEventId;
+                        secondVotingEventId = _secondVotingEventId;
+                        thirdVotingEventId = _thirdVotingEventId;
                     }),
                     switchMap(() => getVotingEvents(cachedDb.db.collection(config.votingEventsCollection))),
                     tap(

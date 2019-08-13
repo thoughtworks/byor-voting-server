@@ -70,7 +70,7 @@ fileignoreconfig:
   checksum: 3978df4c9c7534cfb637a270b38e3f879c389b9bebd8b5cb13b100b0c6051243
   ignore_detectors: []
 - filename: src/mongodb/scripts/initialize-sample-environment/initialize-sample-environment.ts
-  checksum: 754e9baf8d31ea187e4f3c1928651c9a17f848d8f05579ada93f85a50f70c6ba
+  checksum: 85290efcd55018efbca6b607be5d784812010866a539f4f62d84dd3a1f46939e
   ignore_detectors: []
 - filename: src/api/authentication-api.ts
   checksum: 7b63291f07539f03e939145d42da283f8e7014948ca4eb9625fefd086472fc6c

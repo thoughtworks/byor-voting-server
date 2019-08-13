@@ -309,7 +309,7 @@ function executeMongoService(
     } else if (service === ServiceNames.cancelVotingEvent) {
         returnedObservable = cancelVotingEvent(votingEventColl, votesColl, serviceData, user);
     } else if (service === ServiceNames.undoCancelVotingEvent) {
-        returnedObservable = undoCancelVotingEvent(votingEventColl, votesColl, serviceData);
+        returnedObservable = undoCancelVotingEvent(votingEventColl, votesColl, serviceData, user);
     } else if (service === ServiceNames.calculateWinner) {
         returnedObservable = calculateWinner(votesColl, votingEventColl, serviceData);
     } else if (service === ServiceNames.setTechologiesForEvent) {

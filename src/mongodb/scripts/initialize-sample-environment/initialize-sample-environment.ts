@@ -16,6 +16,8 @@ import { Initiative } from '../../../model/initiative';
 import { readCsvLineObs$ } from '../../../lib/observables';
 import { User, APPLICATION_ADMIN } from '../../../model/user';
 import { createHeaders } from '../../test.utils';
+import { addUsersWithGroup } from '../../../api/authentication-api';
+import { setTechologiesForEventVerified, openVotingEventVerified } from '../../../api/voting-event-apis';
 
 const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
 
@@ -173,7 +175,11 @@ function loadTechnologiesForVotingEvent(eventId: ObjectId) {
     return readCsvLineObs$(`${__dirname}/technologies.csv`).pipe(
         toArray(),
         concatMap((technologies: any[]) =>
-            mongodbService(cachedDb, ServiceNames.setTechologiesForEvent, { _id: _eventId, technologies }),
+            setTechologiesForEventVerified(
+                cachedDb.db.collection(config.votingEventsCollection),
+                _eventId,
+                technologies,
+            ),
         ),
         map(() => eventId),
     );
@@ -181,19 +187,19 @@ function loadTechnologiesForVotingEvent(eventId: ObjectId) {
 function loadUsersForVotingEvent(eventId: ObjectId) {
     return readCsvLineObs$(`${__dirname}/users.csv`).pipe(
         toArray(),
-        concatMap((users: any[]) =>
-            mongodbService(cachedDb, ServiceNames.loadUsersForVotingEvent, {
-                votingEventId: eventId,
-                users,
-            }),
-        ),
+        concatMap((users: any[]) => {
+            const userColl = cachedDb.db.collection(config.usersCollection);
+            return addUsersWithGroup(userColl, { users });
+        }),
         map(() => eventId),
     );
 }
 function openVotingEvent(eventId: ObjectId) {
-    return mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: eventId }).pipe(
-        map(() => eventId.toHexString()),
-    );
+    return openVotingEventVerified(
+        cachedDb.db.collection(config.votingEventsCollection),
+        cachedDb.db.collection(config.technologiesCollection),
+        eventId,
+    ).pipe(map(() => eventId.toHexString()));
 }
 
 function tonyDevVotes(eventId: string) {

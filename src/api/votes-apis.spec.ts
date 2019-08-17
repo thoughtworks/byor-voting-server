@@ -332,7 +332,7 @@ describe('Votes', () => {
             calculateBlips(votesCollection, votingCollection, params).subscribe(
                 () => {},
                 err => {
-                    expect(err).to.equal('could not find votingEvent from given params');
+                    expect(err).to.be.not.undefined;
                 },
             );
         });

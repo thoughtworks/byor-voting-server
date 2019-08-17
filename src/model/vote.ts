@@ -10,7 +10,7 @@ export interface Vote {
     eventName?: string;
     eventId?: any;
     ipAddress?: string;
-    eventRound: any;
+    eventRound?: any;
     comment?: Comment;
     tags?: string[];
 }

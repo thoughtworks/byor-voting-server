@@ -228,12 +228,13 @@ export function calculateBlips(
     votingEventsCollection: Collection,
     params: {
         votingEvent: { _id: string | ObjectId };
-        thresholdForRevote: number;
+        thresholdForRevote?: number;
     },
 ) {
     if (!(params && params.votingEvent)) {
-        return throwError('could not find votingEvent from given params');
+        return throwError('The VotingEventId must be passed as parameter to be able to calculate the Blips');
     }
+    const thresholdForRevote = params.thresholdForRevote ? params.thresholdForRevote : 1;
     return forkJoin(
         aggregateVotes(votesColl, params),
         getVotingEvent(votingEventsCollection, params.votingEvent._id),
@@ -244,9 +245,7 @@ export function calculateBlips(
         }),
         switchMap(({ blips, votingEvent }) => {
             const votingEventKey = { _id: getObjectId(params.votingEvent._id) };
-            const blipsForRevote = blips.filter(b =>
-                isVoteUncertain(b.votes, b.numberOfVotes, params.thresholdForRevote),
-            );
+            const blipsForRevote = blips.filter(b => isVoteUncertain(b.votes, b.numberOfVotes, thresholdForRevote));
             const technologies = votingEvent.technologies.map(t => {
                 t.forRevote = false;
                 return t;

@@ -287,7 +287,7 @@ function executeMongoService(
     } else if (service === ServiceNames.getVotesWithCommentsForTechAndEvent) {
         returnedObservable = getVotesWithCommentsForTechAndEvent(votesColl, serviceData);
     } else if (service === ServiceNames.addReplyToVoteComment) {
-        returnedObservable = addReplyToVoteComment(votesColl, serviceData);
+        returnedObservable = addReplyToVoteComment(votesColl, serviceData, user);
     } else if (service === ServiceNames.createVotingEvent) {
         returnedObservable = createNewVotingEvent(votingEventColl, initiativeColl, serviceData, user);
     } else if (service === ServiceNames.addUsersForVotingEvent) {
@@ -317,9 +317,9 @@ function executeMongoService(
     } else if (service === ServiceNames.addNewTechnologyToEvent) {
         returnedObservable = addNewTechnologyToEvent(votingEventColl, serviceData);
     } else if (service === ServiceNames.addCommentToTech) {
-        returnedObservable = addCommentToTech(votingEventColl, serviceData);
+        returnedObservable = addCommentToTech(votingEventColl, serviceData, user);
     } else if (service === ServiceNames.addReplyToTechComment) {
-        returnedObservable = addReplyToTechComment(votingEventColl, serviceData);
+        returnedObservable = addReplyToTechComment(votingEventColl, serviceData, user);
     } else if (service === ServiceNames.getVoters) {
         returnedObservable = getVoters(votesColl, serviceData);
     } else if (service === ServiceNames.calculateBlips) {

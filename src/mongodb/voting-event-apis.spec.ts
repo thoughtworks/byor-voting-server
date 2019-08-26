@@ -816,11 +816,8 @@ describe('Operations on votingevents collection', () => {
             quadrant: 'tools',
         };
         const firstCommentText = 'I am the first comment for tech';
-        const firstAuthor = 'the first author of the comment';
         const secondCommentText = 'I am the second comment for tech';
-        const secondAuthor = 'the second author of the comment';
         const replyToSecondComment = 'i am the reply to the second comment';
-        const replyAuthor = ' I am the author of the reply';
 
         let votingEventId;
         let headers;
@@ -869,7 +866,6 @@ describe('Operations on votingevents collection', () => {
                         _id: votingEventId,
                         technologyId: techId,
                         comment: firstCommentText,
-                        author: firstAuthor,
                     }),
                 ),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
@@ -878,7 +874,7 @@ describe('Operations on votingevents collection', () => {
                     expect(technology.comments).to.be.not.undefined;
                     expect(technology.comments.length).to.equal(1);
                     expect(technology.comments[0].text).to.equal(firstCommentText);
-                    expect(technology.comments[0].author).to.equal(firstAuthor);
+                    expect(technology.comments[0].author).to.be.null; // the author is null since we have not authenticated the user in this test
                     expect(technology.comments[0].id).to.be.not.undefined;
                     expect(technology.comments[0].timestamp).to.be.not.undefined;
                     expect(technology.comments[0].replies).to.be.undefined;
@@ -890,7 +886,6 @@ describe('Operations on votingevents collection', () => {
                         _id: votingEventId,
                         technologyId: techId,
                         comment: secondCommentText,
-                        author: secondAuthor,
                     }),
                 ),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
@@ -900,7 +895,7 @@ describe('Operations on votingevents collection', () => {
                     expect(comments).to.be.not.undefined;
                     expect(comments.length).to.equal(2);
                     expect(comments[1].text).to.equal(secondCommentText);
-                    expect(comments[1].author).to.equal(secondAuthor);
+                    expect(comments[1].author).to.be.null; // the author is null since we have not authenticated the user in this test
                     expect(comments[1].id).to.be.not.undefined;
                     expect(comments[1].timestamp).to.be.not.undefined;
                     expect(comments[1].replies).to.be.undefined;
@@ -909,7 +904,7 @@ describe('Operations on votingevents collection', () => {
                 // add a reply to the second comment added to the technology
                 switchMap((technology: Technology) => {
                     const commentId = technology.comments[1].id;
-                    const reply: Comment = { text: replyToSecondComment, author: replyAuthor };
+                    const reply: Comment = { text: replyToSecondComment };
                     return mongodbService(cachedDb, ServiceNames.addReplyToTechComment, {
                         votingEventId,
                         technologyId: techId,
@@ -925,7 +920,7 @@ describe('Operations on votingevents collection', () => {
                     const replies = comments[1].replies;
                     expect(replies.length).to.equal(1);
                     expect(replies[0].text).to.equal(replyToSecondComment);
-                    expect(replies[0].author).to.equal(replyAuthor);
+                    expect(replies[0].author).to.be.null; // the author is null since we have not authenticated the user in this test
                     expect(replies[0].id).to.be.not.undefined;
                     expect(replies[0].timestamp).to.be.not.undefined;
                     expect(replies[0].replies).to.be.undefined;

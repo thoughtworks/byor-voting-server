@@ -432,7 +432,8 @@ export function addNewTechnologyToEvent(
 
 export function addCommentToTech(
     votingEventsCollection: Collection,
-    params: { _id: string; technologyId: string; comment: string; author: string },
+    params: { _id: string; technologyId: string; comment: string },
+    user,
 ) {
     return getVotingEvent(votingEventsCollection, params._id).pipe(
         switchMap(votingEvent => {
@@ -450,7 +451,7 @@ export function addCommentToTech(
             if (!tech.comments) {
                 tech.comments = [];
             }
-            const newComment = buildComment(params.comment, params.author);
+            const newComment = buildComment(params.comment, user);
             tech.comments.push(newComment);
             const dataToUpdate = { 'technologies.$.comments': tech.comments };
             return updateOneObs(
@@ -466,7 +467,9 @@ export function addCommentToTech(
 export function addReplyToTechComment(
     votingEventsCollection: Collection,
     params: { votingEventId: string; technologyId: string; reply: Comment; commentReceivingReplyId: string },
+    user,
 ) {
+    params.reply.author = user;
     const findVotingEventSelector = { _id: getObjectId(params.votingEventId) };
     let dataToUpdate;
     let votingEvent: VotingEvent;
@@ -536,7 +539,7 @@ export function moveToNexFlowStep(
     user: string,
 ) {
     const _votingEventId = getObjectId(params._id);
-    const operation = fetchVotingEvidences(votingEventsCollection, votesColl, params).pipe(
+    const operation = _calculateResultDetailsForEachTechnology(votingEventsCollection, votesColl, params).pipe(
         concatMap(votingEvent => {
             const votingEventKey = { _id: _votingEventId };
             const newRound = votingEvent.round + 1;
@@ -551,13 +554,18 @@ export function moveToNexFlowStep(
         'MOVE TO NEXT STEP FOR VOTING EVENT',
     ).pipe(concatMap(() => operation));
 }
-export function fetchVotingEvidences(
+
+// fills the 'votingResult' property of the Technologies which have collected at least one vote
+// 'votingResult' contains the number of votes per ring (e.g. if a technology has received 2 HOLD and 1 ASSESS, this
+// data will be contained in the 'votingResult.votesForRing' property)
+// 'votingResult' contains also the number of votes per tag, if tags have been added to the votes
+function _calculateResultDetailsForEachTechnology(
     votingEventsCollection: Collection,
     votesColl: Collection,
     params: { _id: string },
 ) {
     if (!(params && params._id)) {
-        return throwError('The parameters passed to fetchVotingEvidences do not containt the VotingEvent is');
+        return throwError('The parameters passed to fetchVotingEvidences do not containt the id of the VotingEvent');
     }
     const eventId = params._id;
     return _getVotingEventWithNumberOfCommentsAndVotes(votingEventsCollection, votesColl, eventId).pipe(

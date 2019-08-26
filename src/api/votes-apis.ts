@@ -103,7 +103,7 @@ export function saveVotes(
             eventRound = vEvent.round;
             votesToInsert = vote.votes.map(v => {
                 const voteToSave: Vote = {
-                    ring: v.ring,
+                    ring: v.ring.toLowerCase(),
                     technology: v.technology,
                     voterId,
                     eventName,
@@ -406,6 +406,12 @@ export function getVotesWithCommentsForTechAndEvent(
         eventId: any;
     },
 ) {
+    if (!params.technologyId) {
+        throw `Technology Id is required when calling getVotesWithCommentsForTechAndEvent`;
+    }
+    if (!params.eventId) {
+        throw `Votinf Event Id is required when calling getVotesWithCommentsForTechAndEvent`;
+    }
     const selector: any = {
         $or: [{ cancelled: { $exists: false } }, { cancelled: false }],
         'technology._id': params.technologyId,
@@ -426,7 +432,9 @@ export function getVotesWithCommentsForTechAndEvent(
 export function addReplyToVoteComment(
     votesColl: Collection,
     params: { voteId: string; reply: Comment; commentReceivingReplyId: string },
+    user: string,
 ) {
+    params.reply.author = user;
     const findVoteSelector = { _id: getObjectId(params.voteId) };
     let dataToUpdate;
     return findObs(votesColl, findVoteSelector).pipe(

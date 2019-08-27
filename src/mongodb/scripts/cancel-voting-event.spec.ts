@@ -3,7 +3,7 @@ import { ObjectId } from 'bson';
 import { cancelVotingEvent } from './cancel-voting-event';
 import { CachedDB } from '../../api/service';
 import { config } from '../../api/config';
-import { initializeVotingEventsAndVotes } from '../base.spec';
+import { cleanVotingEventsAndVotesCollections } from '../base.spec';
 import { switchMap, tap } from 'rxjs/operators';
 import { getAllVotingEvents } from '../../api/voting-event-apis';
 import { createVotingEventForVotingEventTest } from '../test.utils';
@@ -15,7 +15,7 @@ describe('Script cancel voting event', () => {
             const newVotingEvent = { name: 'A voting event to be cancelled soft ' + new Date().getTime() };
             const cancelHard = false;
 
-            initializeVotingEventsAndVotes(cachedDb.dbName)
+            cleanVotingEventsAndVotesCollections(cachedDb.dbName)
                 .pipe(
                     switchMap(() => createVotingEventForVotingEventTest(cachedDb, newVotingEvent.name)),
                     switchMap(() => getAllVotingEvents(cachedDb.db.collection(config.votingEventsCollection))),
@@ -49,7 +49,7 @@ describe('Script cancel voting event', () => {
             const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
             const newVotingEvent = { name: 'A voting event to be cancelled hard ' + new Date().getTime() };
             const cancelHard = true;
-            initializeVotingEventsAndVotes(cachedDb.dbName)
+            cleanVotingEventsAndVotesCollections(cachedDb.dbName)
                 .pipe(
                     switchMap(() => createVotingEventForVotingEventTest(cachedDb, newVotingEvent.name)),
                     switchMap(() => getAllVotingEvents(cachedDb.db.collection(config.votingEventsCollection))),

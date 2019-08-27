@@ -9,7 +9,7 @@ import { TEST_TECHNOLOGIES } from '../model/technologies.local-data';
 import { VoteCredentialized } from '../model/vote-credentialized';
 import { Vote } from '../model/vote';
 import { Blip } from '../model/blip';
-import { initializeVotingEventsAndVotes } from './base.spec';
+import { cleanVotingEventsAndVotesCollections } from './base.spec';
 import { Technology } from '../model/technology';
 import { Comment } from '../model/comment';
 import { Credentials } from '../model/credentials';
@@ -58,7 +58,7 @@ describe('CRUD operations on Votes collection', () => {
 
         let votingEventId;
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                 tap(id => (votingEventId = id)),
@@ -126,7 +126,7 @@ describe('CRUD operations on Votes collection', () => {
 
             let votingEvent;
 
-            initializeVotingEventsAndVotes(cachedDb.dbName)
+            cleanVotingEventsAndVotesCollections(cachedDb.dbName)
                 .pipe(
                     switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                     concatMap(votingEventId => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
@@ -241,7 +241,7 @@ describe('CRUD operations on Votes collection', () => {
             let votingEvent;
             let votingEventId;
 
-            initializeVotingEventsAndVotes(cachedDb.dbName)
+            cleanVotingEventsAndVotesCollections(cachedDb.dbName)
                 .pipe(
                     switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                     tap(id => (votingEventId = id)),
@@ -358,7 +358,7 @@ describe('CRUD operations on Votes collection', () => {
             let votingEvent;
             let votingEventId;
 
-            initializeVotingEventsAndVotes(cachedDb.dbName)
+            cleanVotingEventsAndVotesCollections(cachedDb.dbName)
                 .pipe(
                     switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                     tap(id => (votingEventId = id)),
@@ -467,7 +467,7 @@ describe('CRUD operations on Votes collection', () => {
         let votes: VoteCredentialized[];
         let aggregatedVotes: any[];
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                 switchMap(votingEventId => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
@@ -557,7 +557,7 @@ describe('CRUD operations on Votes collection', () => {
         let credentializedVote1: VoteCredentialized;
         let credentializedVote2: VoteCredentialized;
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                 switchMap(votingEventId => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
@@ -638,7 +638,7 @@ describe('CRUD operations on Votes collection', () => {
         const ringSecondVoteVoter1Tech1 = 'adopt';
         const ringVoter2 = 'hold';
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                 switchMap(votingEventId => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
@@ -765,7 +765,7 @@ describe('CRUD operations on Votes collection', () => {
         const ringVoter1Tech2 = 'adopt';
         const ringVoter2 = 'hold';
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                 switchMap(votingEventId => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
@@ -864,7 +864,7 @@ describe('CRUD operations on Votes collection', () => {
 
         let votingEventId1;
         let votingEventId2;
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName1)),
                 tap(votingEventId => (votingEventId1 = votingEventId)),
@@ -927,7 +927,7 @@ describe('CRUD operations on Votes collection', () => {
         let votes: VoteCredentialized[];
         let votingEvent;
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                 tap(votingEventId => {
@@ -1077,7 +1077,7 @@ describe('CRUD operations on Votes collection', () => {
         let votingEvent;
 
         let votingEventId;
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                 tap(id => (votingEventId = id)),
@@ -1206,7 +1206,7 @@ describe('CRUD operations on Votes collection', () => {
 
         let votingEventId1;
         let votingEventId2;
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName1)),
                 tap(votingEventId => (votingEventId1 = votingEventId)),
@@ -1307,7 +1307,7 @@ describe('CRUD operations on Votes collection', () => {
 
         const ringForTech2AtVotingEventB = 'assess';
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventNameA)),
                 tap(votingEventId => (votingEventIdA = votingEventId)),
@@ -1467,7 +1467,7 @@ describe('CRUD operations on Votes collection', () => {
 
         let votes: VoteCredentialized[];
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createAndOpenVotingEvent(cachedDb, 'event A')),
                 tap(votingEventId => (firstVotingEventId = votingEventId)),
@@ -1631,7 +1631,7 @@ describe('CRUD operations on Votes collection', () => {
 
         let votes: VoteCredentialized[];
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createAndOpenVotingEvent(cachedDb, 'event A')),
                 tap(votingEventId => (firstVotingEventId = votingEventId)),
@@ -1793,7 +1793,7 @@ describe('CRUD operations on Votes collection', () => {
 
         const replyText = 'I am the reply';
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                 switchMap(votingEventId => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
@@ -1859,7 +1859,7 @@ describe('CRUD operations on Votes collection', () => {
 
         const replyToReplyText = 'I am the reply to the reply';
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                 switchMap(votingEventId => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
@@ -1938,7 +1938,7 @@ describe('CRUD operations on Votes collection', () => {
         const secondReplyTeext = 'I am the second reply to the comment';
 
         let votingEventId;
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                 switchMap(votingEventId => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
@@ -2044,7 +2044,7 @@ describe('CRUD operations on Votes collection', () => {
         };
         let credentializedVote: VoteCredentialized;
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
                 switchMap(votingEventId => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),

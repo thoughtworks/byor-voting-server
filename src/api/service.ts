@@ -335,11 +335,11 @@ function executeMongoService(
     } else if (service === ServiceNames.moveToNexFlowStep) {
         returnedObservable = moveToNexFlowStep(votingEventColl, votesColl, serviceData, user);
     } else if (service === ServiceNames.setRecommendationAuthor) {
-        returnedObservable = setRecommendationAuthor(votingEventColl, serviceData);
+        returnedObservable = setRecommendationAuthor(votingEventColl, serviceData, user);
     } else if (service === ServiceNames.setRecommendation) {
-        returnedObservable = setRecommendation(votingEventColl, serviceData);
+        returnedObservable = setRecommendation(votingEventColl, serviceData, user);
     } else if (service === ServiceNames.resetRecommendation) {
-        returnedObservable = resetRecommendation(votingEventColl, serviceData);
+        returnedObservable = resetRecommendation(votingEventColl, serviceData, user);
     } else if (service === ServiceNames.authenticate) {
         returnedObservable = authenticate(usersColl, serviceData);
     } else if (service === ServiceNames.authenticateForVotingEvent) {

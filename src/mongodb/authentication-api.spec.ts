@@ -12,7 +12,7 @@ import { getPasswordHash$ } from '../lib/observables';
 import { Collection } from 'mongodb';
 import { VotingEventFlow } from '../model/voting-event-flow';
 import { addUsersWithGroup, findJustOneUserObs } from '../api/authentication-api';
-import { createVotingEventForVotingEventTest } from './test.utils';
+import { createVotingEventForVotingEventTest, cancelVotingEvent } from './test.utils';
 import { User } from '../model/user';
 
 describe('1.0 - Authentication operations', () => {
@@ -78,72 +78,40 @@ export function loadUsers(usersColl: Collection<any>, users: User[]) {
 }
 
 describe('1.1 - Voting Event Authentication operations', () => {
-    it('load some users from file with no pwd specified and then authenticate some of them', done => {
-        const VOTING_EVENT_USERS = [
-            { user: 'Mary', group: 'architect' },
-            { user: 'Mary', group: 'dev' },
-            { user: 'John', group: 'dev' },
-        ];
+    const VOTING_EVENT_USERS = [
+        { user: 'Mary', group: 'architect' },
+        { user: 'Mary', group: 'dev' },
+        { user: 'John', group: 'dev' },
+    ];
 
+    const votingEventFlow: VotingEventFlow = {
+        name: 'Voting Event Flow',
+        steps: [
+            {
+                name: 'aStep',
+                identification: { name: 'login', groups: ['architect'] },
+                action: { name: 'conversation' },
+            },
+        ],
+    };
+
+    it('an user logs in for the first time and then logs in again', done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
 
-        let _client;
-        let _userColl;
         const votingEventName = 'event to test login of users';
-        const firstStepName = 'first step';
-        const secondStepName = 'second step';
-        const votingEventFlow: VotingEventFlow = {
-            name: 'Voting Event Flow',
-            steps: [
-                {
-                    name: firstStepName,
-                    identification: { name: 'nickname' },
-                    action: { name: 'vote', parameters: { commentOnVoteBlocked: false } },
-                },
-                {
-                    name: secondStepName,
-                    identification: { name: 'login', groups: ['architect'] },
-                    action: { name: 'conversation' },
-                },
-            ],
-        };
+
         let votingEventId: string;
+        let client;
 
         const firstTimePwd = 'I am the password used for the first login';
-        let errorMissingRoleEncountered = false;
-        let errorWrongPwdEncountered = false;
-        let errorUserUnknownEncountered = false;
-        let errorUserUnknownBecauseDeletedEncountered = false;
 
-        connectObs(config.mongoUri)
-            // clean the test data
-            .pipe(
-                tap(client => {
-                    _client = client;
-                    _userColl = client.db(config.dbname).collection(config.usersCollection);
-                }),
-                concatMap(() => forkJoin(VOTING_EVENT_USERS.map(user => deleteObs({ user: user.user }, _userColl)))),
-                concatMap(() => {
-                    return addUsersWithGroup(_client.db(config.dbname).collection(config.usersCollection), {
-                        users: VOTING_EVENT_USERS,
-                    });
-                }),
-                concatMap(() =>
-                    mongodbService(cachedDb, ServiceNames.getVotingEvents).pipe(
-                        map(votingEvents => votingEvents.filter(ve => ve.name === votingEventName)),
-                        concatMap(votingEvents => {
-                            const votingEventsDeleteObs = votingEvents.map(ve =>
-                                mongodbService(cachedDb, ServiceNames.cancelVotingEvent, { _id: ve._id, hard: true }),
-                            );
-                            return votingEvents.length > 0 ? forkJoin(votingEventsDeleteObs) : of(null);
-                        }),
-                    ),
-                ),
-                concatMap(() => createVotingEventForVotingEventTest(cachedDb, votingEventName, votingEventFlow)),
-                tap(id => (votingEventId = id.toHexString())),
-            )
+        cleanTestDataForAuthenticationTests(cachedDb, votingEventName)
             // run the real test logic
             .pipe(
+                tap(({ _votingEventId, _client }) => {
+                    votingEventId = _votingEventId;
+                    client = _client;
+                }),
                 // I do the first login - no password yet set
                 concatMap(() => {
                     const user = VOTING_EVENT_USERS[0].user;
@@ -151,7 +119,6 @@ describe('1.1 - Voting Event Authentication operations', () => {
                         user,
                         pwd: firstTimePwd,
                         votingEventId,
-                        flowStepName: secondStepName,
                     });
                 }),
                 tap(({ token, pwdInserted }) => {
@@ -165,12 +132,47 @@ describe('1.1 - Voting Event Authentication operations', () => {
                         user,
                         pwd: firstTimePwd,
                         votingEventId,
-                        flowStepName: secondStepName,
                     });
                 }),
                 tap(({ token, pwdInserted }) => {
                     expect(token).to.be.not.undefined;
                     expect(pwdInserted).to.be.false;
+                }),
+            )
+            .subscribe(
+                () => {},
+                err => {
+                    console.error(err);
+                    cachedDb.client.close();
+                    client.close();
+                    done(err);
+                },
+                () => {
+                    cachedDb.client.close();
+                    client.close();
+                    done();
+                },
+            );
+    }).timeout(10000);
+
+    it('an user which does not belong to one of the groups required by the voting event flow step tries to log in', done => {
+        const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+
+        const votingEventName = 'event to test login of user without required group';
+
+        let votingEventId: string;
+        let client;
+
+        const firstTimePwd = 'I am the password used for the first login';
+
+        let errorMissingRoleEncountered = false;
+
+        cleanTestDataForAuthenticationTests(cachedDb, votingEventName)
+            // run the real test logic
+            .pipe(
+                tap(({ _votingEventId, _client }) => {
+                    votingEventId = _votingEventId;
+                    client = _client;
                 }),
                 // I do a login requesting a role I do not have
                 concatMap(() => {
@@ -179,13 +181,57 @@ describe('1.1 - Voting Event Authentication operations', () => {
                         user,
                         pwd: firstTimePwd,
                         votingEventId,
-                        flowStepName: secondStepName,
                     });
                 }),
                 catchError(err => {
                     errorMissingRoleEncountered = true;
                     expect(err).to.equal(ERRORS.userWithNotTheRequestedRole);
                     return of(null);
+                }),
+            )
+            .subscribe(
+                () => {},
+                err => {
+                    console.error(err);
+                    cachedDb.client.close();
+                    client.close();
+                    done(err);
+                },
+                () => {
+                    expect(errorMissingRoleEncountered).to.be.true;
+                    cachedDb.client.close();
+                    client.close();
+                    done();
+                },
+            );
+    }).timeout(10000);
+
+    it('an user tries to log in with the wrong password', done => {
+        const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+
+        const votingEventName = 'event to test login of users with the wrong pwd';
+
+        let votingEventId: string;
+        let client;
+
+        const firstTimePwd = 'I am the password used for the first login';
+        let errorWrongPwdEncountered = false;
+
+        cleanTestDataForAuthenticationTests(cachedDb, votingEventName)
+            // run the real test logic
+            .pipe(
+                tap(({ _votingEventId, _client }) => {
+                    votingEventId = _votingEventId;
+                    client = _client;
+                }),
+                // I do the first login and doing so I set my password
+                concatMap(() => {
+                    const user = VOTING_EVENT_USERS[0].user;
+                    return mongodbService(cachedDb, ServiceNames.authenticateForVotingEvent, {
+                        user,
+                        pwd: firstTimePwd,
+                        votingEventId,
+                    });
                 }),
                 // I do a login with a wrong pwd
                 concatMap(() => {
@@ -194,7 +240,6 @@ describe('1.1 - Voting Event Authentication operations', () => {
                         user,
                         pwd: 'wrong pwd',
                         votingEventId,
-                        flowStepName: secondStepName,
                     });
                 }),
                 catchError(err => {
@@ -202,19 +247,89 @@ describe('1.1 - Voting Event Authentication operations', () => {
                     expect(err).to.equal(ERRORS.pwdInvalid);
                     return of(null);
                 }),
-                // I do a login with a no existing user
+            )
+            .subscribe(
+                () => {},
+                err => {
+                    console.error(err);
+                    cachedDb.client.close();
+                    client.close();
+                    done(err);
+                },
+                () => {
+                    expect(errorWrongPwdEncountered).to.be.true;
+                    cachedDb.client.close();
+                    client.close();
+                    done();
+                },
+            );
+    }).timeout(10000);
+
+    it('an user which is unknown tries to log in', done => {
+        const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+
+        const votingEventName = 'event to test login of an user unknown';
+
+        let votingEventId: string;
+        let client;
+
+        let errorUserUnknownEncountered = false;
+
+        cleanTestDataForAuthenticationTests(cachedDb, votingEventName)
+            // run the real test logic
+            .pipe(
+                tap(({ _votingEventId, _client }) => {
+                    votingEventId = _votingEventId;
+                    client = _client;
+                }),
+                // I do a login with a non existing user
                 concatMap(() => {
                     return mongodbService(cachedDb, ServiceNames.authenticateForVotingEvent, {
                         user: 'I do not exist',
                         pwd: 'pwd',
                         votingEventId,
-                        flowStepName: secondStepName,
                     });
                 }),
                 catchError(err => {
                     errorUserUnknownEncountered = true;
                     expect(err.errorCode).to.equal(ERRORS.userUnknown.errorCode);
                     return of(err);
+                }),
+            )
+            .subscribe(
+                () => {},
+                err => {
+                    console.error(err);
+                    cachedDb.client.close();
+                    client.close();
+                    done(err);
+                },
+                () => {
+                    expect(errorUserUnknownEncountered).to.be.true;
+                    cachedDb.client.close();
+                    client.close();
+                    done();
+                },
+            );
+    }).timeout(10000);
+
+    it('an user which has been deleted tries to log in', done => {
+        const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+
+        const votingEventName = 'event to test login of an user which has been previously deleted';
+
+        let votingEventId: string;
+        let client;
+
+        const firstTimePwd = 'I am the password used for the first login';
+        let errorUserUnknownBecauseDeletedEncountered = false;
+
+        cleanTestDataForAuthenticationTests(cachedDb, votingEventName)
+            // run the real test logic
+            .pipe(
+                tap(({ _votingEventId, _client }) => {
+                    votingEventId = _votingEventId;
+                    client = _client;
                 }),
                 // I delete a user and then try to log in with its credentials
                 concatMap(() => {
@@ -226,7 +341,6 @@ describe('1.1 - Voting Event Authentication operations', () => {
                         user,
                         pwd: firstTimePwd,
                         votingEventId,
-                        flowStepName: secondStepName,
                     });
                 }),
                 catchError(err => {
@@ -240,20 +354,53 @@ describe('1.1 - Voting Event Authentication operations', () => {
                 err => {
                     console.error(err);
                     cachedDb.client.close();
-                    _client.close();
+                    client.close();
                     done(err);
                 },
                 () => {
-                    expect(errorMissingRoleEncountered).to.be.true;
-                    expect(errorWrongPwdEncountered).to.be.true;
-                    expect(errorUserUnknownEncountered).to.be.true;
                     expect(errorUserUnknownBecauseDeletedEncountered).to.be.true;
                     cachedDb.client.close();
-                    _client.close();
+                    client.close();
                     done();
                 },
             );
     }).timeout(10000);
+
+    function cleanTestDataForAuthenticationTests(cachedDb, votingEventName) {
+        let _client;
+        let _userColl;
+        return (
+            connectObs(config.mongoUri)
+                // clean the test data
+                .pipe(
+                    tap(client => {
+                        _client = client;
+                        _userColl = client.db(config.dbname).collection(config.usersCollection);
+                    }),
+                    concatMap(() =>
+                        forkJoin(VOTING_EVENT_USERS.map(user => deleteObs({ user: user.user }, _userColl))),
+                    ),
+                    concatMap(() => {
+                        return addUsersWithGroup(_client.db(config.dbname).collection(config.usersCollection), {
+                            users: VOTING_EVENT_USERS,
+                        });
+                    }),
+                    concatMap(() =>
+                        mongodbService(cachedDb, ServiceNames.getVotingEvents).pipe(
+                            map(votingEvents => votingEvents.filter(ve => ve.name === votingEventName)),
+                            concatMap(votingEvents => {
+                                const votingEventsDeleteObs = votingEvents.map(ve =>
+                                    cancelVotingEvent(cachedDb, ve._id, true),
+                                );
+                                return votingEvents.length > 0 ? forkJoin(votingEventsDeleteObs) : of(null);
+                            }),
+                        ),
+                    ),
+                    concatMap(() => createVotingEventForVotingEventTest(cachedDb, votingEventName, votingEventFlow)),
+                    map(id => ({ _votingEventId: id.toHexString(), _client })),
+                )
+        );
+    }
 });
 
 describe('2.1 - Load users', () => {

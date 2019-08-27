@@ -3,7 +3,7 @@ import { extractVotesToFile } from './extract-votes-to-file';
 import { deleteFileObs, readLinesObs } from 'observable-fs';
 import { catchError, switchMap, tap, map, mergeMap, last } from 'rxjs/operators';
 import { of, throwError, forkJoin, from } from 'rxjs';
-import { initializeVotingEventsAndVotes } from '../base.spec';
+import { cleanVotingEventsAndVotesCollections } from '../base.spec';
 import { CachedDB, mongodbService } from '../../api/service';
 import { config } from '../../api/config';
 import { ServiceNames } from '../../service-names';
@@ -42,7 +42,7 @@ describe('Script extract votes to file', () => {
             let expectedFirstEventVotes;
             let expectedSecondEventVotes;
             let expectedThirdEventVotes;
-            initializeVotingEventsAndVotes(cachedDb.dbName)
+            cleanVotingEventsAndVotesCollections(cachedDb.dbName)
                 .pipe(
                     switchMap(() => mongodbService(cachedDb, ServiceNames.getTechnologies)),
                     tap(data => {

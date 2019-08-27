@@ -73,5 +73,5 @@ fileignoreconfig:
   checksum: 85290efcd55018efbca6b607be5d784812010866a539f4f62d84dd3a1f46939e
   ignore_detectors: []
 - filename: src/api/authentication-api.ts
-  checksum: 7b63291f07539f03e939145d42da283f8e7014948ca4eb9625fefd086472fc6c
+  checksum: 092b30f2653ac12b8660eb007f439beff0ae7ba2db3c85ab33d023ebf80638d7
   ignore_detectors: []

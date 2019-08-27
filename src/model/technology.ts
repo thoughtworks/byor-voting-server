@@ -31,5 +31,5 @@ export interface Technology {
     numberOfComments?: number;
     votingResult?: VotingResults;
     recommender?: string;
-    recommendandation?: Recommendation;
+    recommendation?: Recommendation;
 }

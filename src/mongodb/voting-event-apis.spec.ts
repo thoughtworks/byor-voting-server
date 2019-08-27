@@ -10,7 +10,7 @@ import { ERRORS } from '../api/errors';
 import { TEST_TECHNOLOGIES } from '../model/technologies.local-data';
 import { VoteCredentialized } from '../model/vote-credentialized';
 import { VotingEvent } from '../model/voting-event';
-import { initializeVotingEventsAndVotes } from './base.spec';
+import { cleanVotingEventsAndVotesCollections } from './base.spec';
 import { Technology, Recommendation } from '../model/technology';
 import { logError } from '../lib/utils';
 import { ObjectId } from 'bson';
@@ -25,6 +25,8 @@ import {
     createVotingEventForVotingEventTest,
     createVotingEventForVotingEventAndReturnHeaders,
     cancelAndCreateInitiative,
+    createAndOpenVotingEvent,
+    cancelVotingEvent,
 } from './test.utils';
 import { Initiative } from '../model/initiative';
 import { addUsers, findJustOneUserObs } from '../api/authentication-api';
@@ -35,7 +37,7 @@ describe('Operations on votingevents collection', () => {
 
         const newVotingEventName = 'A Voting Event';
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createVotingEventForVotingEventTest(cachedDb, newVotingEventName)),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvents)),
@@ -71,7 +73,7 @@ describe('Operations on votingevents collection', () => {
             authorization: string;
         };
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 concatMap(() => cancelAndCreateInitiative(cachedDb, initiativeName, initiativeAdmin, true)),
                 concatMap(() => readInitiative(cachedDb, initiativeName)),
@@ -129,7 +131,7 @@ describe('Operations on votingevents collection', () => {
         let votingEventId;
         let headers;
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, newVotingEventName)),
                 tap(data => {
@@ -172,7 +174,7 @@ describe('Operations on votingevents collection', () => {
 
         let votingEventId;
         let headers;
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, newVotingEventName)),
                 tap(data => {
@@ -216,7 +218,7 @@ describe('Operations on votingevents collection', () => {
         let votingEventId;
         let headers;
         let newVotingEvent;
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, newVotingEventName)),
                 tap(data => {
@@ -287,7 +289,7 @@ describe('Operations on votingevents collection', () => {
         let votingEventId;
         let headers;
         let newVotingEvent;
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, eventName)),
                 tap(data => {
@@ -358,7 +360,7 @@ describe('Operations on votingevents collection', () => {
         let votingEventId;
         let headers;
         let newVotingEvent;
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, eventName)),
                 tap(data => {
@@ -426,7 +428,7 @@ describe('Operations on votingevents collection', () => {
         const newVotingEventName1 = 'A Voting Event - 1';
         const newVotingEventName2 = 'A Voting Event - 2';
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createVotingEventForVotingEventTest(cachedDb, newVotingEventName1)),
                 switchMap(() => createVotingEventForVotingEventTest(cachedDb, newVotingEventName2)),
@@ -456,7 +458,7 @@ describe('Operations on votingevents collection', () => {
         const votingEventName = 'event A-winner';
         let votingEvent;
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createVotingEventForVotingEventTest(cachedDb, votingEventName)),
                 switchMap(id => mongodbService(cachedDb, ServiceNames.getVotingEvent, id)),
@@ -531,7 +533,7 @@ describe('Operations on votingevents collection', () => {
         const votingEventName = 'event A-winner';
         let votingEvent;
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createVotingEventForVotingEventTest(cachedDb, votingEventName)),
                 switchMap(id => mongodbService(cachedDb, ServiceNames.getVotingEvent, id)),
@@ -605,7 +607,7 @@ describe('Operations on votingevents collection', () => {
         let headers;
         let round;
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, votingEventName)),
                 tap(data => {
@@ -656,7 +658,7 @@ describe('Operations on votingevents collection', () => {
 
         let votingEventId;
         let headers;
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, votingEventName)),
                 tap(data => {
@@ -736,9 +738,7 @@ describe('Operations on votingevents collection', () => {
             .pipe(
                 map(votingEvents => votingEvents.filter(ve => ve.name === votingEventName)),
                 switchMap(votingEvents => {
-                    const votingEventsDeleteObs = votingEvents.map(ve =>
-                        mongodbService(cachedDb, ServiceNames.cancelVotingEvent, { _id: ve._id, hard: true }),
-                    );
+                    const votingEventsDeleteObs = votingEvents.map(ve => cancelVotingEvent(cachedDb, ve._id, true));
                     return votingEvents.length > 0 ? forkJoin(votingEventsDeleteObs) : of(null);
                 }),
                 switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, votingEventName)),
@@ -827,9 +827,7 @@ describe('Operations on votingevents collection', () => {
             .pipe(
                 map(votingEvents => votingEvents.filter(ve => ve.name === votingEventName)),
                 switchMap(votingEvents => {
-                    const votingEventsDeleteObs = votingEvents.map(ve =>
-                        mongodbService(cachedDb, ServiceNames.cancelVotingEvent, { _id: ve._id, hard: true }),
-                    );
+                    const votingEventsDeleteObs = votingEvents.map(ve => cancelVotingEvent(cachedDb, ve._id, true));
                     return votingEvents.length > 0 ? forkJoin(votingEventsDeleteObs) : of(null);
                 }),
                 switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, votingEventName)),
@@ -952,9 +950,7 @@ describe('Operations on votingevents collection', () => {
             .pipe(
                 map(votingEvents => votingEvents.filter(ve => ve.name === votingEventName)),
                 switchMap(votingEvents => {
-                    const votingEventsDeleteObs = votingEvents.map(ve =>
-                        mongodbService(cachedDb, ServiceNames.cancelVotingEvent, { _id: ve._id, hard: true }),
-                    );
+                    const votingEventsDeleteObs = votingEvents.map(ve => cancelVotingEvent(cachedDb, ve._id, true));
                     return votingEvents.length > 0 ? forkJoin(votingEventsDeleteObs) : of(null);
                 }),
                 switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, votingEventName)),
@@ -1008,7 +1004,7 @@ describe('Operations on votingevents collection', () => {
         let votingEventId: ObjectId;
         let headers;
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, newVotingEventName)),
                 tap(data => {
@@ -1065,7 +1061,7 @@ describe('Operations on votingevents collection', () => {
 
         let headers;
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, newVotingEventName)),
                 tap(data => {
@@ -1280,7 +1276,7 @@ describe('Operations on votingevents collection', () => {
 
         let headers;
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, newVotingEventName)),
                 tap(data => {
@@ -1421,19 +1417,21 @@ describe('Operations on votingevents collection', () => {
     }).timeout(10000);
 
     it(`2.7 A Voting Event is created and a person is set as author of the recommendation for one of the techs
-    and then it is reset, then a new recommender is defined and a resommendation is set`, done => {
+    and then it is reset, then a new recommender is defined and a recommendation is set`, done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
 
         const newVotingEventName =
             'An Event where a person is set as the author of the recommendation of the tecnology';
 
         let votingEventId;
-        let votes: VoteCredentialized[];
-        let votingEvent;
+        // let votes: VoteCredentialized[];
+        // let votingEvent;
         let tech0: Technology;
 
         const firstAuthorId = 'I am the FIRST person who wants to write the recommendation';
         const secondAuthorId = 'I am the SECOND person who wants to write the recommendation';
+        const firstAuthor: User = { user: firstAuthorId };
+        const secondAuthor: User = { user: secondAuthorId };
 
         const recommendation: Recommendation = {
             author: secondAuthorId,
@@ -1443,63 +1441,59 @@ describe('Operations on votingevents collection', () => {
         };
 
         let recommendationAuthorAlreadySetErrorEncountered = false;
-        let resetterImpostorErrorEncountered = false;
         let differentRecommenderErrorEncountered = false;
 
         let headers;
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
-                switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, newVotingEventName)),
-                tap(data => {
-                    votingEventId = data.votingEventId;
-                    headers = data.headers;
+                concatMap(() => createAndOpenVotingEvent(cachedDb, newVotingEventName)),
+                tap(_votingEventId => {
+                    votingEventId = _votingEventId;
                 }),
                 concatMap(() =>
-                    mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId }, null, headers),
-                ),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
-                tap(vEvent => {
-                    votingEvent = vEvent;
-                    tech0 = votingEvent.technologies[0];
-                    votes = [
-                        {
-                            credentials: { votingEvent, voterId: { nickname: 'I am the first voter' } },
-                            votes: [
-                                {
-                                    ring: 'adopt',
-                                    technology: tech0,
-                                    eventName: votingEvent.name,
-                                    eventId: votingEvent._id,
-                                    eventRound: 1,
-                                },
-                            ],
-                        },
-                    ];
-                }),
-                concatMap(() => forkJoin(votes.map(vote => mongodbService(cachedDb, ServiceNames.saveVotes, vote)))),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
-                // set the recommendation author for the first time
-                concatMap(() =>
-                    mongodbService(cachedDb, ServiceNames.setRecommendationAuthor, {
-                        votingEventId,
-                        technologyName: tech0.name,
-                        author: firstAuthorId,
+                    addUsers(cachedDb.db.collection(config.usersCollection), {
+                        users: [firstAuthor, secondAuthor],
                     }),
                 ),
                 concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap((votingEvent: VotingEvent) => {
-                    const t0 = votingEvent.technologies.find(t => t.name === tech0.name);
-                    expect(t0.recommendandation).to.be.not.undefined;
-                    expect(t0.recommendandation.author).equal(firstAuthorId);
+                    tech0 = votingEvent.technologies[0];
                 }),
-                // try to set the recommendation author with a different author and get an error
-                concatMap(() =>
-                    mongodbService(cachedDb, ServiceNames.setRecommendationAuthor, {
-                        votingEventId,
-                        technologyName: tech0.name,
-                        author: secondAuthorId,
-                    }),
+                // the first author of the recommendation logs in
+                concatMap(() => authenticateForTest(cachedDb, firstAuthor.user, 'pwd1')),
+                // the first author sets itself as the recommendation author for techo for the first time
+                concatMap(headers =>
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.setRecommendationAuthor,
+                        {
+                            votingEventId,
+                            technologyName: tech0.name,
+                        },
+                        null,
+                        headers,
+                    ),
+                ),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                tap((votingEvent: VotingEvent) => {
+                    const t0 = votingEvent.technologies.find(t => t.name === tech0.name);
+                    expect(t0.recommendation).to.be.not.undefined;
+                    expect(t0.recommendation.author).equal(firstAuthorId);
+                }),
+                // the second author logs in and tries to set itself as the recommendation author for tech0 and gets an error
+                concatMap(() => authenticateForTest(cachedDb, secondAuthor.user, 'pwd2')),
+                concatMap(headers =>
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.setRecommendationAuthor,
+                        {
+                            votingEventId,
+                            technologyName: tech0.name,
+                        },
+                        null,
+                        headers,
+                    ),
                 ),
                 catchError(err => {
                     recommendationAuthorAlreadySetErrorEncountered = true;
@@ -1507,83 +1501,100 @@ describe('Operations on votingevents collection', () => {
                     expect(err.currentAuthor).equal(firstAuthorId);
                     return of(null);
                 }),
-                // try to set the recommendation author with the same author and do not get an error
+                // the first author logs in again and tries to set itself as the recommendation author fortech0 and does not get an error
+                concatMap(() => authenticateForTest(cachedDb, firstAuthor.user, 'pwd1')),
+                tap(_headers => (headers = _headers)),
                 concatMap(() =>
-                    mongodbService(cachedDb, ServiceNames.setRecommendationAuthor, {
-                        votingEventId,
-                        technologyName: tech0.name,
-                        author: firstAuthorId,
-                    }),
-                ),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
-                tap((votingEvent: VotingEvent) => {
-                    const t0 = votingEvent.technologies.find(t => t.name === tech0.name);
-                    expect(t0.recommendandation.author).equal(firstAuthorId);
-                }),
-                // try to reset the recommendation with a requester who is not the author already set and get an error
-                concatMap(() =>
-                    mongodbService(cachedDb, ServiceNames.resetRecommendation, {
-                        votingEventId,
-                        technologyName: tech0.name,
-                        requester: 'An impostor',
-                    }),
-                ),
-                catchError(err => {
-                    resetterImpostorErrorEncountered = true;
-                    expect(err.errorCode).equal(ERRORS.recommendationAuthorDifferent.errorCode);
-                    expect(err.currentAuthor).equal(firstAuthorId);
-                    return of(null);
-                }),
-                // reset the recommendation with a requester who is the same author already set
-                concatMap(() =>
-                    mongodbService(cachedDb, ServiceNames.resetRecommendation, {
-                        votingEventId,
-                        technologyName: tech0.name,
-                        requester: firstAuthorId,
-                    }),
-                ),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
-                tap((votingEvent: VotingEvent) => {
-                    const t0 = votingEvent.technologies.find(t => t.name === tech0.name);
-                    expect(t0.recommendandation).to.be.null;
-                }),
-                // set the recommendation author again
-                concatMap(() =>
-                    mongodbService(cachedDb, ServiceNames.setRecommendationAuthor, {
-                        votingEventId,
-                        technologyName: tech0.name,
-                        author: secondAuthorId,
-                    }),
-                ),
-                // set the recommendation
-                concatMap(() =>
-                    mongodbService(cachedDb, ServiceNames.setRecommendation, {
-                        votingEventId,
-                        technologyName: tech0.name,
-                        recommendation,
-                    }),
-                ),
-                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
-                tap((votingEvent: VotingEvent) => {
-                    const t0 = votingEvent.technologies.find(t => t.name === tech0.name);
-                    expect(t0.recommendandation).to.be.not.undefined;
-                    expect(t0.recommendandation.author).equal(secondAuthorId);
-                    expect(t0.recommendandation.text).equal(recommendation.text);
-                    expect(t0.recommendandation.ring).equal(recommendation.ring);
-                    expect(t0.recommendandation.timestamp).equal(recommendation.timestamp);
-                }),
-                // try to set the recommendation again with a different author and get an error
-                concatMap(() =>
-                    mongodbService(cachedDb, ServiceNames.setRecommendation, {
-                        votingEventId,
-                        technologyName: tech0.name,
-                        recommendation: {
-                            author: 'A new author',
-                            text: 'A new recommendation',
-                            ring: 'hold',
-                            timestamp: 'yesterday',
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.setRecommendationAuthor,
+                        {
+                            votingEventId,
+                            technologyName: tech0.name,
                         },
-                    }),
+                        null,
+                        headers,
+                    ),
+                ),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                tap((votingEvent: VotingEvent) => {
+                    const t0 = votingEvent.technologies.find(t => t.name === tech0.name);
+                    expect(t0.recommendation.author).equal(firstAuthorId);
+                }),
+                // the first author resets the recommendation
+                concatMap(() =>
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.resetRecommendation,
+                        {
+                            votingEventId,
+                            technologyName: tech0.name,
+                        },
+                        null,
+                        headers,
+                    ),
+                ),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                tap((votingEvent: VotingEvent) => {
+                    const t0 = votingEvent.technologies.find(t => t.name === tech0.name);
+                    expect(t0.recommendation).to.be.null;
+                }),
+                // the second author logs in again and now succeeds in setting itself as the author of the recommendation
+                concatMap(() => authenticateForTest(cachedDb, secondAuthor.user, 'pwd2')),
+                tap(_headers => (headers = _headers)),
+                concatMap(() =>
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.setRecommendationAuthor,
+                        {
+                            votingEventId,
+                            technologyName: tech0.name,
+                        },
+                        null,
+                        headers,
+                    ),
+                ),
+                // and finally sets the actual recommendation
+                concatMap(() =>
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.setRecommendation,
+                        {
+                            votingEventId,
+                            technologyName: tech0.name,
+                            recommendation,
+                        },
+                        null,
+                        headers,
+                    ),
+                ),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                tap((votingEvent: VotingEvent) => {
+                    const t0 = votingEvent.technologies.find(t => t.name === tech0.name);
+                    expect(t0.recommendation).to.be.not.undefined;
+                    expect(t0.recommendation.author).equal(secondAuthorId);
+                    expect(t0.recommendation.text).equal(recommendation.text);
+                    expect(t0.recommendation.ring).equal(recommendation.ring);
+                    expect(t0.recommendation.timestamp).equal(recommendation.timestamp);
+                }),
+                // now the first author tries to set the recommendation again and gets an error
+                concatMap(() => authenticateForTest(cachedDb, firstAuthor.user, 'pwd1')),
+                concatMap(() =>
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.setRecommendation,
+                        {
+                            votingEventId,
+                            technologyName: tech0.name,
+                            recommendation: {
+                                text: 'A new recommendation',
+                                ring: 'hold',
+                                timestamp: 'yesterday',
+                            },
+                        },
+                        null,
+                        headers,
+                    ),
                 ),
                 catchError(err => {
                     differentRecommenderErrorEncountered = true;
@@ -1595,7 +1606,6 @@ describe('Operations on votingevents collection', () => {
             .subscribe(
                 () => {
                     expect(recommendationAuthorAlreadySetErrorEncountered).to.be.true;
-                    expect(resetterImpostorErrorEncountered).to.be.true;
                     expect(differentRecommenderErrorEncountered).to.be.true;
                 },
                 err => {
@@ -1621,7 +1631,7 @@ describe('Operations on votingevents collection', () => {
         let votingEventId: ObjectId;
         let headers;
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, newVotingEventName)),
                 tap(data => {
@@ -1749,7 +1759,7 @@ describe('Operations on votingevents collection', () => {
 
         const users: User[] = [{ user: userName, groups: userGroups }];
 
-        initializeVotingEventsAndVotes(cachedDb.dbName)
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
                 switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, votingEventName)),
                 concatMap(resp => {

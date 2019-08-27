@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { countVoters } from './count-voters';
 import { ServiceNames } from '../../service-names';
 import { mongodbService, CachedDB } from '../../api/service';
-import { initializeVotingEventsAndVotes } from '../base.spec';
+import { cleanVotingEventsAndVotesCollections } from '../base.spec';
 import { switchMap, tap, defaultIfEmpty } from 'rxjs/operators';
 import { config } from '../../api/config';
 import { getVotingEvents } from '../../api/voting-event-apis';
@@ -22,7 +22,7 @@ describe('Script count voters', () => {
             let firstVotingEventId: string;
             let secondVotingEventId: string;
             let thirdVotingEventId: string;
-            initializeVotingEventsAndVotes(cachedDb.dbName)
+            cleanVotingEventsAndVotesCollections(cachedDb.dbName)
                 .pipe(
                     switchMap(() =>
                         forkJoin(

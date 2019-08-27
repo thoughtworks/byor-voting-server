@@ -4,7 +4,7 @@ import { forkJoin } from 'rxjs';
 import { MongoClient, Db } from 'mongodb';
 import { config } from '../api/config';
 
-export const initializeVotingEventsAndVotes = (dbName: string) => {
+export const cleanVotingEventsAndVotesCollections = (dbName: string) => {
     let mongoClient: MongoClient;
     return connectObs(config.mongoUri).pipe(
         tap(client => (mongoClient = client)),

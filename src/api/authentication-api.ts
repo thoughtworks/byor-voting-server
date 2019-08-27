@@ -62,35 +62,28 @@ export function validateRequestAuthentication(headers: any) {
 export function authenticateForVotingEvent(
     usersColl: Collection<any>,
     votingEventColl: Collection<any>,
-    params: { user: string; pwd: string; votingEventId: string; flowStepName: string },
+    params: { user: string; pwd: string; votingEventId: string },
 ) {
     if (!params.user) throw new Error('Parameter user not passed to authenticateForVotingEvent');
     if (!params.pwd) throw new Error('Parameter pwd not passed to authenticateForVotingEvent');
     if (!params.votingEventId) throw new Error('Parameter votingEventId not passed to authenticateForVotingEvent');
-    if (!params.flowStepName) throw new Error('Parameter flowStepName not passed to authenticateForVotingEvent');
     return findJustOneUserObs(usersColl, params.user).pipe(
         concatMap(foundUser => {
-            let votingEvent: VotingEvent;
             return getVotingEvent(votingEventColl, params.votingEventId).pipe(
-                tap(_votingEvent => {
-                    if (!_votingEvent) {
+                tap(votingEvent => {
+                    if (!votingEvent) {
                         throw new Error(`No Voting Event found with id "${params.votingEventId}"`);
                     }
-                    votingEvent = _votingEvent;
                 }),
-                map(votingEvent => votingEvent.flow),
-                map(flow => flow.steps.find(step => step.name === params.flowStepName)),
+                map(votingEvent => getFlowStep(votingEvent)),
                 tap(step => {
-                    if (!step) {
-                        throw new Error(
-                            `No step with name "${params.flowStepName}" found for Voting Event "${votingEvent.name}"`,
-                        );
-                    }
                     const groupsAllowedInStep = step.identification.groups;
                     const userGroups = foundUser.groups;
-                    const isGroupAllowed =
-                        !!userGroups &&
-                        (groupsAllowedInStep ? groupsAllowedInStep.some(role => userGroups.includes(role)) : true);
+                    const isGroupAllowed = groupsAllowedInStep
+                        ? userGroups
+                            ? groupsAllowedInStep.some(role => userGroups.includes(role))
+                            : false
+                        : true;
                     if (!isGroupAllowed) {
                         const error = { ...ERRORS.userWithNotTheRequestedRole };
                         error.user = foundUser.user;
@@ -124,6 +117,16 @@ export function authenticateForVotingEvent(
                   );
         }),
     );
+}
+function getFlowStep(votingEvent: VotingEvent) {
+    if (!votingEvent.flow) {
+        throw new Error(`Voting Event ${votingEvent.name} does not have a flow defined`);
+    }
+    const round = votingEvent.round ? votingEvent.round : 1;
+    if (votingEvent.flow.steps.length < round) {
+        throw new Error(`Voting Event ${votingEvent.name} does not have a step defined in its flow for round ${round}`);
+    }
+    return votingEvent.flow.steps[round - 1];
 }
 
 export function authenticateOrSetPwdIfFirstTime(usersColl: Collection, params: { user: string; pwd: string }) {

@@ -85,6 +85,12 @@ export function saveVotes(
     vote: VoteCredentialized,
     ipAddress: string,
 ) {
+    const ringNamesMap = {
+        adopt: 'Adopt',
+        trial: 'Trial',
+        assess: 'Assess',
+        hold: 'Hold',
+    };
     // added to collect info about a bug that occurs sometimes in prod
     if (!vote.credentials) {
         logError('Credentials empty' + JSON.stringify(vote, null, 2) + 'ip' + ipAddress);
@@ -103,7 +109,7 @@ export function saveVotes(
             eventRound = vEvent.round;
             votesToInsert = vote.votes.map(v => {
                 const voteToSave: Vote = {
-                    ring: v.ring.toLowerCase(),
+                    ring: ringNamesMap[v.ring.toLowerCase()],
                     technology: v.technology,
                     voterId,
                     eventName,

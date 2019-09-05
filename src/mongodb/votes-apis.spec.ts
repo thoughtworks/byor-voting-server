@@ -69,7 +69,7 @@ describe('CRUD operations on Votes collection', () => {
                         credentials,
                         votes: [
                             {
-                                ring: 'hold',
+                                ring: 'Hold',
                                 technology: TEST_TECHNOLOGIES[0],
                                 eventName: credentials.votingEvent.name,
                                 eventId: credentials.votingEvent._id,
@@ -117,9 +117,9 @@ describe('CRUD operations on Votes collection', () => {
             const voterId = { nickname: 'Nick the Voter' };
 
             const tech0 = TEST_TECHNOLOGIES[0];
-            const ring0 = 'hold';
+            const ring0 = 'Hold';
             const tech1 = TEST_TECHNOLOGIES[1];
-            const ring1 = 'adopt';
+            const ring1 = 'Adopt';
             let voterVotes: any[];
 
             let votes: VoteCredentialized[];
@@ -157,7 +157,7 @@ describe('CRUD operations on Votes collection', () => {
                                 credentials: { votingEvent, voterId: { nickname: 'three A' } },
                                 votes: [
                                     {
-                                        ring: 'hold',
+                                        ring: 'Hold',
                                         technology: TEST_TECHNOLOGIES[0],
                                         eventName: votingEvent.name,
                                         eventId: votingEvent._id,
@@ -169,7 +169,7 @@ describe('CRUD operations on Votes collection', () => {
                                 credentials: { votingEvent, voterId: { nickname: 'five A' } },
                                 votes: [
                                     {
-                                        ring: 'hold',
+                                        ring: 'Hold',
                                         technology: TEST_TECHNOLOGIES[0],
                                         eventName: votingEvent.name,
                                         eventId: votingEvent._id,
@@ -181,7 +181,7 @@ describe('CRUD operations on Votes collection', () => {
                                 credentials: { votingEvent, voterId: { nickname: 'seven A' } },
                                 votes: [
                                     {
-                                        ring: 'assess',
+                                        ring: 'Assess',
                                         technology: TEST_TECHNOLOGIES[1],
                                         eventName: votingEvent.name,
                                         eventId: votingEvent._id,
@@ -231,9 +231,9 @@ describe('CRUD operations on Votes collection', () => {
             const voterId = { userId: 'UserId the Voter' };
 
             const tech0 = TEST_TECHNOLOGIES[0];
-            const ring0 = 'hold';
+            const ring0 = 'Hold';
             const tech1 = TEST_TECHNOLOGIES[1];
-            const ring1 = 'adopt';
+            const ring1 = 'Adopt';
             let voterVotes: any[];
 
             let votes: VoteCredentialized[];
@@ -274,7 +274,7 @@ describe('CRUD operations on Votes collection', () => {
                                 credentials: { votingEvent, voterId: { nickname: 'three A' } },
                                 votes: [
                                     {
-                                        ring: 'hold',
+                                        ring: 'Hold',
                                         technology: TEST_TECHNOLOGIES[0],
                                         eventName: votingEvent.name,
                                         eventId: votingEvent._id,
@@ -286,7 +286,7 @@ describe('CRUD operations on Votes collection', () => {
                                 credentials: { votingEvent, voterId: { nickname: 'five A' } },
                                 votes: [
                                     {
-                                        ring: 'hold',
+                                        ring: 'Hold',
                                         technology: TEST_TECHNOLOGIES[0],
                                         eventName: votingEvent.name,
                                         eventId: votingEvent._id,
@@ -298,7 +298,7 @@ describe('CRUD operations on Votes collection', () => {
                                 credentials: { votingEvent, voterId: { nickname: 'seven A' } },
                                 votes: [
                                     {
-                                        ring: 'assess',
+                                        ring: 'Assess',
                                         technology: TEST_TECHNOLOGIES[1],
                                         eventName: votingEvent.name,
                                         eventId: votingEvent._id,
@@ -348,9 +348,9 @@ describe('CRUD operations on Votes collection', () => {
             const voterId = { firstName: 'Voter First Name A', lastName: 'Voter Last Name  A' };
 
             const tech0 = TEST_TECHNOLOGIES[0];
-            const ring0 = 'hold';
+            const ring0 = 'Hold';
             const tech1 = TEST_TECHNOLOGIES[1];
-            const ring1 = 'adopt';
+            const ring1 = 'Adopt';
             let voterVotes: any[];
 
             let votes: VoteCredentialized[];
@@ -391,7 +391,7 @@ describe('CRUD operations on Votes collection', () => {
                                 credentials: { votingEvent, voterId: { firstName: 'three A', lastName: 'four A' } },
                                 votes: [
                                     {
-                                        ring: 'hold',
+                                        ring: 'Hold',
                                         technology: TEST_TECHNOLOGIES[0],
                                         eventName: votingEvent.name,
                                         eventId: votingEvent._id,
@@ -403,7 +403,7 @@ describe('CRUD operations on Votes collection', () => {
                                 credentials: { votingEvent, voterId: { firstName: 'five A', lastName: 'six A' } },
                                 votes: [
                                     {
-                                        ring: 'hold',
+                                        ring: 'Hold',
                                         technology: TEST_TECHNOLOGIES[0],
                                         eventName: votingEvent.name,
                                         eventId: votingEvent._id,
@@ -415,7 +415,7 @@ describe('CRUD operations on Votes collection', () => {
                                 credentials: { votingEvent, voterId: { firstName: 'seven A', lastName: 'eight A' } },
                                 votes: [
                                     {
-                                        ring: 'assess',
+                                        ring: 'Assess',
                                         technology: TEST_TECHNOLOGIES[1],
                                         eventName: votingEvent.name,
                                         eventId: votingEvent._id,
@@ -478,7 +478,7 @@ describe('CRUD operations on Votes collection', () => {
                             credentials: { votingEvent, voterId: { firstName: 'one A', lastName: 'two A' } },
                             votes: [
                                 {
-                                    ring: 'hold',
+                                    ring: 'Hold',
                                     technology: TEST_TECHNOLOGIES[0],
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
@@ -490,7 +490,7 @@ describe('CRUD operations on Votes collection', () => {
                             credentials: { votingEvent, voterId: { firstName: 'three A', lastName: 'four A' } },
                             votes: [
                                 {
-                                    ring: 'hold',
+                                    ring: 'Hold',
                                     technology: TEST_TECHNOLOGIES[0],
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
@@ -502,7 +502,7 @@ describe('CRUD operations on Votes collection', () => {
                             credentials: { votingEvent, voterId: { firstName: 'five A', lastName: 'six A' } },
                             votes: [
                                 {
-                                    ring: 'hold',
+                                    ring: 'Hold',
                                     technology: TEST_TECHNOLOGIES[0],
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
@@ -514,7 +514,7 @@ describe('CRUD operations on Votes collection', () => {
                             credentials: { votingEvent, voterId: { firstName: 'seven A', lastName: 'eight A' } },
                             votes: [
                                 {
-                                    ring: 'assess',
+                                    ring: 'Assess',
                                     technology: TEST_TECHNOLOGIES[1],
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
@@ -568,7 +568,7 @@ describe('CRUD operations on Votes collection', () => {
                         credentials: credentials1,
                         votes: [
                             {
-                                ring: 'hold',
+                                ring: 'Hold',
                                 technology: TEST_TECHNOLOGIES[0],
                                 eventName: credentials1.votingEvent.name,
                                 eventId: credentials1.votingEvent._id,
@@ -580,7 +580,7 @@ describe('CRUD operations on Votes collection', () => {
                         credentials: credentials2,
                         votes: [
                             {
-                                ring: 'adopt',
+                                ring: 'Adopt',
                                 technology: TEST_TECHNOLOGIES[1],
                                 eventName: credentials2.votingEvent.name,
                                 eventId: credentials2.votingEvent._id,
@@ -633,10 +633,10 @@ describe('CRUD operations on Votes collection', () => {
         let credentializedVote2: VoteCredentialized;
         let tech1: Technology;
         let tech2: Technology;
-        const ringFirstVoteVoter1Tech1 = 'hold';
-        const ringFirstVoteVoter1Tech2 = 'adopt';
-        const ringSecondVoteVoter1Tech1 = 'adopt';
-        const ringVoter2 = 'hold';
+        const ringFirstVoteVoter1Tech1 = 'Hold';
+        const ringFirstVoteVoter1Tech2 = 'Adopt';
+        const ringSecondVoteVoter1Tech1 = 'Adopt';
+        const ringVoter2 = 'Hold';
 
         cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
@@ -761,9 +761,9 @@ describe('CRUD operations on Votes collection', () => {
         let credentializedVote2: VoteCredentialized;
         let tech1: Technology;
         let tech2: Technology;
-        const ringVoter1Tech1 = 'hold';
-        const ringVoter1Tech2 = 'adopt';
-        const ringVoter2 = 'hold';
+        const ringVoter1Tech1 = 'Hold';
+        const ringVoter1Tech2 = 'Adopt';
+        const ringVoter2 = 'Hold';
 
         cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
@@ -880,25 +880,25 @@ describe('CRUD operations on Votes collection', () => {
                     votes = [
                         {
                             credentials: { votingEvent: vEvent1, voterId: { firstName: 'one A', lastName: 'two A' } },
-                            votes: [{ ring: 'hold', technology: TEST_TECHNOLOGIES[0], eventRound: 1 }],
+                            votes: [{ ring: 'Hold', technology: TEST_TECHNOLOGIES[0], eventRound: 1 }],
                         },
                         {
                             credentials: {
                                 votingEvent: vEvent1,
                                 voterId: { firstName: 'three A', lastName: 'four A' },
                             },
-                            votes: [{ ring: 'hold', technology: TEST_TECHNOLOGIES[0], eventRound: 1 }],
+                            votes: [{ ring: 'Hold', technology: TEST_TECHNOLOGIES[0], eventRound: 1 }],
                         },
                         {
                             credentials: { votingEvent: vEvent1, voterId: { firstName: 'five A', lastName: 'six A' } },
-                            votes: [{ ring: 'hold', technology: TEST_TECHNOLOGIES[0], eventRound: 1 }],
+                            votes: [{ ring: 'Hold', technology: TEST_TECHNOLOGIES[0], eventRound: 1 }],
                         },
                         {
                             credentials: {
                                 votingEvent: vEvent2,
                                 voterId: { firstName: 'seven A', lastName: 'eight A' },
                             },
-                            votes: [{ ring: 'assess', technology: TEST_TECHNOLOGIES[1], eventRound: 1 }],
+                            votes: [{ ring: 'Assess', technology: TEST_TECHNOLOGIES[1], eventRound: 1 }],
                         },
                     ];
                 }),
@@ -937,7 +937,7 @@ describe('CRUD operations on Votes collection', () => {
                             credentials: { votingEvent, voterId: { firstName: 'one A', lastName: 'two A' } },
                             votes: [
                                 {
-                                    ring: 'hold',
+                                    ring: 'Hold',
                                     technology: TEST_TECHNOLOGIES[0],
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
@@ -949,7 +949,7 @@ describe('CRUD operations on Votes collection', () => {
                             credentials: { votingEvent, voterId: { firstName: 'three A', lastName: 'four A' } },
                             votes: [
                                 {
-                                    ring: 'assess',
+                                    ring: 'Assess',
                                     technology: TEST_TECHNOLOGIES[0],
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
@@ -961,7 +961,7 @@ describe('CRUD operations on Votes collection', () => {
                             credentials: { votingEvent, voterId: { firstName: 'five A', lastName: 'six A' } },
                             votes: [
                                 {
-                                    ring: 'hold',
+                                    ring: 'Hold',
                                     technology: TEST_TECHNOLOGIES[0],
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
@@ -973,7 +973,7 @@ describe('CRUD operations on Votes collection', () => {
                             credentials: { votingEvent, voterId: { firstName: 'seven A', lastName: 'eight A' } },
                             votes: [
                                 {
-                                    ring: 'assess',
+                                    ring: 'Assess',
                                     technology: TEST_TECHNOLOGIES[1],
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
@@ -985,7 +985,7 @@ describe('CRUD operations on Votes collection', () => {
                             credentials: { votingEvent, voterId: { firstName: 'ninth A', lastName: 'tenth A' } },
                             votes: [
                                 {
-                                    ring: 'assess',
+                                    ring: 'Assess',
                                     technology: TEST_TECHNOLOGIES[1],
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
@@ -997,7 +997,7 @@ describe('CRUD operations on Votes collection', () => {
                             credentials: { votingEvent, voterId: { firstName: 'eleventh A', lastName: 'twelfth A' } },
                             votes: [
                                 {
-                                    ring: 'trial',
+                                    ring: 'Trial',
                                     technology: TEST_TECHNOLOGIES[1],
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
@@ -1012,7 +1012,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'adopt',
+                                    ring: 'Adopt',
                                     technology: TEST_TECHNOLOGIES[2],
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
@@ -1027,7 +1027,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'adopt',
+                                    ring: 'Adopt',
                                     technology: TEST_TECHNOLOGIES[2],
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
@@ -1044,22 +1044,22 @@ describe('CRUD operations on Votes collection', () => {
                 blips => {
                     expect(blips.length).to.equal(3);
                     const blipTech0 = blips.find(b => b.name === TEST_TECHNOLOGIES[0].name);
-                    expect(blipTech0.ring).to.equal('hold');
+                    expect(blipTech0.ring).to.equal('Hold');
                     expect(blipTech0.numberOfVotes).to.equal(3);
                     expect(blipTech0.votes.length).to.equal(2);
-                    expect(blipTech0.votes.find(v => v.ring === 'hold').count).to.equal(2);
-                    expect(blipTech0.votes.find(v => v.ring === 'assess').count).to.equal(1);
+                    expect(blipTech0.votes.find(v => v.ring === 'Hold').count).to.equal(2);
+                    expect(blipTech0.votes.find(v => v.ring === 'Assess').count).to.equal(1);
                     const blipTech1 = blips.find(b => b.name === TEST_TECHNOLOGIES[1].name);
-                    expect(blipTech1.ring).to.equal('assess');
+                    expect(blipTech1.ring).to.equal('Assess');
                     expect(blipTech1.numberOfVotes).to.equal(3);
                     expect(blipTech1.votes.length).to.equal(2);
-                    expect(blipTech1.votes.find(v => v.ring === 'assess').count).to.equal(2);
-                    expect(blipTech1.votes.find(v => v.ring === 'trial').count).to.equal(1);
+                    expect(blipTech1.votes.find(v => v.ring === 'Assess').count).to.equal(2);
+                    expect(blipTech1.votes.find(v => v.ring === 'Trial').count).to.equal(1);
                     const blipTech2 = blips.find(b => b.name === TEST_TECHNOLOGIES[2].name);
-                    expect(blipTech2.ring).to.equal('adopt');
+                    expect(blipTech2.ring).to.equal('Adopt');
                     expect(blipTech2.numberOfVotes).to.equal(2);
                     expect(blipTech2.votes.length).to.equal(1);
-                    expect(blipTech2.votes.find(v => v.ring === 'adopt').count).to.equal(2);
+                    expect(blipTech2.votes.find(v => v.ring === 'Adopt').count).to.equal(2);
                     cachedDb.client.close();
                     done();
                 },
@@ -1091,7 +1091,7 @@ describe('CRUD operations on Votes collection', () => {
                             credentials: { votingEvent, voterId: { firstName: 'one B', lastName: 'two B' } },
                             votes: [
                                 {
-                                    ring: 'hold',
+                                    ring: 'Hold',
                                     technology: tech0,
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
@@ -1103,7 +1103,7 @@ describe('CRUD operations on Votes collection', () => {
                             credentials: { votingEvent, voterId: { firstName: 'three B', lastName: 'four B' } },
                             votes: [
                                 {
-                                    ring: 'assess',
+                                    ring: 'Assess',
                                     technology: tech0,
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
@@ -1115,7 +1115,7 @@ describe('CRUD operations on Votes collection', () => {
                             credentials: { votingEvent, voterId: { firstName: 'five B', lastName: 'six B' } },
                             votes: [
                                 {
-                                    ring: 'hold',
+                                    ring: 'Hold',
                                     technology: tech0,
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
@@ -1127,7 +1127,7 @@ describe('CRUD operations on Votes collection', () => {
                             credentials: { votingEvent, voterId: { firstName: 'seven B', lastName: 'eight B' } },
                             votes: [
                                 {
-                                    ring: 'assess',
+                                    ring: 'Assess',
                                     technology: tech0,
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
@@ -1139,7 +1139,7 @@ describe('CRUD operations on Votes collection', () => {
                             credentials: { votingEvent, voterId: { firstName: 'ninth B', lastName: 'tenth B' } },
                             votes: [
                                 {
-                                    ring: 'assess',
+                                    ring: 'Assess',
                                     technology: tech1,
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
@@ -1154,7 +1154,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'trial',
+                                    ring: 'Trial',
                                     technology: tech1,
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
@@ -1169,7 +1169,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'assess',
+                                    ring: 'Assess',
                                     technology: tech1,
                                     eventName: votingEvent.name,
                                     eventId: votingEvent._id,
@@ -1222,32 +1222,32 @@ describe('CRUD operations on Votes collection', () => {
                     votes = [
                         {
                             credentials: { votingEvent: vEvent1, voterId: { firstName: 'one A', lastName: 'two A' } },
-                            votes: [{ ring: 'hold', technology: TEST_TECHNOLOGIES[0], eventRound: 1 }],
+                            votes: [{ ring: 'Hold', technology: TEST_TECHNOLOGIES[0], eventRound: 1 }],
                         },
                         {
                             credentials: {
                                 votingEvent: vEvent1,
                                 voterId: { firstName: 'three A', lastName: 'four A' },
                             },
-                            votes: [{ ring: 'trial', technology: TEST_TECHNOLOGIES[0], eventRound: 1 }],
+                            votes: [{ ring: 'Trial', technology: TEST_TECHNOLOGIES[0], eventRound: 1 }],
                         },
                         {
                             credentials: { votingEvent: vEvent1, voterId: { firstName: 'five A', lastName: 'six A' } },
-                            votes: [{ ring: 'assess', technology: TEST_TECHNOLOGIES[1], eventRound: 1 }],
+                            votes: [{ ring: 'Assess', technology: TEST_TECHNOLOGIES[1], eventRound: 1 }],
                         },
                         {
                             credentials: {
                                 votingEvent: vEvent2,
                                 voterId: { firstName: 'seven A', lastName: 'eight A' },
                             },
-                            votes: [{ ring: 'assess', technology: TEST_TECHNOLOGIES[1], eventRound: 1 }],
+                            votes: [{ ring: 'Assess', technology: TEST_TECHNOLOGIES[1], eventRound: 1 }],
                         },
                         {
                             credentials: {
                                 votingEvent: vEvent2,
                                 voterId: { firstName: 'seven A', lastName: 'eight A' },
                             },
-                            votes: [{ ring: 'hold', technology: TEST_TECHNOLOGIES[0], eventRound: 1 }],
+                            votes: [{ ring: 'Hold', technology: TEST_TECHNOLOGIES[0], eventRound: 1 }],
                         },
                     ];
                 }),
@@ -1260,10 +1260,10 @@ describe('CRUD operations on Votes collection', () => {
                     expect(blips.length).to.equal(2);
                     const blipForTech0 = blips.find(b => b.name === TEST_TECHNOLOGIES[0].name);
                     expect(blipForTech0.numberOfVotes).to.equal(3);
-                    expect(blipForTech0.ring).to.equal('hold');
+                    expect(blipForTech0.ring).to.equal('Hold');
                     const blipForTech1 = blips.find(b => b.name === TEST_TECHNOLOGIES[1].name);
                     expect(blipForTech1.numberOfVotes).to.equal(2);
-                    expect(blipForTech1.ring).to.equal('assess');
+                    expect(blipForTech1.ring).to.equal('Assess');
                 },
                 err => {
                     cachedDb.client.close();
@@ -1305,7 +1305,7 @@ describe('CRUD operations on Votes collection', () => {
         const comment1B = 'I am the comment of One B';
         const comment2B = 'I am the comment of Two B';
 
-        const ringForTech2AtVotingEventB = 'assess';
+        const ringForTech2AtVotingEventB = 'Assess';
 
         cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
@@ -1333,7 +1333,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'hold',
+                                    ring: 'Hold',
                                     technology: tech1,
                                     eventRound: 1,
                                     comment: { text: comment1A },
@@ -1345,7 +1345,7 @@ describe('CRUD operations on Votes collection', () => {
                                 votingEvent: vEventA,
                                 voterId: { firstName: 'two A', lastName: 'two A' },
                             },
-                            votes: [{ ring: 'hold', technology: tech1, eventRound: 1 }],
+                            votes: [{ ring: 'Hold', technology: tech1, eventRound: 1 }],
                         },
                         {
                             credentials: {
@@ -1354,7 +1354,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'hold',
+                                    ring: 'Hold',
                                     technology: tech1,
                                     eventRound: 1,
                                     comment: { text: comment3A },
@@ -1368,7 +1368,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'assess',
+                                    ring: 'Assess',
                                     technology: tech1,
                                     eventRound: 1,
                                     comment: { text: comment1B },
@@ -1484,7 +1484,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'hold',
+                                    ring: 'Hold',
                                     technology: TEST_TECHNOLOGIES[0],
                                     eventName: secondVotingEvent.name,
                                     eventId: secondVotingEvent._id,
@@ -1499,7 +1499,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'assess',
+                                    ring: 'Assess',
                                     technology: TEST_TECHNOLOGIES[0],
                                     eventName: secondVotingEvent.name,
                                     eventId: secondVotingEvent._id,
@@ -1514,7 +1514,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'hold',
+                                    ring: 'Hold',
                                     technology: TEST_TECHNOLOGIES[0],
                                     eventName: firstVotingEvent.name,
                                     eventId: firstVotingEvent._id,
@@ -1529,7 +1529,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'assess',
+                                    ring: 'Assess',
                                     technology: TEST_TECHNOLOGIES[1],
                                     eventName: firstVotingEvent.name,
                                     eventId: firstVotingEvent._id,
@@ -1544,7 +1544,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'assess',
+                                    ring: 'Assess',
                                     technology: TEST_TECHNOLOGIES[1],
                                     eventName: firstVotingEvent.name,
                                     eventId: firstVotingEvent._id,
@@ -1559,7 +1559,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'trial',
+                                    ring: 'Trial',
                                     technology: TEST_TECHNOLOGIES[1],
                                     eventName: firstVotingEvent.name,
                                     eventId: firstVotingEvent._id,
@@ -1574,7 +1574,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'adopt',
+                                    ring: 'Adopt',
                                     technology: TEST_TECHNOLOGIES[2],
                                     eventName: firstVotingEvent.name,
                                     eventId: firstVotingEvent._id,
@@ -1589,7 +1589,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'adopt',
+                                    ring: 'Adopt',
                                     technology: TEST_TECHNOLOGIES[2],
                                     eventName: firstVotingEvent.name,
                                     eventId: firstVotingEvent._id,
@@ -1608,7 +1608,7 @@ describe('CRUD operations on Votes collection', () => {
                 blips => {
                     expect(blips.length).to.equal(1);
                     const blipTech0 = blips.find(b => b.name === TEST_TECHNOLOGIES[0].name);
-                    expect(blipTech0.ring).to.equal('hold');
+                    expect(blipTech0.ring).to.equal('Hold');
                     expect(blipTech0.numberOfVotes).to.equal(2);
                     expect(blipTech0.votes.length).to.equal(2);
                     cachedDb.client.close();
@@ -1648,7 +1648,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'hold',
+                                    ring: 'Hold',
                                     technology: TEST_TECHNOLOGIES[0],
                                     eventName: firstVotingEvent.name,
                                     eventId: firstVotingEvent._id,
@@ -1663,7 +1663,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'assess',
+                                    ring: 'Assess',
                                     technology: TEST_TECHNOLOGIES[0],
                                     eventName: firstVotingEvent.name,
                                     eventId: firstVotingEvent._id,
@@ -1678,7 +1678,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'hold',
+                                    ring: 'Hold',
                                     technology: TEST_TECHNOLOGIES[0],
                                     eventName: firstVotingEvent.name,
                                     eventId: firstVotingEvent._id,
@@ -1693,7 +1693,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'assess',
+                                    ring: 'Assess',
                                     technology: TEST_TECHNOLOGIES[1],
                                     eventName: firstVotingEvent.name,
                                     eventId: firstVotingEvent._id,
@@ -1708,7 +1708,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'assess',
+                                    ring: 'Assess',
                                     technology: TEST_TECHNOLOGIES[1],
                                     eventName: firstVotingEvent.name,
                                     eventId: firstVotingEvent._id,
@@ -1723,7 +1723,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'trial',
+                                    ring: 'Trial',
                                     technology: TEST_TECHNOLOGIES[1],
                                     eventName: firstVotingEvent.name,
                                     eventId: firstVotingEvent._id,
@@ -1738,7 +1738,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'adopt',
+                                    ring: 'Adopt',
                                     technology: TEST_TECHNOLOGIES[2],
                                     eventName: firstVotingEvent.name,
                                     eventId: firstVotingEvent._id,
@@ -1753,7 +1753,7 @@ describe('CRUD operations on Votes collection', () => {
                             },
                             votes: [
                                 {
-                                    ring: 'adopt',
+                                    ring: 'Adopt',
                                     technology: TEST_TECHNOLOGIES[2],
                                     eventName: firstVotingEvent.name,
                                     eventId: firstVotingEvent._id,
@@ -1803,7 +1803,7 @@ describe('CRUD operations on Votes collection', () => {
                         credentials,
                         votes: [
                             {
-                                ring: 'hold',
+                                ring: 'Hold',
                                 technology: TEST_TECHNOLOGIES[0],
                                 eventName: credentials.votingEvent.name,
                                 eventId: credentials.votingEvent._id,
@@ -1869,7 +1869,7 @@ describe('CRUD operations on Votes collection', () => {
                         credentials,
                         votes: [
                             {
-                                ring: 'hold',
+                                ring: 'Hold',
                                 technology: TEST_TECHNOLOGIES[0],
                                 eventName: credentials.votingEvent.name,
                                 eventId: credentials.votingEvent._id,
@@ -1948,7 +1948,7 @@ describe('CRUD operations on Votes collection', () => {
                         credentials,
                         votes: [
                             {
-                                ring: 'hold',
+                                ring: 'Hold',
                                 technology: TEST_TECHNOLOGIES[0],
                                 eventName: credentials.votingEvent.name,
                                 eventId: credentials.votingEvent._id,
@@ -2054,7 +2054,7 @@ describe('CRUD operations on Votes collection', () => {
                         credentials,
                         votes: [
                             {
-                                ring: 'hold',
+                                ring: 'Hold',
                                 technology: TEST_TECHNOLOGIES[0],
                                 eventName: credentials.votingEvent.name,
                                 eventId: credentials.votingEvent._id,

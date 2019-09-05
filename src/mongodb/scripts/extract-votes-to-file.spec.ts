@@ -49,11 +49,11 @@ describe('Script extract votes to file', () => {
                         aTech = data.technologies[0];
                         expectedFirstEventVotes = [''];
                         expectedSecondEventVotes = [
-                            `${aTech.name},hold,${aTech.quadrant},${aTech.isNew},${secondVotingEvent.name}`,
+                            `${aTech.name},Hold,${aTech.quadrant},${aTech.isNew},${secondVotingEvent.name}`,
                         ];
                         expectedThirdEventVotes = [
-                            `${aTech.name},assess,${aTech.quadrant},${aTech.isNew},${thirdVotingEvent.name}`,
-                            `${aTech.name},hold,${aTech.quadrant},${aTech.isNew},${thirdVotingEvent.name}`,
+                            `${aTech.name},Assess,${aTech.quadrant},${aTech.isNew},${thirdVotingEvent.name}`,
+                            `${aTech.name},Hold,${aTech.quadrant},${aTech.isNew},${thirdVotingEvent.name}`,
                         ];
                     }),
                     switchMap(() =>

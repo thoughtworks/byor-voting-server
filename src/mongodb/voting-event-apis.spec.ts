@@ -1268,8 +1268,8 @@ describe('Operations on votingevents collection', () => {
         let votingEvent;
         let tech0: Technology;
         let tech1: Technology;
-        const ringForTech0 = 'hold';
-        const ringForTech1 = 'assess';
+        const ringForTech0 = 'Hold';
+        const ringForTech1 = 'Assess';
         const productionTag = 'Production';
         const trainingTag = 'Trainig';
         const colleaguesTag = 'Colleagues';
@@ -1579,8 +1579,9 @@ describe('Operations on votingevents collection', () => {
                 }),
                 // now the first author tries to set the recommendation again and gets an error
                 concatMap(() => authenticateForTest(cachedDb, firstAuthor.user, 'pwd1')),
-                concatMap(() =>
-                    mongodbService(
+                tap(_headers => (headers = _headers)),
+                concatMap(() => {
+                    return mongodbService(
                         cachedDb,
                         ServiceNames.setRecommendation,
                         {
@@ -1594,8 +1595,8 @@ describe('Operations on votingevents collection', () => {
                         },
                         null,
                         headers,
-                    ),
-                ),
+                    );
+                }),
                 catchError(err => {
                     differentRecommenderErrorEncountered = true;
                     expect(err.errorCode).equal(ERRORS.recommendationAuthorDifferent.errorCode);

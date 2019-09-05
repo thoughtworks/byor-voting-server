@@ -9,7 +9,6 @@ import {
     CorporateVotingEventFlow,
     CORPORATE_VOTING_EVENT_TAGS,
 } from '../../../voting-event-flow-templates/corporate-voting-event-flow';
-// import { CommunityVotingEventFlow } from '../../../voting-event-flow-templates/community-voting-event-flow';
 import { Credentials } from '../../../model/credentials';
 import { VoteCredentialized } from '../../../model/vote-credentialized';
 import { Initiative } from '../../../model/initiative';

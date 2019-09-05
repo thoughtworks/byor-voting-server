@@ -123,7 +123,6 @@ export function createNewVotingEvent(
         name: string;
         flow?: VotingEventFlow;
         initiativeName?: string;
-        initiativeId?: string;
     },
     user?: string,
 ) {
@@ -134,8 +133,8 @@ export function createNewVotingEvent(
         owner: { user },
         roles: { administrators: [user] },
     };
-    if (!params.initiativeId && !params.initiativeName) {
-        throw `Either the id of the initiative or its name are required`;
+    if (!params.initiativeName) {
+        throw `Initiative name is required`;
     }
     newVotingEvent.flow = params.flow ? params.flow : CorporateVotingEventFlow;
     if (params.flow) {
@@ -144,14 +143,18 @@ export function createNewVotingEvent(
     if (params.initiativeName) {
         newVotingEvent.initiativeName = params.initiativeName;
     }
-    if (params.initiativeId) {
-        newVotingEvent.initiativeId = params.initiativeId;
-    }
 
-    return getInititive(initiativeCollection, { name: params.initiativeName }).pipe(
-        tap(initiative => {
-            verifyPermissionToCreateVotingEvent(user, initiative);
-        }),
+    const getInitiativeObs = params.initiativeName
+        ? getInititive(initiativeCollection, { name: params.initiativeName }).pipe(
+              tap(initiative => {
+                  if (!initiative) {
+                      throw Error(`No initiative found with name "${params.initiativeName}"`);
+                  }
+                  verifyPermissionToCreateVotingEvent(user, initiative);
+              }),
+          )
+        : of(null);
+    return getInitiativeObs.pipe(
         concatMap(() => saveVotingEvents(votingEventsCollection, [newVotingEvent])),
         map(ids => ids[0]),
     );
@@ -648,12 +651,12 @@ export function setRecommendation(
             if (!tech) {
                 throw new Error(`Technologgy ${params.technologyName} not found in VotingEvent ${votingEvent.name}`);
             }
-            if (tech.recommendation && tech.recommendation.author !== params.recommendation.author) {
+            if (tech.recommendation && tech.recommendation.author !== user) {
                 // create a copy of the error to be able to set safely the name of the author of the
                 // request to reset the recommendation
                 const err = { ...ERRORS.recommendationAuthorDifferent };
                 err.message = `The current author of the recommendation "${tech.recommendation.author}" 
-                is not the same who is sending the new recommendation "${params.recommendation.author}"`;
+                is not the same who is sending the new recommendation "${user}"`;
                 err.currentAuthor = tech.recommendation.author;
                 throw err;
             }

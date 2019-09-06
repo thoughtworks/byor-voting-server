@@ -2,7 +2,7 @@ import { concatMap, map, toArray, tap } from 'rxjs/operators';
 import { mongodbService, CachedDB } from '../../../api/service';
 import { config } from '../../../api/config';
 import { ObjectId } from 'mongodb';
-import { connectObs, updateOneObs } from 'observable-mongo';
+import { connectObs } from 'observable-mongo';
 import { ServiceNames } from '../../../service-names';
 import { VotingEvent } from '../../../model/voting-event';
 import {
@@ -56,7 +56,6 @@ const initializeConn = (dbName: string) => {
 
 initializeConn(cachedDb.dbName)
     .pipe(
-        concatMap(() => enableVotingEventFlow()),
         // log as Administator of the BYOR application and create the Initiative
         concatMap(() => authenticateApplicationAdministrator()),
         concatMap(headers => cleanDb(headers)),
@@ -344,13 +343,4 @@ function getVoteCredentials(votingEvent: VotingEvent, voter: Credentials) {
     const eventName = votingEvent.name;
     const eventId = votingEvent._id.toHexString();
     return { votingEvent: { name: eventName, _id: eventId, round: 1 }, voterId: voter };
-}
-
-function enableVotingEventFlow() {
-    return updateOneObs(
-        { user: { $exists: false } },
-        { 'config.enableVotingEventFlow': true },
-        cachedDb.db.collection(config.configurationCollection),
-        { upsert: true },
-    );
 }

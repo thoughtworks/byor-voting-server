@@ -1462,7 +1462,7 @@ describe('Operations on votingevents collection', () => {
                 }),
                 // the first author of the recommendation logs in
                 concatMap(() => authenticateForTest(cachedDb, firstAuthor.user, 'pwd1')),
-                // the first author sets itself as the recommendation author for techo for the first time
+                // the first author sets itself as the recommendation author for tech0 for the first time
                 concatMap(headers =>
                     mongodbService(
                         cachedDb,
@@ -1501,7 +1501,7 @@ describe('Operations on votingevents collection', () => {
                     expect(err.currentAuthor).equal(firstAuthorId);
                     return of(null);
                 }),
-                // the first author logs in again and tries to set itself as the recommendation author fortech0 and does not get an error
+                // the first author logs in again and tries to set itself as the recommendation author for tech0 and does not get an error
                 concatMap(() => authenticateForTest(cachedDb, firstAuthor.user, 'pwd1')),
                 tap(_headers => (headers = _headers)),
                 concatMap(() =>

@@ -21,6 +21,7 @@ import { Comment } from '../model/comment';
 import { getObjectId } from './utils';
 import { logError } from '../lib/utils';
 import { Credentials } from '../model/credentials';
+import { VotingEvent } from '../model/voting-event';
 
 export function getVotes(
     votesColl: Collection,
@@ -241,15 +242,8 @@ export function calculateBlips(
         return throwError('The VotingEventId must be passed as parameter to be able to calculate the Blips');
     }
     const thresholdForRevote = params.thresholdForRevote ? params.thresholdForRevote : 1;
-    return forkJoin(
-        aggregateVotes(votesColl, params),
-        getVotingEvent(votingEventsCollection, params.votingEvent._id),
-    ).pipe(
-        map(([aggregatedVotes, votingEvent]) => {
-            const blips = blipsFromAggregatedVotes(aggregatedVotes, params, false);
-            return { blips, votingEvent };
-        }),
-        switchMap(({ blips, votingEvent }) => {
+    return calculateBlipsForEvent(votesColl, votingEventsCollection, params).pipe(
+        concatMap(({ blips, votingEvent }) => {
             const votingEventKey = { _id: getObjectId(params.votingEvent._id) };
             const blipsForRevote = blips.filter(b => isVoteUncertain(b.votes, b.numberOfVotes, thresholdForRevote));
             const technologies = votingEvent.technologies.map(t => {
@@ -266,6 +260,7 @@ export function calculateBlips(
                     tech.description = b.description;
                 }
             });
+            overrideWithRecommendations(blips, votingEvent);
             return updateOneObs(
                 votingEventKey,
                 { blips, technologies, openForRevote: false, hasTechnologiesForRevote },
@@ -274,6 +269,78 @@ export function calculateBlips(
         }),
     );
 }
+
+function calculateBlipsForEvent(
+    votesColl: Collection,
+    votingEventsCollection: Collection,
+    params: {
+        votingEvent: { _id: string | ObjectId };
+    },
+) {
+    return forkJoin(
+        aggregateVotes(votesColl, params),
+        getVotingEvent(votingEventsCollection, params.votingEvent._id),
+    ).pipe(
+        map(([aggregatedVotes, votingEvent]) => {
+            const blips = blipsFromAggregatedVotes(aggregatedVotes, params, false);
+            return { blips, votingEvent };
+        }),
+    );
+}
+
+function overrideWithRecommendations(blips: Blip[], votingEvent: VotingEvent) {
+    const techsWithRecommendation = votingEvent.technologies.filter(t => t.recommendation);
+    techsWithRecommendation.forEach(t => {
+        const recommendation = t.recommendation;
+        const blipToSubstituteWithRecommendation = blips.find(b => b.name === t.name);
+        const recommendationText = `Recommendation from ${recommendation.author} with comment: ${recommendation.text}`;
+        const description = blipToSubstituteWithRecommendation
+            ? `${recommendationText} 
+        original description ${blipToSubstituteWithRecommendation.description}`
+            : `${recommendationText}`;
+        const blipToSubstituteWithRecommendationIndex = blips.indexOf(blipToSubstituteWithRecommendation);
+        const newBlipBasedOnRecommendation: Blip = {
+            name: t.name,
+            quadrant: t.quadrant,
+            ring: recommendation.ring,
+            isNew: t.isNew,
+            description,
+        };
+        blipToSubstituteWithRecommendation
+            ? blips.splice(blipToSubstituteWithRecommendationIndex, 1, newBlipBasedOnRecommendation)
+            : blips.push(newBlipBasedOnRecommendation);
+    });
+    return blips;
+}
+// function overrideWithRecommendations(blips: Blip[], votingEvent: VotingEvent) {
+//     const techsWithRecommendation = votingEvent.technologies.filter(t => t.recommendation);
+//     techsWithRecommendation.forEach(t => {
+//         const recommendation = t.recommendation;
+//         const blipToSubstituteWithRecommendation = blips.find(b => b.name === t.name);
+//         if (blipToSubstituteWithRecommendation) {
+//             const blipToSubstituteWithRecommendationIndex = blips.indexOf(blipToSubstituteWithRecommendation);
+//             const newBlipBasedOnRecommendation: Blip = {
+//                 name: blipToSubstituteWithRecommendation.name,
+//                 quadrant: blipToSubstituteWithRecommendation.quadrant,
+//                 ring: recommendation.ring,
+//                 isNew: blipToSubstituteWithRecommendation.isNew,
+//                 description: `Recommendation from ${recommendation.author}
+//                     original description ${blipToSubstituteWithRecommendation.description}`,
+//             };
+//             blips.splice(blipToSubstituteWithRecommendationIndex, 1, newBlipBasedOnRecommendation);
+//         } else {
+//             const newBlipBasedOnRecommendation: Blip = {
+//                 name: t.name,
+//                 quadrant: t.quadrant,
+//                 ring: recommendation.ring,
+//                 isNew: t.isNew,
+//                 description: `Recommendation from ${recommendation.author}`,
+//             };
+//             blips.push(newBlipBasedOnRecommendation);
+//         }
+//     });
+//     return blips;
+// }
 
 export function calculateBlipsFromAllEvents(votesColl: Collection, _params?: any) {
     return aggregateVotes(votesColl).pipe(

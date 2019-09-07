@@ -10,11 +10,13 @@ import { VoteCredentialized } from '../model/vote-credentialized';
 import { Vote } from '../model/vote';
 import { Blip } from '../model/blip';
 import { cleanVotingEventsAndVotesCollections } from './base.spec';
-import { Technology } from '../model/technology';
+import { Technology, Recommendation } from '../model/technology';
 import { Comment } from '../model/comment';
 import { Credentials } from '../model/credentials';
 import { VotingEvent } from '../model/voting-event';
-import { createAndOpenVotingEvent, readVotingEvent, openVotingEvent } from './test.utils';
+import { createAndOpenVotingEvent, readVotingEvent, openVotingEvent, authenticateForTest } from './test.utils';
+import { User } from '../model/user';
+import { addUsers } from '../api/authentication-api';
 
 describe('CRUD operations on Votes collection', () => {
     it('1.0 loads the votes and then read them', done => {
@@ -2090,6 +2092,180 @@ describe('CRUD operations on Votes collection', () => {
                 },
                 () => {
                     const err = 'Should not complete - test 2.3 - data: ';
+                    cachedDb.client.close();
+                    done(err);
+                },
+            );
+    }).timeout(20000);
+
+    it(`2.4 the voters have defined Adopt as the ring for a technology but a recommendation overrides 
+    this result and sets to Hold the ring for this technology - the recommender sets also a recommendation
+    for a technology which has received no vote`, done => {
+        const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+        const votingEventName = 'Recommender overrides voters';
+        let votes: VoteCredentialized[];
+        let votingEventId;
+        let votingEvent;
+
+        let tech0: Technology;
+        let tech1: Technology;
+        let tech2: Technology;
+
+        const recommenderId = 'I am the recommender';
+        const recommender: User = { user: recommenderId };
+
+        let headers;
+
+        const ringSetByVotersAndOverriddenByRecommender = 'Adopt';
+        const ringSetByRecommender = 'Hold';
+        const ringNotOverridenByRecommender = 'Trial';
+
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
+            .pipe(
+                concatMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
+                tap(_votingEventId => (votingEventId = _votingEventId)),
+                concatMap(() =>
+                    addUsers(cachedDb.db.collection(config.usersCollection), {
+                        users: [recommender],
+                    }),
+                ),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                tap((_votingEvent: VotingEvent) => {
+                    votingEvent = _votingEvent;
+                    tech0 = _votingEvent.technologies[0];
+                    tech1 = _votingEvent.technologies[1];
+                    tech2 = _votingEvent.technologies[2];
+                    const votingEventData = {
+                        name: _votingEvent.name,
+                        _id: _votingEvent._id,
+                        round: _votingEvent.round,
+                    };
+
+                    votes = [
+                        {
+                            credentials: { votingEvent: votingEventData, voterId: { nickname: 'Nick1' } },
+                            votes: [
+                                {
+                                    ring: ringSetByVotersAndOverriddenByRecommender,
+                                    technology: tech0,
+                                    eventName: votingEvent.name,
+                                    eventId: votingEvent._id,
+                                    eventRound: _votingEvent.round,
+                                },
+                                {
+                                    ring: ringNotOverridenByRecommender,
+                                    technology: tech1,
+                                    eventName: votingEvent.name,
+                                    eventId: votingEvent._id,
+                                    eventRound: _votingEvent.round,
+                                },
+                            ],
+                        },
+                        {
+                            credentials: { votingEvent: votingEventData, voterId: { nickname: 'Nick2' } },
+                            votes: [
+                                {
+                                    ring: ringSetByVotersAndOverriddenByRecommender,
+                                    technology: tech0,
+                                    eventName: votingEvent.name,
+                                    eventId: votingEvent._id,
+                                    eventRound: _votingEvent.round,
+                                },
+                                {
+                                    ring: ringNotOverridenByRecommender,
+                                    technology: tech1,
+                                    eventName: votingEvent.name,
+                                    eventId: votingEvent._id,
+                                    eventRound: _votingEvent.round,
+                                },
+                            ],
+                        },
+                    ];
+                }),
+                concatMap(() => forkJoin(votes.map(vote => mongodbService(cachedDb, ServiceNames.saveVotes, vote)))),
+                // the Recommender logs in
+                concatMap(() => authenticateForTest(cachedDb, recommender.user, 'pwd')),
+                tap(_headers => (headers = _headers)),
+                // the Recommender sets itself as the recommendation author for tech0
+                concatMap(() =>
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.setRecommendationAuthor,
+                        {
+                            votingEventId: votingEvent._id,
+                            technologyName: tech0.name,
+                        },
+                        null,
+                        headers,
+                    ),
+                ),
+                // then sets the actual recommendation
+                concatMap(() => {
+                    const recommendation: Recommendation = {
+                        author: recommenderId,
+                        text: 'This is CRAP',
+                        ring: ringSetByRecommender,
+                        timestamp: 'now',
+                    };
+                    return mongodbService(
+                        cachedDb,
+                        ServiceNames.setRecommendation,
+                        {
+                            votingEventId: votingEvent._id,
+                            technologyName: tech0.name,
+                            recommendation,
+                        },
+                        null,
+                        headers,
+                    );
+                }),
+                // the recommeneder sets also a recommendation fot a technology which has received no votes
+                concatMap(() =>
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.setRecommendationAuthor,
+                        {
+                            votingEventId: votingEvent._id,
+                            technologyName: tech2.name,
+                        },
+                        null,
+                        headers,
+                    ),
+                ),
+                concatMap(() => {
+                    const recommendation: Recommendation = {
+                        author: recommenderId,
+                        text: 'This is also CRAP',
+                        ring: ringSetByRecommender,
+                        timestamp: 'now',
+                    };
+                    return mongodbService(
+                        cachedDb,
+                        ServiceNames.setRecommendation,
+                        {
+                            votingEventId: votingEvent._id,
+                            technologyName: tech2.name,
+                            recommendation,
+                        },
+                        null,
+                        headers,
+                    );
+                }),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.calculateBlips, { votingEvent })),
+            )
+            .subscribe(
+                (blips: Blip[]) => {
+                    expect(blips.length).to.equal(3);
+                    const blipTech0 = blips.find(b => b.name === tech0.name);
+                    expect(blipTech0.ring).to.equal(ringSetByRecommender);
+                    const blipTech1 = blips.find(b => b.name === tech1.name);
+                    expect(blipTech1.ring).to.equal(ringNotOverridenByRecommender);
+                    const blipTech2 = blips.find(b => b.name === tech2.name);
+                    expect(blipTech2.ring).to.equal(ringSetByRecommender);
+                    cachedDb.client.close();
+                    done();
+                },
+                err => {
                     cachedDb.client.close();
                     done(err);
                 },

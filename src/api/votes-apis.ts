@@ -289,7 +289,7 @@ function calculateBlipsForEvent(
 }
 
 function overrideWithRecommendations(blips: Blip[], votingEvent: VotingEvent) {
-    const techsWithRecommendation = votingEvent.technologies.filter(t => t.recommendation);
+    const techsWithRecommendation = votingEvent.technologies.filter(t => t.recommendation && t.recommendation.ring);
     techsWithRecommendation.forEach(t => {
         const recommendation = t.recommendation;
         const blipToSubstituteWithRecommendation = blips.find(b => b.name === t.name);

@@ -29,6 +29,7 @@ The following is a set of guidelines, not rules, for contributing. Feel free to 
 -   [Release versioning](#release-versioning)
 -   [Typescript Styleguide](#typescript-styleguide)
 -   [Testing](#testing)
+-   [Vulnerability scanning](#vulnerability-scanning)
 -   [DB Migrations](#db-migrations)
 -   [Run the continuous integration in local](#run-the-continuous-integration-on-local)
 -   [Build the application for Production](#build-the-application-for-production)
@@ -206,6 +207,10 @@ If not executed in CI mode, the above command will prompt the user for trying to
 If not executed in CI mode, the above commands will prompt the user for executing tests in watch mode.
 
 For **VSCode** users: the test execution (both unit and integration) can be debugged with the debug configuration named `Test: launch current file`: open a test file in the VSCode editor and run debug `Test: launch current file`. (_TODO there is one open issue with this configuration: the breakpoints added from VSCode go to the wrong line_)
+
+### Vulnerability Scanning
+  Run this command for checking the vulnerabilities in the project
+    npx hawkeye scan
 
 ### DB Migrations
 

@@ -530,63 +530,64 @@ describe('Operations on votingevents collection', () => {
 
     it('1.8 creates a voting event, saves some votes and then gets the list of voters', done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
-        const votingEventName = 'event A-winner';
+        const votingEventName = 'Event to get the voters';
         let votingEvent;
+
+        const numberOfVoters = 4;
+        const voters = [];
+        for (let i = 0; i < numberOfVoters; i++) {
+            voters.push('Voter' + i);
+        }
+
+        function createCredentialisedVotes(votingEventName: string, votingEventId: string, voterIdIdentifier: string) {
+            votingEvent = { name: votingEventName, _id: votingEventId, round: 1 };
+            const credentializedVotes = voters.map(voter => {
+                const _voterId = {};
+                _voterId[voterIdIdentifier] = voter;
+                const vote = {
+                    credentials: {
+                        votingEvent: votingEvent,
+                        voterId: _voterId,
+                    },
+                    votes: [
+                        {
+                            ring: 'Hold',
+                            technology: TEST_TECHNOLOGIES[0],
+                            eventName: votingEvent.name,
+                            eventId: votingEvent._id,
+                            eventRound: 1,
+                        },
+                        {
+                            ring: 'Adopt',
+                            technology: TEST_TECHNOLOGIES[1],
+                            eventName: votingEvent.name,
+                            eventId: votingEvent._id,
+                            eventRound: 1,
+                        },
+                    ],
+                };
+                return vote;
+            });
+            return credentializedVotes;
+        }
 
         cleanVotingEventsAndVotesCollections(cachedDb.dbName)
             .pipe(
-                switchMap(() => createVotingEventForVotingEventTest(cachedDb, votingEventName)),
-                switchMap(id => mongodbService(cachedDb, ServiceNames.getVotingEvent, id)),
-                // JSON stringify and parse to simulate what is received and then returned by the client
-                // basically it turns the '_id' of the Voting Event from a mongo ObjectId into a string
-                map(event => {
-                    return JSON.stringify(event);
-                }),
-                // map(event => JSON.stringify(event)),
-                map(event => {
-                    return JSON.parse(event);
-                }),
-                // map(event => JSON.parse(event)),
-                map(_votingEvent => {
-                    votingEvent = _votingEvent;
-                    const votes: VoteCredentialized[] = [
-                        {
-                            credentials: {
-                                votingEvent: votingEvent,
-                                voterId: { firstName: 'one 1', lastName: 'two 2' },
-                            },
-                            votes: [{ ring: 'hold', technology: TEST_TECHNOLOGIES[0], eventRound: 1 }],
-                        },
-                        {
-                            credentials: {
-                                votingEvent: votingEvent,
-                                voterId: { firstName: 'one 1', lastName: 'two 2' },
-                            },
-                            votes: [{ ring: 'hold', technology: TEST_TECHNOLOGIES[1], eventRound: 1 }],
-                        },
-                        {
-                            credentials: {
-                                votingEvent: votingEvent,
-                                voterId: { firstName: 'three 3', lastName: 'four 4' },
-                            },
-                            votes: [{ ring: 'hold', technology: TEST_TECHNOLOGIES[0], eventRound: 1 }],
-                        },
-                        {
-                            credentials: {
-                                votingEvent: votingEvent,
-                                voterId: { firstName: 'three 3', lastName: 'four 4' },
-                            },
-                            votes: [{ ring: 'assess', technology: TEST_TECHNOLOGIES[1], eventRound: 1 }],
-                        },
-                    ];
-                    return votes;
+                switchMap(() => createAndOpenVotingEvent(cachedDb, votingEventName)),
+                map(votingEventId => {
+                    const credVotesNickname = createCredentialisedVotes(votingEventName, votingEventId, 'nickname');
+                    const credVotesUserIds = createCredentialisedVotes(votingEventName, votingEventId, 'userId');
+                    const credVotes = [...credVotesNickname, ...credVotesUserIds];
+                    return credVotes;
                 }),
                 switchMap(votes => forkJoin(votes.map(vote => mongodbService(cachedDb, ServiceNames.saveVotes, vote)))),
                 switchMap(() => mongodbService(cachedDb, ServiceNames.getVoters, { votingEvent })),
             )
             .subscribe(
-                voters => {
-                    expect(voters.length).to.equal(2);
+                _voters => {
+                    expect(_voters.length).to.equal(numberOfVoters * 2); // voters are double since we have both those with nickname and those with userId as name of the property used as identifier
+                    const votersUpperCase = voters.map(voter => voter.toUpperCase());
+                    _voters.forEach(_voter => expect(votersUpperCase.includes(_voter)).to.be.true);
                 },
                 err => {
                     cachedDb.client.close();

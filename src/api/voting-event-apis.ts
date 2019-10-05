@@ -2,7 +2,7 @@ import { throwError, forkJoin, of } from 'rxjs';
 import { toArray, switchMap, map, catchError, tap, concatMap } from 'rxjs/operators';
 import { Collection, ObjectId } from 'mongodb';
 
-import { findObs, dropObs, insertManyObs, updateOneObs, deleteObs, updateManyObs } from 'observable-mongo';
+import { findObs, dropObs, insertManyObs, updateOneObs, deleteObs, updateManyObs, distinctObs } from 'observable-mongo';
 
 import { groupBy } from 'lodash';
 
@@ -21,6 +21,7 @@ import { User } from '../model/user';
 import { getInititive } from './initiative-api';
 import { Initiative } from '../model/initiative';
 import { addUsers, addUsersWithGroup } from './authentication-api';
+import { sendMailForRecommendation } from './mail-api';
 
 // if skynny is true then 'blips' and 'technologies' propertires are removed to reduce the size of the data
 export function getVotingEvents(votingEventsCollection: Collection, params?: { full?: boolean; all?: boolean }) {
@@ -347,12 +348,13 @@ function _verifyPermissionToManageVotingEvent(user: string, votingEvent: VotingE
     }
 }
 
-export function getVoters(votesColl: Collection, params: { votingEvent: any }) {
-    return getVotes(votesColl, { eventId: params.votingEvent._id }).pipe(
-        map(votes => {
-            const voters = votes.map(vote => `${vote.voterId.firstName} ${vote.voterId.lastName}`);
-            return Array.from(new Set(voters));
-        }),
+export function getVoters(votesColl: Collection, params: { votingEvent?: VotingEvent; votingEventId?: string }) {
+    if (!params.votingEventId && !params.votingEvent) {
+        throw `VotingEvent ot VotingEventId is required when calling getVoters`;
+    }
+    const _votingEventId = typeof params.votingEventId === 'string' ? params.votingEventId : params.votingEvent._id;
+    return distinctObs(votesColl, 'voterId', { eventId: _votingEventId }).pipe(
+        map(voterIds => voterIds.map(vId => vId.nickname || vId.userId)),
     );
 }
 
@@ -639,8 +641,9 @@ export function setRecommendationAuthor(
 
 export function setRecommendation(
     votingEventsCollection: Collection,
+    usersColl: Collection,
     params: { votingEventId: string; technologyName: string; recommendation: Recommendation },
-    user,
+    user: string,
 ) {
     return getVotingEvent(votingEventsCollection, params.votingEventId).pipe(
         map(votingEvent => {
@@ -666,6 +669,7 @@ export function setRecommendation(
             return { votingEvent, tech, votingEventsCollection };
         }),
         concatMap(updateTechRecommendation),
+        tap(tech => sendMailForRecommendation(usersColl, tech, user)),
     );
 }
 
@@ -704,9 +708,21 @@ export function resetRecommendation(
     );
 }
 
-function updateTechRecommendation({ votingEvent, tech, votingEventsCollection }) {
+function updateTechRecommendation({
+    votingEvent,
+    tech,
+    votingEventsCollection,
+}: {
+    votingEvent: VotingEvent;
+    tech: Technology;
+    votingEventsCollection;
+}) {
     const dataToUpdate = { 'technologies.$.recommendation': tech.recommendation };
-    return updateOneObs({ _id: votingEvent._id, 'technologies._id': tech._id }, dataToUpdate, votingEventsCollection);
+    return updateOneObs(
+        { _id: votingEvent._id, 'technologies._id': tech._id },
+        dataToUpdate,
+        votingEventsCollection,
+    ).pipe(map(() => tech));
 }
 
 export function loadAdministratorsForVotingEvent(

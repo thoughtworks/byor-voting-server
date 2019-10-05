@@ -22,6 +22,7 @@ import { getObjectId } from './utils';
 import { logError } from '../lib/utils';
 import { Credentials } from '../model/credentials';
 import { VotingEvent } from '../model/voting-event';
+import { sendMailForComment } from './mail-api';
 
 export function getVotes(
     votesColl: Collection,
@@ -504,20 +505,24 @@ export function getVotesWithCommentsForTechAndEvent(
 // adds a reply to a comment present in a Vote
 export function addReplyToVoteComment(
     votesColl: Collection,
+    usersColl: Collection,
     params: { voteId: string; reply: Comment; commentReceivingReplyId: string },
     user: string,
 ) {
     params.reply.author = user;
     const findVoteSelector = { _id: getObjectId(params.voteId) };
+    let vote: Vote;
     let dataToUpdate;
+    let newComment: Comment;
     return findObs(votesColl, findVoteSelector).pipe(
         // toArray is used here to ba able to manage properly the case
         // where no vote is found
         toArray(),
-        tap(vote => {
-            if (vote.length === 0) {
+        tap(votes => {
+            if (votes.length === 0) {
                 throw `no vote with id ${params.voteId} found`;
             }
+            vote = votes[0];
         }),
         map((votes: Vote[]) => votes[0].comment),
         tap(topLevelComment => {
@@ -535,9 +540,10 @@ export function addReplyToVoteComment(
             if (!commentToReplyTo.replies) {
                 commentToReplyTo.replies = [];
             }
-            const newComment = buildComment(params.reply.text, params.reply.author);
+            newComment = buildComment(params.reply.text, params.reply.author);
             commentToReplyTo.replies.push(newComment);
         }),
         concatMap(() => updateOneObs(findVoteSelector, dataToUpdate, votesColl)),
+        tap(() => sendMailForComment(usersColl, vote.technology, newComment, user)),
     );
 }

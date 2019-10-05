@@ -287,7 +287,7 @@ function executeMongoService(
     } else if (service === ServiceNames.getVotesWithCommentsForTechAndEvent) {
         returnedObservable = getVotesWithCommentsForTechAndEvent(votesColl, serviceData);
     } else if (service === ServiceNames.addReplyToVoteComment) {
-        returnedObservable = addReplyToVoteComment(votesColl, serviceData, user);
+        returnedObservable = addReplyToVoteComment(votesColl, usersColl, serviceData, user);
     } else if (service === ServiceNames.createVotingEvent) {
         returnedObservable = createNewVotingEvent(votingEventColl, initiativeColl, serviceData, user);
     } else if (service === ServiceNames.addUsersForVotingEvent) {
@@ -337,7 +337,7 @@ function executeMongoService(
     } else if (service === ServiceNames.setRecommendationAuthor) {
         returnedObservable = setRecommendationAuthor(votingEventColl, serviceData, user);
     } else if (service === ServiceNames.setRecommendation) {
-        returnedObservable = setRecommendation(votingEventColl, serviceData, user);
+        returnedObservable = setRecommendation(votingEventColl, usersColl, serviceData, user);
     } else if (service === ServiceNames.resetRecommendation) {
         returnedObservable = resetRecommendation(votingEventColl, serviceData, user);
     } else if (service === ServiceNames.authenticate) {

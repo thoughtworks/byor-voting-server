@@ -53,7 +53,7 @@ fileignoreconfig:
   checksum: 49ad2a84e5b624a6133dd86213901c416ceaf1291059a4243632443af8a706e3
   ignore_detectors: []
 - filename: .env
-  checksum: a98c3a1b6112ce48c82bb55ba604fabb568cb75210eae220011235b118029e90
+  checksum: 85c9a5a329ad1e916b5913fbbaff56ddcec2f25574c0b54f63c4a5b8fbf1b576
   ignore_detectors: []
 - filename: config/byor.sh.sample
   checksum: f6ea581aca0260b7f9d098b5715cfaed8702e3ff4de3b2e8f9e4429db9022982
@@ -74,4 +74,7 @@ fileignoreconfig:
   ignore_detectors: []
 - filename: src/api/authentication-api.ts
   checksum: 092b30f2653ac12b8660eb007f439beff0ae7ba2db3c85ab33d023ebf80638d7
+  ignore_detectors: []
+- filename: commands.txt
+  checksum: 73d1d0d31a7f00c77d8b48858973e9c84fed1c5d31ce6d772dd8dacd7dd15e7b
   ignore_detectors: []

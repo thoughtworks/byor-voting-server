@@ -31,7 +31,6 @@ export const TEST_TECHNOLOGIES = [
         description: `We remain excited about <a href="https://www.docker.com/"><strong>Docker</strong></a> as it evolves from a tool 
     to a complex platform of technologies. Development teams love Docker, as the Docker image format makes it easier to achieve parity between development and production, making for reliable deployments. It is a natural fit in a microservices-style application as a packaging mechanism for self-contained services. On the operational front, Docker support in monitoring tools (<a href="/radar/tools/sensu">Sensu</a>, <a href="/radar/tools/prometheus">Prometheus</a>, <a href="https://github.com/google/cadvisor">cAdvisor</a>, etc.), orchestration tools (<a href="/radar/platforms/kubernetes">Kubernetes</a>, <a href="https://mesosphere.github.io/marathon/">Marathon</a>, etc.) and deployment-automation tools reflect the growing maturity of the platform and its readiness for production use. A word of caution, though: There is a prevalent view of Docker and Linux containers in general as being "lightweight virtualization," but we would not recommend using Docker as a secure process-isolation mechanism, though we are paying attention to the 
     introduction of user namespaces and seccomp profiles in version 1.10 in this regard.`,
-        imageFile: 'docker.png',
     },
     {
         _id: new ObjectId('456789012345'),

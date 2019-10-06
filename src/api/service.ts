@@ -244,6 +244,8 @@ function executeMongoService(
                 throwError(err);
             }
         }
+    } else if (serviceData.userId) {
+        user = serviceData.userId;
     }
 
     let returnedObservable: Observable<any>;

@@ -6,12 +6,33 @@ import { throwError } from 'rxjs';
 import { logError } from '../lib/utils';
 
 const quadrantsOrder = ['Tools', 'Techniques', 'Platforms', 'Languages & Frameworks'];
+const quadrantOrderUpperCase = quadrantsOrder.map(q => q.toUpperCase());
 const ringsOrder = ['Adopt', 'Trial', 'Assess', 'Hold'];
 
 export function sortByQuadrants(blips: any[]): any[] {
     const rankRings = { Adopt: 1, Trial: 2, Assess: 3, Hold: 4 };
     const quadrants = groupBy(blips, 'quadrant');
-    return flatMap(quadrantsOrder, quadrant => {
+
+    // this block of code deals with the situation where the names of the quadrants are not precisely those of the
+    // official tech radar, e.g. in the case of the radard for designers
+    const quadrantKeys = Object.keys(quadrants);
+    const quadrantKeysUppercase = Object.keys(quadrants).map(k => k.toUpperCase());
+    const newQuadrantOrderWithHoles = quadrantOrderUpperCase.map(q =>
+        quadrantKeysUppercase.includes(q) ? quadrantKeys.find(qk => qk.toUpperCase() === q) : null,
+    );
+    const missingQuadrants = quadrantKeys.filter(qk => !quadrantOrderUpperCase.includes(qk.toUpperCase()));
+    let i = 0;
+    const newQuadrantOrder = newQuadrantOrderWithHoles.map(q => {
+        let ret = q;
+        if (!q) {
+            ret = missingQuadrants[i];
+            i++;
+        }
+        return ret;
+    });
+    // end of the block
+
+    return flatMap(newQuadrantOrder, quadrant => {
         let allBlipsSortedByVotes = sortBy(quadrants[quadrant], 'votes')
             .reverse()
             .slice(0, 50);
@@ -98,7 +119,7 @@ let fillMissingRingsForAtLeastOneQuadrant = function(blips: any[]) {
 
 let getMissingQuadrants = function(blips: any[]) {
     let existingQuadrants = uniq(lodashMap(blips, 'quadrant'));
-    return difference(quadrantsOrder, existingQuadrants);
+    return existingQuadrants.length < 4 ? difference(quadrantsOrder, existingQuadrants) : [];
 };
 
 let addBlip = function(blips: any[], ring: string, quadrant) {

@@ -2,16 +2,16 @@ import { Observable, Observer, TeardownLogic, EMPTY } from 'rxjs';
 import { isEmailValid } from './mail-api.util';
 import { Collection } from 'mongodb';
 import { findObs } from 'observable-mongo';
-import { filter, mergeMap } from 'rxjs/operators';
+import { filter, mergeMap, toArray, catchError } from 'rxjs/operators';
 import { Technology } from '../model/technology';
 import { Comment } from '../model/comment';
 
 const MAIL_GUN_SEC = {
-    api_key: 'the api key',
+    api_key: 'the api key', // eslint-disable-line
     domain: 'the domain',
 };
 
-MAIL_GUN_SEC.api_key = process.env['MAILGUN_API_KEY'];
+MAIL_GUN_SEC.api_key = process.env['MAILGUN_API_KEY']; // eslint-disable-line
 MAIL_GUN_SEC.domain = process.env['MAILGUN_DOMAIN'];
 
 function areMailgunParamsComplete() {
@@ -58,34 +58,39 @@ export function sendMail(from: string, to: string, subject: string, text: string
     );
 }
 
+export function sendMailForComment(usersColl: Collection, tech: Technology, comment: Comment, user: string) {
+    const subject = `Comment saved for ${tech.name}`;
+    const text = `${comment.author} has saved a comment for ${tech.name}. "comment.text"`;
+    return sendMailToUsers1(usersColl, subject, text, user);
+}
+
 export function sendMailForRecommendation(usersColl: Collection, tech: Technology, user: string) {
     const subject = `Recommendation saved for ${tech.name}`;
     const text = `${tech.recommendation.author} has saved a recommendation for ${
         tech.name
     }. "tech.recommendation.text"`;
-    return sendMailToUsers(usersColl, subject, text, user);
+    return sendMailToUsers1(usersColl, subject, text, user);
 }
 
-export function sendMailForComment(usersColl: Collection, tech: Technology, comment: Comment, user: string) {
-    const subject = `Comment saved for ${tech.name}`;
-    const text = `${comment.author} has saved a comment for ${tech.name}. "comment.text"`;
-    return sendMailToUsers(usersColl, subject, text, user);
-}
-
-function sendMailToUsers(usersColl: Collection, subject: string, text: string, user: string) {
-    findObs(usersColl)
-        .pipe(
-            filter(_user => user !== _user.user),
-            filter(_user => isEmailValid(_user.user)),
-            mergeMap(_user => sendMail(fromMail, _user.user, subject, text)),
-        )
-        // we subscribe here since we want to send the mail as a side effect and not link the execution of this
-        // Observable with the execution pipe of other outer Observables. In other words, if an Observable chain
-        // call this method, it has to call it with a 'tap' operator.
-        // In this way sending the mail follows a fire&forget strategy.
-        .subscribe({
-            error: err => {
-                console.error(`Error while sending an email`, JSON.stringify(err));
-            },
-        });
+function sendMailToUsers1(usersColl: Collection, subject: string, text: string, user: string) {
+    console.log('sendMailToUsers');
+    return findObs(usersColl).pipe(
+        filter(_user => user !== _user.user),
+        filter(_user => isEmailValid(_user.user)),
+        mergeMap(_user =>
+            sendMail(fromMail, _user.user, subject, text).pipe(
+                catchError(err => {
+                    console.log(
+                        `error in sending mail to ${JSON.stringify(_user, null, 2)} - error ${JSON.stringify(
+                            err,
+                            null,
+                            2,
+                        )}`,
+                    );
+                    return EMPTY;
+                }),
+            ),
+        ),
+        toArray(),
+    );
 }

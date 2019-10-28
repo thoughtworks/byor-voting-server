@@ -53,7 +53,7 @@ fileignoreconfig:
   checksum: 49ad2a84e5b624a6133dd86213901c416ceaf1291059a4243632443af8a706e3
   ignore_detectors: []
 - filename: .env
-  checksum: 85c9a5a329ad1e916b5913fbbaff56ddcec2f25574c0b54f63c4a5b8fbf1b576
+  checksum: 732ffb55e8f2eafd37ad4fb8500ab24e7fa38dcc9f3cc4377ae39ea7465f018a
   ignore_detectors: []
 - filename: config/byor.sh.sample
   checksum: f6ea581aca0260b7f9d098b5715cfaed8702e3ff4de3b2e8f9e4429db9022982
@@ -76,5 +76,14 @@ fileignoreconfig:
   checksum: 092b30f2653ac12b8660eb007f439beff0ae7ba2db3c85ab33d023ebf80638d7
   ignore_detectors: []
 - filename: commands.txt
-  checksum: 73d1d0d31a7f00c77d8b48858973e9c84fed1c5d31ce6d772dd8dacd7dd15e7b
+  checksum: 75695f757cabcd4798ab0fed3aeb33510c15d7e9672bb8f3bbac897d3c6b802f
+  ignore_detectors: []
+- filename: serverless.yml
+  checksum: 5269b8a870698e5df027c3f94ebab334867a2f0a4d111cfa27135ee222de5cad
+  ignore_detectors: []
+- filename: serverless-from-command-line.yml
+  checksum: ba78b842728814d9b08027190124c83a4eda6957fdc65bb89f6f645c8129bb32
+  ignore_detectors: []
+- filename: serverless-designers.yml
+  checksum: 69665cb922655bdfb073495468c090f992ca6c05615575afacd69a5b1780f1c2
   ignore_detectors: []

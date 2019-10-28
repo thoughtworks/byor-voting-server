@@ -427,7 +427,7 @@ export function addNewTechnologyToEvent(
             const tech = params.technology;
             tech._id = new ObjectId();
             const dataToUpdate = { $push: { technologies: tech } };
-            return updateOneObs({ _id: votingEvent._id }, dataToUpdate, votingEventsCollection);
+            return updateOneObs({ _id: votingEvent._id }, dataToUpdate, votingEventsCollection).pipe(map(() => tech));
         }),
     );
 }
@@ -534,27 +534,76 @@ export function addReplyToTechComment(
     );
 }
 
-export function moveToNexFlowStep(
+export function moveToNextFlowStep(
     votingEventsCollection: Collection,
     votesColl: Collection,
     params: { _id: string },
     user: string,
 ) {
+    return moveToAnotherFlowStep(
+        votingEventsCollection,
+        votesColl,
+        params,
+        user,
+        1,
+        'MOVE TO NEXT STEP FOR VOTING EVENT',
+    );
+}
+export function moveToPreviousFlowStep(
+    votingEventsCollection: Collection,
+    votesColl: Collection,
+    params: { _id: string },
+    user: string,
+) {
+    return moveToAnotherFlowStep(
+        votingEventsCollection,
+        votesColl,
+        params,
+        user,
+        -1,
+        'MOVE TO PREVIOUS STEP FOR VOTING EVENT',
+    );
+}
+function moveToAnotherFlowStep(
+    votingEventsCollection: Collection,
+    votesColl: Collection,
+    params: { _id: string },
+    user: string,
+    stepVariation: number,
+    message: string,
+) {
     const _votingEventId = getObjectId(params._id);
     const operation = _calculateResultDetailsForEachTechnology(votingEventsCollection, votesColl, params).pipe(
         concatMap(votingEvent => {
             const votingEventKey = { _id: _votingEventId };
-            const newRound = votingEvent.round + 1;
+            const newRound = votingEvent.round + stepVariation;
+            if (!votingEvent.flow) {
+                throw Error(`votingEvent with name ${votingEvent.name} has no flow defined`);
+            }
+            const numberOfSteps = votingEvent.flow.steps.length;
+            if (newRound < 1) {
+                const err = { ...ERRORS.votingEventCanNotMoveToPreviousStepBecauseAlreadyInTheFirstStep };
+                err.message = `votingEvent with name ${
+                    votingEvent.name
+                } can not be moved to previous step since it is already in the 
+                first step`;
+                throw err;
+            }
+            if (newRound > numberOfSteps) {
+                const err = { ...ERRORS.votingEventCanNotMoveToNextStepBecauseAlreadyInTheLastStep };
+                err.message = `votingEvent with name ${
+                    votingEvent.name
+                } can not be moved to next step since it is already in its 
+                last step`;
+                throw err;
+            }
             const dataToUpdate = { round: newRound, technologies: votingEvent.technologies };
             return updateOneObs(votingEventKey, dataToUpdate, votingEventsCollection);
         }),
     );
-    return verifyPermissionToManageVotingEvent(
-        votingEventsCollection,
-        user,
-        _votingEventId,
-        'MOVE TO NEXT STEP FOR VOTING EVENT',
-    ).pipe(concatMap(() => operation));
+    return verifyPermissionToManageVotingEvent(votingEventsCollection, user, _votingEventId, message).pipe(
+        concatMap(() => operation),
+    );
 }
 
 // fills the 'votingResult' property of the Technologies which have collected at least one vote
@@ -669,7 +718,8 @@ export function setRecommendation(
             return { votingEvent, tech, votingEventsCollection };
         }),
         concatMap(updateTechRecommendation),
-        tap(tech => sendMailForRecommendation(usersColl, tech, user)),
+        // tap(tech => sendMailForRecommendation(usersColl, tech, user)),
+        concatMap(tech => sendMailForRecommendation(usersColl, tech, user)),
     );
 }
 

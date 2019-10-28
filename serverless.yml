@@ -1,4 +1,4 @@
-# Welcome to Serverless!
+Welcome to Serverless!
 #
 # This file is the main config file for your service.
 # It's very minimal at this point and uses default values.
@@ -34,6 +34,8 @@ provider:
         MONGO_URI: ${ssm:${self:provider.stage}ByorMongoUri~true}
         MONGO_DB_NAME: ${ssm:${self:provider.stage}ByorMongoDbName}
         JWT_SECRET_KEY: ${ssm:${self:provider.stage}ByorJwtKey~true}
+        MAILGUN_API_KEY: 'my-mailgun-key'
+        MAILGUN_DOMAIN: 'my-domain'
 
 functions:
     executeService:

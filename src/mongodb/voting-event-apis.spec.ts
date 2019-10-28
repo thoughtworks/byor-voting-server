@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { switchMap, map, tap, catchError, concatMap } from 'rxjs/operators';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin, of, throwError, EMPTY } from 'rxjs';
 import { mongodbService, CachedDB } from '../api/service';
 import { getAllVotingEvents } from '../api/voting-event-apis';
 import { getAllVotes } from '../api/votes-apis';
@@ -1258,7 +1258,7 @@ describe('Operations on votingevents collection', () => {
     }).timeout(10000);
 
     it(`2.6 A Voting Event is created, people vote and add tags, and then we move the event 
-    to the next step of the VotingEvent flow`, done => {
+    to the next step of the VotingEvent flow and eventually it is moved back by one step`, done => {
         const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
 
         const newVotingEventName = 'An Event which moves to the next step of the flow';
@@ -1360,8 +1360,9 @@ describe('Operations on votingevents collection', () => {
                 tap(votingEvent => {
                     votingEventRound = votingEvent.round;
                 }),
+                // We move to the second step and want to check that the voting results
                 concatMap(() =>
-                    mongodbService(cachedDb, ServiceNames.moveToNexFlowStep, { _id: votingEventId }, null, headers),
+                    mongodbService(cachedDb, ServiceNames.moveToNextFlowStep, { _id: votingEventId }, null, headers),
                 ),
                 concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap((votingEvent: VotingEvent) => {
@@ -1385,11 +1386,36 @@ describe('Operations on votingevents collection', () => {
                 }),
                 // We move to the third step and want to check that the voting results are the same at least in terms of numbers
                 concatMap(() =>
-                    mongodbService(cachedDb, ServiceNames.moveToNexFlowStep, { _id: votingEventId }, null, headers),
+                    mongodbService(cachedDb, ServiceNames.moveToNextFlowStep, { _id: votingEventId }, null, headers),
                 ),
                 concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
                 tap((votingEvent: VotingEvent) => {
                     expect(votingEvent.round).to.equal(votingEventRound + 2);
+                    const t0 = votingEvent.technologies.find(t => t.name === tech0.name);
+                    expect(t0.votingResult.votesForRing.length).to.equal(1);
+                    const productionTagRes = t0.votingResult.votesForTag.find(t => t.tag === productionTag);
+                    expect(productionTagRes.count).to.equal(2);
+                    const trainingTagRes = t0.votingResult.votesForTag.find(t => t.tag === trainingTag);
+                    expect(trainingTagRes.count).to.equal(2);
+                    const colleaguesTagRes = t0.votingResult.votesForTag.find(t => t.tag === colleaguesTag);
+                    expect(colleaguesTagRes.count).to.equal(2);
+                    const t1 = votingEvent.technologies.find(t => t.name === tech1.name);
+                    expect(t1.votingResult.votesForRing.length).to.equal(1);
+                    expect(t1.votingResult.votesForTag).to.be.undefined;
+                }),
+                // We move back to the second step and want to check that the new state is saved and votes are not changed
+                concatMap(() =>
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.moveToPreviousFlowStep,
+                        { _id: votingEventId },
+                        null,
+                        headers,
+                    ),
+                ),
+                concatMap(() => mongodbService(cachedDb, ServiceNames.getVotingEvent, votingEventId)),
+                tap((votingEvent: VotingEvent) => {
+                    expect(votingEvent.round).to.equal(votingEventRound + 1);
                     const t0 = votingEvent.technologies.find(t => t.name === tech0.name);
                     expect(t0.votingResult.votesForRing.length).to.equal(1);
                     const productionTagRes = t0.votingResult.votesForTag.find(t => t.tag === productionTag);
@@ -1411,6 +1437,118 @@ describe('Operations on votingevents collection', () => {
                     done(err);
                 },
                 () => {
+                    cachedDb.client.close();
+                    done();
+                },
+            );
+    }).timeout(10000);
+
+    it(`2.6.1 A Voting Event is created and then we try to move it to the previous step`, done => {
+        const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+
+        const newVotingEventName = 'An Event which tries to move to the previous step of the flow';
+
+        let votingEventId;
+
+        let headers;
+        let errorEncoutered = false;
+
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
+            .pipe(
+                switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, newVotingEventName)),
+                tap(data => {
+                    votingEventId = data.votingEventId;
+                    headers = data.headers;
+                }),
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId }, null, headers),
+                ),
+                // We try to move to the previous step but this fails since we are already in the first step
+                concatMap(() =>
+                    mongodbService(
+                        cachedDb,
+                        ServiceNames.moveToPreviousFlowStep,
+                        { _id: votingEventId },
+                        null,
+                        headers,
+                    ),
+                ),
+                catchError(err => {
+                    if (
+                        err.errorCode ===
+                        ERRORS.votingEventCanNotMoveToPreviousStepBecauseAlreadyInTheFirstStep.errorCode
+                    ) {
+                        errorEncoutered = true;
+                    } else {
+                        throwError(err);
+                    }
+                    return EMPTY;
+                }),
+            )
+            .subscribe(
+                null,
+                err => {
+                    cachedDb.client.close();
+                    logError(err);
+                    done(err);
+                },
+                () => {
+                    expect(errorEncoutered).to.be.true;
+                    cachedDb.client.close();
+                    done();
+                },
+            );
+    }).timeout(10000);
+
+    it(`2.6.2 A Voting Event is created, brought to its last step and then we try to move it again forward`, done => {
+        const cachedDb: CachedDB = { dbName: config.dbname, client: null, db: null };
+
+        const newVotingEventName = 'An Event which tries to move beyonf its last step in the flow';
+
+        let votingEventId;
+
+        let headers;
+        let errorEncoutered = false;
+
+        cleanVotingEventsAndVotesCollections(cachedDb.dbName)
+            .pipe(
+                switchMap(() => createVotingEventForVotingEventAndReturnHeaders(cachedDb, newVotingEventName)),
+                tap(data => {
+                    votingEventId = data.votingEventId;
+                    headers = data.headers;
+                }),
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.openVotingEvent, { _id: votingEventId }, null, headers),
+                ),
+                // We move the event ahead for 2 times
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.moveToNextFlowStep, { _id: votingEventId }, null, headers),
+                ),
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.moveToNextFlowStep, { _id: votingEventId }, null, headers),
+                ),
+                // We try to move again to the next step but this fails since the event has already reached its last stage
+                concatMap(() =>
+                    mongodbService(cachedDb, ServiceNames.moveToNextFlowStep, { _id: votingEventId }, null, headers),
+                ),
+                catchError(err => {
+                    if (err.errorCode === ERRORS.votingEventCanNotMoveToNextStepBecauseAlreadyInTheLastStep.errorCode) {
+                        errorEncoutered = true;
+                    } else {
+                        throwError(err);
+                    }
+                    return EMPTY;
+                }),
+            )
+            .subscribe(
+                null,
+                err => {
+                    cachedDb.client.close();
+                    logError(err);
+                    done(err);
+                },
+                () => {
+                    expect(errorEncoutered).to.be.true;
                     cachedDb.client.close();
                     done();
                 },

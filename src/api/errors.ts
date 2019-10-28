@@ -23,6 +23,14 @@ export const ERRORS = {
         errorCode: 'V-E-04',
         message: `the technology is NOT present in the voting event`,
     },
+    votingEventCanNotMoveToPreviousStepBecauseAlreadyInTheFirstStep: {
+        errorCode: 'V-E-05',
+        message: `Voting Event already in the first step`,
+    },
+    votingEventCanNotMoveToNextStepBecauseAlreadyInTheLastStep: {
+        errorCode: 'V-E-06',
+        message: `Voting Event already in the last step`,
+    },
     voteAlreadyPresent: { errorCode: 'V-01', mongoErrorCode: 11000, message: `vote already present` } as MongoError,
     pwdInvalid: { errorCode: 'A-01', message: `password not valid` },
     userUnknown: { errorCode: 'A-02', message: `user not known`, userId: null },

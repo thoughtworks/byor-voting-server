@@ -20,3 +20,5 @@ commands.txt
 package.json.test
 .env
 
+serverless-from-command-line.yml
+serverless-designers.yml

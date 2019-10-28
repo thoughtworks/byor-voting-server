@@ -59,7 +59,8 @@ import {
     addReplyToTechComment,
     undoCancelVotingEvent,
     getVotingEventWithNumberOfCommentsAndVotes,
-    moveToNexFlowStep,
+    moveToNextFlowStep,
+    moveToPreviousFlowStep,
     setRecommendationAuthor,
     resetRecommendation,
     setRecommendation,
@@ -140,7 +141,8 @@ export function isServiceKnown(service: ServiceNames) {
         service === ServiceNames.calculateBlipsFromAllEvents ||
         service === ServiceNames.openForRevote ||
         service === ServiceNames.closeForRevote ||
-        service === ServiceNames.moveToNexFlowStep ||
+        service === ServiceNames.moveToNextFlowStep ||
+        service === ServiceNames.moveToPreviousFlowStep ||
         service === ServiceNames.setRecommendationAuthor ||
         service === ServiceNames.setRecommendation ||
         service === ServiceNames.resetRecommendation ||
@@ -244,7 +246,7 @@ function executeMongoService(
                 throwError(err);
             }
         }
-    } else if (serviceData.userId) {
+    } else if (serviceData && serviceData.userId) {
         user = serviceData.userId;
     }
 
@@ -334,8 +336,10 @@ function executeMongoService(
         returnedObservable = closeForRevote(votingEventColl, serviceData);
     } else if (service === ServiceNames.getConfiguration) {
         returnedObservable = getConfiguration(configurationColl, serviceData);
-    } else if (service === ServiceNames.moveToNexFlowStep) {
-        returnedObservable = moveToNexFlowStep(votingEventColl, votesColl, serviceData, user);
+    } else if (service === ServiceNames.moveToNextFlowStep) {
+        returnedObservable = moveToNextFlowStep(votingEventColl, votesColl, serviceData, user);
+    } else if (service === ServiceNames.moveToPreviousFlowStep) {
+        returnedObservable = moveToPreviousFlowStep(votingEventColl, votesColl, serviceData, user);
     } else if (service === ServiceNames.setRecommendationAuthor) {
         returnedObservable = setRecommendationAuthor(votingEventColl, serviceData, user);
     } else if (service === ServiceNames.setRecommendation) {

@@ -20,6 +20,7 @@ export const CorporateVotingEventFlow: VotingEventFlow = {
                     commentOnVoteBlocked: false,
                     allowTagsOnVote: true,
                     tags: CORPORATE_VOTING_EVENT_TAGS,
+                    hideVotesAndCommentNumbers: true,
                 },
             },
         },
@@ -29,7 +30,7 @@ export const CorporateVotingEventFlow: VotingEventFlow = {
             action: {
                 name: 'conversation',
                 parameters: {
-                    displayVotesAndCommentNumbers: true,
+                    hideVotesAndCommentNumbers: false,
                     allowTagsOnVote: true,
                     tags: CORPORATE_VOTING_EVENT_TAGS,
                 },

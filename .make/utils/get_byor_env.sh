@@ -7,11 +7,12 @@ if [ -z "${CI}" ]; then
     else
         export byorEnv="_${BYOR_ENV}"
     fi
-    if [ -f "config/byor_${BYOR_ENV}.sh" ]; then
+    echo "config/byor${byorEnv}.sh"
+    if [ -f "config/byor${byorEnv}.sh" ]; then
         echo "--[INFO]: Environment variables loaded from 'config/byor${byorEnv}.sh'"
         source config/byor${byorEnv}.sh
     else
-        echo "--[ERROR]: missing configuration file for environment ${BYOR_ENV}!";
+        echo "--[ERROR]: missing configuration file for environment ${byorEnv}!";
         exit 1;
     fi
 else

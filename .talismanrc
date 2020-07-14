@@ -3,7 +3,7 @@ fileignoreconfig:
   checksum: b8e72d458235e09af97580032e2414423216887f38af97b6494fef4ecc0d9b45
   ignore_detectors: []
 - filename: data/TW_blips_history.csv
-  checksum: eeeff6fc5623767db3e105778f4ea881c6a2c5e7adbc0f5144ee507970eb4ac6
+  checksum: 9c84dee413eacb392a38e91da539c11643a722b5650605718c93e91f864019c0
   ignore_detectors: []
 - filename: src/mongodb/migrations/1560524383674-encode-users-passwords.ts
   checksum: 14b09d710c6430d2e1360cd944ea21bdccdcd938a4d2d8432584326d575071db
@@ -86,4 +86,7 @@ fileignoreconfig:
   ignore_detectors: []
 - filename: serverless-designers.yml
   checksum: 69665cb922655bdfb073495468c090f992ca6c05615575afacd69a5b1780f1c2
+  ignore_detectors: []
+- filename: .make/admin/initialize_sample_environment.sh
+  checksum: 97aabcf6afb80f7d198469cfb0280bd0f46ec4ea70934e673c40996c2ab01bf1
   ignore_detectors: []

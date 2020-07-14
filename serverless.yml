@@ -1,4 +1,4 @@
-Welcome to Serverless!
+# Welcome to Serverless!
 #
 # This file is the main config file for your service.
 # It's very minimal at this point and uses default values.
@@ -23,7 +23,7 @@ service: server
 
 provider:
     name: aws
-    runtime: nodejs8.10
+    runtime: nodejs12.x
     profile: byor
     # you can overwrite defaults here
     stage: ${opt:stage,'dev'}

@@ -12,9 +12,9 @@ if (!csvFile) {
 
 logInfo('loading technologies from URL:' + csvFile);
 
-const nameColumn = `gsx\$${process.argv[3] || 'name'}`;
-const quadrantColumn = `gsx\$${process.argv[4] || 'quadrant'}`;
-const isNewColumn = `gsx\$${process.argv[5] || 'is_new'}`;
+const nameColumn = process.argv[3] || 'name';
+const quadrantColumn = process.argv[4] || 'quadrant';
+const isNewColumn = process.argv[5] || 'is_new';
 
 var dataset = [];
 

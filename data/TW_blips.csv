@@ -1,944 +1,1082 @@
 name,quadrant,is_new
-.NET Core,Platforms,FALSE
-1% canary,Techniques,FALSE
-A single CI instance for all teams,Techniques,FALSE
-ALT.NET,Platforms,FALSE
-API management services,Tools,FALSE
-APIs as a product,Techniques,FALSE
-ARKit/ARCore,Languages & Frameworks,FALSE
-ARM Server SoC,Platforms,FALSE
-ASP,Tools,FALSE
-ASP.NET MVC,Tools,FALSE
-ATOM,Platforms,FALSE
-AVA,Tools,TRUE
-AWS,Platforms,FALSE
-AWS Application Load Balancer,Platforms,FALSE
-AWS Device Farm,Platforms,FALSE
-AWS ECS,Platforms,FALSE
-AWS Fargate,Platforms,FALSE
-AWS Lambda,Platforms,FALSE
-Acceptance test of journeys,Techniques,FALSE
-Accumulate-only data,Techniques,FALSE
-Advanced analytics,Techniques,FALSE
-Aeron,Languages & Frameworks,TRUE
-Aggregates as documents,Techniques,FALSE
-Agile analytics,Techniques,FALSE
-Airflow,Tools,FALSE
-Akka,Platforms,FALSE
-Alamofire,Languages & Frameworks,FALSE
-Algorithmic IT operations,Techniques,FALSE
-Amazon API Gateway,Platforms,FALSE
-Amazon Rekognition,Tools,FALSE
-Analyzing test runs,Techniques,FALSE
-Android,Platforms,FALSE
-Android Architecture Components,Languages & Frameworks,FALSE
-Android-x86,Tools,FALSE
-Anemic REST,Techniques,FALSE
-Angular,Languages & Frameworks,FALSE
-Angular 2,Languages & Frameworks,FALSE
-AngularJS,Languages & Frameworks,FALSE
-AngularJS and Knockout,Languages & Frameworks,FALSE
-Anka,Tools,TRUE
-Ansible,Tools,FALSE
-Ant,Tools,FALSE
-AnyStatus,Tools,TRUE
-Apache Atlas,Platforms,FALSE
-Apache Beam,Languages & Frameworks,FALSE
-Apache Flink,Platforms,FALSE
-Apache Kafka,Tools,FALSE
-Apache Kylin,Platforms,FALSE
-Apache Mesos,Platforms,FALSE
-Apache Pig,Tools,FALSE
-Apache Spark,Platforms,FALSE
-Apache camel,Tools,FALSE
-Apex,Tools,FALSE
-Apollo,Languages & Frameworks,FALSE
-App containers,Platforms,FALSE
-AppCode,Tools,FALSE
-AppHarbor,Platforms,FALSE
-Append-only data store,Techniques,FALSE
-Appium,Tools,FALSE
-Appium Test Distribution,Tools,FALSE
-Application Servers,Platforms,FALSE
-Application appliances,Platforms,FALSE
-Applying product management to internal platforms,Techniques,FALSE
-ArchUnit,Tools,FALSE
-Archery,Tools,FALSE
-Architectural fitness function,Techniques,FALSE
-Arrow,Languages & Frameworks,TRUE
-AssertJ,Languages & Frameworks,FALSE
-Atlas and BeeHive,Languages & Frameworks,FALSE
-Aurelia,Languages & Frameworks,FALSE
-Auth0,Platforms,FALSE
-Automate database deployment,Techniques,FALSE
-Automated deployment pipeline,Techniques,FALSE
-Automation of technical tests,Techniques,FALSE
-Autonomous bubble pattern,Techniques,FALSE
-Avro,Languages & Frameworks,FALSE
-Axon,Languages & Frameworks,FALSE
-Azure,Platforms,FALSE
-Azure DevOps,Platforms,FALSE
-Azure Service Fabric,Platforms,FALSE
-Azure Stack,Platforms,FALSE
-BEM,Techniques,FALSE
-BFF - Backend for frontends,Techniques,FALSE
-Babel,Tools,FALSE
-Backbone.js,Languages & Frameworks,FALSE
-Backend as a service,Platforms,FALSE
-BackstopJS,Tools,FALSE
-BeyondCorp,Techniques,FALSE
-Big Data envy,Techniques,FALSE
-Big enterprise solutions,Platforms,FALSE
-BigQuery,Platforms,FALSE
-Bitrise,Tools,FALSE
-Blackbox,Tools,FALSE
-Blockchain beyond bitcoin,Techniques,FALSE
-Blue-green deployment,Techniques,FALSE
-Bluetooth Mesh,Platforms,FALSE
-Bokeh/Vega,Tools,FALSE
-Boot2docker,Tools,FALSE
-Bottled Water,Tools,FALSE
-Bounded Buy,Techniques,FALSE
-Bridging physical and digital worlds with simple hardware,Techniques,FALSE
-Brighter,Tools,FALSE
-Browser-based templating,Tools,FALSE
-Browsersync,Tools,FALSE
-Bug bounties,Techniques,FALSE
-Build pipelines,Techniques,FALSE
-Build your own radar,Techniques,FALSE
-Buildkite,Tools,FALSE
-Butterknife,Languages & Frameworks,FALSE
-Buying solutions you can only afford one of,Platforms,FALSE
-C# 4.0,Languages & Frameworks,FALSE
-CI theatre,Techniques,FALSE
-CMS as a platform,Platforms,FALSE
-CSS Grid Layout,Languages & Frameworks,FALSE
-CSS Modules,Languages & Frameworks,FALSE
-CSS frameworks,Languages & Frameworks,FALSE
-CSS-in-JS,Languages & Frameworks,FALSE
-CVXPY,Tools,FALSE
-Caching reverse proxies,Tools,FALSE
-Caffe,Languages & Frameworks,FALSE
-Cage,Tools,TRUE
-Cake and Fake,Tools,FALSE
-Calabash,Tools,FALSE
-Calatrava,Platforms,FALSE
-Camunda,Languages & Frameworks,FALSE
-Canary builds,Techniques,FALSE
-Capability modeling,Techniques,FALSE
-Capture domain events explicitily,Techniques,FALSE
-Capture domain events explicitly,Techniques,FALSE
-Capturing client-side JavaScript errors,Techniques,FALSE
-Care about hardware,Platforms,FALSE
-Care about languages,Languages & Frameworks,FALSE
-Carthage,Tools,FALSE
-CartoDB,Tools,FALSE
-Cassandra carefully,Platforms,FALSE
-Categorization & prioritization of technical debt,Techniques,FALSE
-Ceph,Platforms,FALSE
-Chaos Engineering,Techniques,FALSE
-Chaos Katas,Techniques,FALSE
-Chaos Monkey,Tools,FALSE
-Chaos Toolkit,Languages & Frameworks,TRUE
-Chrome,Platforms,FALSE
-Chrome OS,Platforms,FALSE
-Cilium,Tools,TRUE
-CircleCI,Tools,FALSE
-Citrix for development,Tools,FALSE
-Clara rules,Languages & Frameworks,FALSE
-Claudia,Tools,FALSE
-Client and server rendering with same code,Techniques,FALSE
-Client-directed query,Techniques,FALSE
-Client-side MVC,Tools,FALSE
-Clojure,Languages & Frameworks,FALSE
-Clojure.spec,Tools,FALSE
-ClojureScript,Languages & Frameworks,FALSE
-Cloud,Platforms,FALSE
-Cloud Foundry,Platforms,FALSE
-Cloud Spanner,Platforms,FALSE
-Cloud lift and shift,Techniques,FALSE
-Cloud-based image comprehension,Platforms,FALSE
-Cloud-init,Tools,FALSE
-CloudEvents,Platforms,TRUE
-Cloudera Impala,Platforms,FALSE
-Cloudflare Workers,Platforms,TRUE
-Co-location by telepresence,Techniques,FALSE
-CoAP,Platforms,FALSE
-CockroachDB,Platforms,FALSE
-Code in configuration,Tools,FALSE
-Codefresh,Tools,FALSE
-Coding architects,Techniques,FALSE
-CoffeeScript,Languages & Frameworks,FALSE
-Collaborative analytics and data science,Techniques,FALSE
-Communication between those responsible for hardware and software,Platforms,FALSE
-Component-based frameworks,Languages & Frameworks,FALSE
-Composer,Tools,FALSE
-Concourse CI,Tools,FALSE
-Concurrency abstractions and patterns,Techniques,FALSE
-Concurrent languages,Languages & Frameworks,FALSE
-Conduit,Tools,FALSE
-Configuration in DNS,Techniques,FALSE
-Consul,Tools,FALSE
-Consumer-driven contract testing,Techniques,FALSE
-Container security scanning,Techniques,FALSE
-Content Security Policies,Techniques,FALSE
-Contentful,Platforms,FALSE
-Continuous Delivery (CD),Techniques,FALSE
-Continuous delivery for machine learning (CD4ML) models,Techniques,TRUE
-Continuous delivery for mobile devices,Techniques,FALSE
-Continuous deployment,Techniques,FALSE
-Continuous integration in the cloud,Platforms,FALSE
-Conversationally aware APIs,Techniques,FALSE
-Corda,Platforms,FALSE
-Core Async,Languages & Frameworks,FALSE
-CoreCLR and CoreFX,Platforms,FALSE
-CoreOS,Platforms,FALSE
-Cosmos DB,Platforms,FALSE
-Couchbase,Platforms,FALSE
-Crazy Egg,Tools,FALSE
-Cross mobile platforms,Tools,FALSE
-Cross-platform mobile toolkits,Tools,FALSE
-Crypto shredding,Techniques,FALSE
-Cursive,Tools,FALSE
-Cylon.js,Languages & Frameworks,FALSE
-Cypress,Tools,FALSE
-D3,Tools,FALSE
-Dagger,Languages & Frameworks,FALSE
-Dapper,Languages & Frameworks,FALSE
-Dashing,Languages & Frameworks,FALSE
-Dask,Languages & Frameworks,TRUE
-Data Lake,Techniques,FALSE
-Data visualizations of development and operations,Techniques,FALSE
-Data-hungry packages,Platforms,FALSE
-DataStax Enterprise Graph,Platforms,FALSE
-Database based integration,Techniques,FALSE
-Database migrations for NoSQL,Techniques,FALSE
-Datensparsamkeit,Techniques,FALSE
-Datomic,Platforms,FALSE
-Dc.js,Tools,FALSE
-Debezium,Platforms,FALSE
-Decision driven BI,Techniques,FALSE
-Declarative provisioning,Techniques,FALSE
-Decoupling deployment from release,Techniques,FALSE
-Decoupling secret management from source code,Techniques,FALSE
-DeepLearning.scala,Languages & Frameworks,FALSE
-Deflect,Platforms,FALSE
-Deis,Platforms,FALSE
-Deltacloud,Tools,FALSE
-Deno,Platforms,TRUE
-Dependabot,Tools,FALSE
-Dependency Structure Matrices,Tools,FALSE
-Dependency management for JavaScript,Tools,FALSE
-Deployment and scripting test tools,Techniques,FALSE
-DesignOps,Techniques,FALSE
-Detekt,Tools,TRUE
-DevOps,Techniques,FALSE
-DevOps as a team,Techniques,FALSE
-Development environments in the cloud,Techniques,FALSE
-DialogFlow,Platforms,FALSE
-Differential privacy,Techniques,FALSE
-Digdag,Languages & Frameworks,FALSE
-DigitalOcean,Platforms,FALSE
-Distributed version control,Tools,FALSE
-Distroless Docker images,Techniques,FALSE
-Django REST,Languages & Frameworks,FALSE
-Django Rest,Languages & Frameworks,FALSE
-Docker,Platforms,FALSE
-Docker Toolbox,Tools,FALSE
-Docker for builds,Techniques,FALSE
-Domain-Specific Languages,Languages & Frameworks,FALSE
-Domain-scoped events,Techniques,FALSE
-Domain-specific PaaS,Platforms,FALSE
-Dropwizard,Languages & Frameworks,FALSE
-Druid,Languages & Frameworks,FALSE
-EC2 & S3,Platforms,FALSE
-ECMAScript 2017,Languages & Frameworks,FALSE
-ECMAScript 6,Languages & Frameworks,FALSE
-ECharts,Languages & Frameworks,FALSE
-EMQ,Platforms,FALSE
-ES6,Languages & Frameworks,FALSE
-ESB,Tools,FALSE
-ESP8266,Platforms,FALSE
-EVM beyond Ethereum,Platforms,TRUE
-Edge Side Includes for page composition,Techniques,FALSE
-Elastic Search,Platforms,FALSE
-Elasticsearch LTR,Tools,TRUE
-Electron,Platforms,FALSE
-Elixir,Languages & Frameworks,FALSE
-Elm,Languages & Frameworks,FALSE
-Embark,Languages & Frameworks,TRUE
-Embedded mobile mocks,Techniques,FALSE
-Embedded servlet containers,Tools,FALSE
-Ember.js,Languages & Frameworks,FALSE
-Emergent design,Techniques,FALSE
-Enlive,Languages & Frameworks,FALSE
-Enterprise Data Lake,Techniques,FALSE
-Enterprise Data Warehouse,Platforms,FALSE
-Enterprise-wide integration test environments,Techniques,FALSE
-Enzyme,Languages & Frameworks,FALSE
-Espresso,Tools,FALSE
-Espruino,Platforms,FALSE
-Ethereum,Platforms,FALSE
-Ethereum for decentralized applications,Techniques,FALSE
-Ethical OS,Techniques,TRUE
-Event API’s,Techniques,FALSE
-Event Sourcing,Techniques,FALSE
-Event Storming,Techniques,FALSE
-Event driven business intelligence,Techniques,FALSE
-Event sourcing,Techniques,FALSE
-Event streaming as the source of truth,Techniques,FALSE
-EventStore,Platforms,FALSE
-Evolutionary architecture,Techniques,FALSE
-Evolutionary database,Techniques,FALSE
-Exhaustive browser based testing,Techniques,FALSE
-Exhaustive browser-based testing,Techniques,FALSE
-Experience Design (XD),Techniques,FALSE
-F#,Languages & Frameworks,FALSE
-FBSnapshotTestcase,Tools,FALSE
-FPM,Tools,FALSE
-Facebook as business platform,Platforms,FALSE
-Faraday,Tools,FALSE
-Fastly,Platforms,FALSE
-Feature branching,Techniques,FALSE
-Fetch,Languages & Frameworks,FALSE
-Firefox,Platforms,FALSE
-Flagr,Tools,TRUE
-Flight.js,Languages & Frameworks,FALSE
-Flood IO,Platforms,FALSE
-Flow,Tools,FALSE
-Flume,Tools,FALSE
-Flutter,Languages & Frameworks,FALSE
-Flux,Techniques,FALSE
-Flyway,Tools,FALSE
-Focus on mean time to recovery,Techniques,FALSE
-Foreman,Tools,FALSE
-Formik,Languages & Frameworks,TRUE
-Forward Secrecy,Techniques,FALSE
-Four key metrics,Techniques,FALSE
-Frank,Tools,FALSE
-Frege,Languages & Frameworks,FALSE
-Front end instrumentation,Techniques,FALSE
-Functional Java,Languages & Frameworks,FALSE
-Functional languages,Languages & Frameworks,FALSE
-Future of Java,Languages & Frameworks,FALSE
-GKE,Platforms,FALSE
-GPGPU,Platforms,FALSE
-GWT,Platforms,FALSE
-Galen,Tools,FALSE
-Gatling,Tools,FALSE
-Gauge,Tools,FALSE
-GemJars,Tools,FALSE
-Generated infrastructure diagrams,Techniques,FALSE
-Generic cloud usage,Techniques,FALSE
-GenyMotion,Tools,FALSE
-Git,Tools,FALSE
-Git based CMS/Git for non-code,Techniques,FALSE
-GitHub,Tools,FALSE
-GitLab,Tools,FALSE
-GitUp,Tools,FALSE
-Gitflow,Techniques,FALSE
-Github,Tools,FALSE
-Gitlab,Tools,FALSE
-Gitrob,Tools,FALSE
-Glitch,Platforms,FALSE
-Go language,Languages & Frameworks,FALSE
-GoCD,Tools,FALSE
-Gobot,Languages & Frameworks,FALSE
-Godot,Platforms,FALSE
-Google App Engine,Platforms,FALSE
-Google Cloud Dataflow,Platforms,FALSE
-Google Cloud Platform,Platforms,FALSE
-Google Dart,Languages & Frameworks,FALSE
-Google Wave,Tools,FALSE
-Google as corporate platform,Platforms,FALSE
-Gor,Tools,FALSE
-Gorilla REPL,Tools,FALSE
-Gradle,Tools,FALSE
-Grafana,Tools,FALSE
-Grafeas,Tools,FALSE
-GraphQL,Languages & Frameworks,FALSE
-GraphQL for server side resource aggregation,Techniques,FALSE
-Graphite,Tools,FALSE
-Grasp,Tools,FALSE
-Gremlin,Tools,FALSE
-Groovy,Languages & Frameworks,FALSE
-Grunt.js,Tools,FALSE
-Guerrilla user testing,Techniques,FALSE
-Gulp,Tools,FALSE
-H2O,Platforms,FALSE
-HAL,Languages & Frameworks,FALSE
-HAML,Languages & Frameworks,FALSE
-HSTS,Platforms,FALSE
-HTML 5,Languages & Frameworks,FALSE
-HTML 5 for offline applications,Languages & Frameworks,FALSE
-HTML5 for offline applications,Languages & Frameworks,FALSE
-HTML5 storage instead of cookies,Techniques,FALSE
-Hadoop 2.0,Platforms,FALSE
-Hadoop as a service,Platforms,FALSE
-Hamms,Tools,FALSE
-Handcranking of Hadoop clusters using config management tools,Techniques,FALSE
-Handwritten CSS,Languages & Frameworks,FALSE
-Handwritten CloudFormation,Tools,TRUE
-Hangfire,Languages & Frameworks,FALSE
-HashiCorp Vault,Tools,FALSE
-Haskell Hadoop library,Languages & Frameworks,FALSE
-Headless Chrome for front-end test,Tools,FALSE
-Headless Firefox,Tools,FALSE
-Health check pages,Techniques,FALSE
-Heavyweight test tools,Tools,FALSE
-Helm,Tools,FALSE
-Heptio Ark,Tools,FALSE
-Heroku,Platforms,FALSE
-High performance envy/web scale envy,Techniques,FALSE
-Highcharts,Tools,FALSE
-Hipster batch,Techniques,FALSE
-Hive,Languages & Frameworks,FALSE
-HiveRunner,Languages & Frameworks,TRUE
-HoloLens,Platforms,FALSE
-Honeycomb,Tools,TRUE
-Hosted IDE's,Techniques,FALSE
-Hosted identity management as a service,Techniques,FALSE
-Hosted solutions for testing iOS,Tools,FALSE
-Hosting PII data in the EU,Techniques,FALSE
-Hot Chocolate,Platforms,TRUE
-Humane registry,Techniques,FALSE
-Humio,Tools,TRUE
-Hybrid clouds,Platforms,FALSE
-HyperResource,Languages & Frameworks,FALSE
-Hyperapp,Languages & Frameworks,FALSE
-Hyperledger,Platforms,FALSE
-Hyperledger Composer,Languages & Frameworks,FALSE
-Hystrix,Tools,FALSE
-IE6 End of Life,Platforms,FALSE
-IE8,Platforms,FALSE
-IPFS,Platforms,FALSE
-Icon fonts,Tools,FALSE
-Idempotency filter,Techniques,FALSE
-Ignoring OWASP Top 10,Techniques,FALSE
-Immer,Languages & Frameworks,TRUE
-Immutable servers,Tools,FALSE
-Immutable.js,Languages & Frameworks,FALSE
-In-process acceptance testing,Techniques,FALSE
-InSpec,Tools,FALSE
-Incremental data warehousing,Techniques,FALSE
-Incremental delivery with COTS,Techniques,FALSE
-IndexedDB,Tools,FALSE
-IndiaStack,Platforms,FALSE
-InfluxDB,Platforms,TRUE
-Infrastructure as code,Tools,FALSE
-Infrastructure automation of development workstations,Techniques,FALSE
-Infrastructure configuration scanner,Techniques,FALSE
-Instana,Languages & Frameworks,FALSE
-Instrument all the things,Techniques,FALSE
-Intentional Software,Tools,FALSE
-Interledger,Platforms,FALSE
-Inverse Conway Maneuver,Techniques,FALSE
-Ionic Framework,Languages & Frameworks,FALSE
-Istio,Platforms,FALSE
-Iterative data warehousing,Techniques,FALSE
-JRuby,Platforms,FALSE
-JSF,Languages & Frameworks,FALSE
-JSONassert,Tools,FALSE
-JSPatch,Languages & Frameworks,FALSE
-JVM as platform,Platforms,FALSE
-Jackrabbit Oak,Platforms,FALSE
-Jade,Tools,FALSE
-Jaeger,Tools,FALSE
-Jasmine paired with Node.js,Languages & Frameworks,FALSE
-Java 8,Languages & Frameworks,FALSE
-Java language end of life,Languages & Frameworks,FALSE
-Java portal servers,Platforms,FALSE
-JavaScript MV* frameworks,Languages & Frameworks,FALSE
-JavaScript as a first class language,Languages & Frameworks,FALSE
-JavaScript as a platform,Languages & Frameworks,FALSE
-JavaScript micro frameworks,Tools,FALSE
-JavaScript tooling,Tools,FALSE
-Jekyll,Tools,FALSE
-Jenkins as a deployment pipeline,Tools,FALSE
-Jepsen,Languages & Frameworks,FALSE
-Jest,Languages & Frameworks,FALSE
-JuMP,Languages & Frameworks,FALSE
-Julia,Languages & Frameworks,FALSE
-Jupyter,Tools,FALSE
-Jupyter for automated testing,Techniques,FALSE
-KVM,Platforms,FALSE
-Kafka Streams,Platforms,FALSE
-Karate,Languages & Frameworks,TRUE
-Keras,Languages & Frameworks,FALSE
-Keycloak,Platforms,FALSE
-Knative,Platforms,FALSE
-Knet.jl,Languages & Frameworks,FALSE
-Kong API Gateway,Tools,FALSE
-Kotlin,Languages & Frameworks,FALSE
-Ktor,Languages & Frameworks,FALSE
-Kubernetes,Platforms,FALSE
-Kubernetes Operators,Tools,TRUE
-Laconia,Languages & Frameworks,TRUE
-LambdaCD,Tools,FALSE
-Language Server Protocol,Platforms,FALSE
-Language workbenches,Tools,FALSE
-Large format mobile devices,Platforms,FALSE
-Layered microservices architecture,Techniques,FALSE
-LeakCanary,Languages & Frameworks,FALSE
-Lean software development,Techniques,FALSE
-Legacy in a box,Techniques,FALSE
-Let's Encrypt,Tools,FALSE
-Librarian-puppet and Librarian-Chef,Tools,FALSE
-Light Table,Tools,FALSE
-Lighthouse,Tools,FALSE
-Lightweight Architecture Decision Records,Techniques,FALSE
-Linux Security Modules,Platforms,FALSE
-Linux containers,Platforms,FALSE
-Linux security modules,Platforms,FALSE
-Living CSS Style Guides,Techniques,FALSE
-LoRaWAN,Platforms,FALSE
-Load Impact,Tools,FALSE
-Local storage sync,Techniques,FALSE
-LocalStack,Tools,FALSE
-Location based services,Platforms,FALSE
-Locust,Tools,FALSE
-Log aggregation & indexing,Tools,FALSE
-Log level per request,Techniques,FALSE
-Logic in stored procedures,Languages & Frameworks,FALSE
-Logic-free markup,Tools,FALSE
-Logs as data,Techniques,FALSE
-Logstash & Graylog2,Tools,FALSE
-Long lived branches with Gitflow,Techniques,FALSE
-Lottie,Tools,TRUE
-Lotus,Languages & Frameworks,FALSE
-Low-code platforms,Platforms,FALSE
-Low-cost robotics,Platforms,FALSE
-Lua,Languages & Frameworks,FALSE
-MMKV,Languages & Frameworks,FALSE
-Machine image as a build artifact,Techniques,FALSE
-Machine image pipelines,Techniques,FALSE
-Manual infrastructure management,Techniques,FALSE
-MapD,Platforms,FALSE
-Mapbox,Platforms,FALSE
-MariaDB,Platforms,FALSE
-Master data management,Techniques,FALSE
-Masterless Chef/Puppet,Techniques,FALSE
-Material UI,Languages & Frameworks,FALSE
-Maven,Tools,FALSE
-Mechanical sympathy,Techniques,FALSE
-MemSQL,Platforms,FALSE
-Mercurial,Tools,FALSE
-Mermaid,Tools,FALSE
-Mesosphere DCOS,Platforms,FALSE
-Message buses without smarts,Tools,FALSE
-Meteor.js,Platforms,FALSE
-Micro frontends,Techniques,FALSE
-Micronaut,Languages & Frameworks,TRUE
-Microservice envy,Techniques,FALSE
-Microservices,Techniques,FALSE
-Microsoft Nano Server,Platforms,FALSE
-MinIO,Platforms,TRUE
-Minimizing application configuration,Techniques,FALSE
-Mobile Web,Platforms,FALSE
-Mobile first,Techniques,FALSE
-Mobile payment systems,Platforms,FALSE
-Mobile testing on mobile networks,Techniques,FALSE
-Mobile web,Platforms,FALSE
-MockK,Languages & Frameworks,FALSE
-Moco,Tools,FALSE
-Molecule,Tools,FALSE
-MongoDB,Platforms,FALSE
-Mongoose OS,Platforms,FALSE
-Monitoring of invariants,Techniques,FALSE
-Mosquitto,Platforms,FALSE
-Mountebank,Tools,FALSE
-Multi-account cloud setup,Techniques,FALSE
-NPM for all the things,Techniques,FALSE
-NaCl,Tools,FALSE
-Nameko,Languages & Frameworks,FALSE
-Nancy,Languages & Frameworks,FALSE
-Nashorn,Languages & Frameworks,FALSE
-Neo4J,Platforms,FALSE
-Netflix OSS Full stack,Platforms,FALSE
-Netlify,Platforms,FALSE
-New Relic beyond Rails,Tools,FALSE
-Next-generation test tools,Tools,FALSE
-Next.js,Languages & Frameworks,TRUE
-Nightwatch,Languages & Frameworks,FALSE
-NoPSD,Techniques,FALSE
-NoSQL,Tools,FALSE
-Node.js,Platforms,FALSE
-Nomad,Platforms,FALSE
-Non-relational databases,Platforms,FALSE
-NuGet,Tools,FALSE
-Nuance Mix,Platforms,FALSE
-OAuth,Platforms,FALSE
-OSGi,Platforms,FALSE
-OWASP ASVS,Techniques,FALSE
-OWASP Dependency-Check,Tools,FALSE
-OWIN,Languages & Frameworks,FALSE
-Observability as code,Techniques,FALSE
-Ocelot,Tools,FALSE
-Octopus,Tools,FALSE
-Offline first web applications,Techniques,FALSE
-Offline mobile webapps (just HTML5),Platforms,FALSE
-OkHttp,Languages & Frameworks,FALSE
-Om,Languages & Frameworks,FALSE
-Open source BI/ETL tools,Tools,FALSE
-Open source IaaS,Platforms,FALSE
-OpenAM,Platforms,FALSE
-OpenAPM,Tools,TRUE
-OpenID Connect,Platforms,FALSE
-OpenSocial,Platforms,FALSE
-OpenStack,Platforms,FALSE
-OpenTracing,Platforms,FALSE
-OpenVR,Platforms,FALSE
-OpenZeppelin,Languages & Frameworks,FALSE
-Opinionated and automated code formatting,Techniques,TRUE
-Optimal Workshop,Tools,FALSE
-Origami,Tools,FALSE
-Out-of-container functional testing,Techniques,FALSE
-Over-ambitious API Gateways,Platforms,FALSE
-Overambitious API gateways,Platforms,FALSE
-PSake,Tools,FALSE
-Pa11y,Tools,FALSE
-Pace-layered Application Strategy,Techniques,FALSE
-Packer,Tools,FALSE
-Packet beat,Tools,FALSE
-Packetbeat,Tools,FALSE
-Pact & Pacto,Tools,FALSE
-Pageify,Tools,FALSE
-Papertrail,Tools,FALSE
-Parcel,Tools,FALSE
-Particle Photon/Particle Electron,Platforms,FALSE
-Partition infrastructure along team bounds,Techniques,FALSE
-Patroni,Tools,FALSE
-Performance testing as a first-class citizen,Techniques,FALSE
-Perimeterless enterprise,Techniques,FALSE
-Pester,Languages & Frameworks,FALSE
-PhantomJS,Tools,FALSE
-Phoenix,Languages & Frameworks,FALSE
-Phoenix Environments,Techniques,FALSE
-PhoneGap/Apache Cordova,Platforms,FALSE
-Physical Web,Languages & Frameworks,FALSE
-Pinpoint,Tools,FALSE
-Pipelines as code,Techniques,FALSE
-Pipelines for infrastructure as code,Techniques,FALSE
-Pitest,Tools,FALSE
-Pivotal Cloud Foundry,Platforms,FALSE
-PlantUML,Tools,FALSE
-Platform engineering product teams,Techniques,FALSE
-Platform roadmaps,Techniques,FALSE
-PlatformIO,Platforms,FALSE
-Play Framework 2,Languages & Frameworks,FALSE
-Pointer Events,Languages & Frameworks,FALSE
-Polly,Tools,FALSE
-Polly.js,Languages & Frameworks,FALSE
-Polycloud,Techniques,FALSE
-Polyglot Persistence,Techniques,FALSE
-Polyglot development environments,Tools,FALSE
-Polyglot programming,Techniques,FALSE
-Pose,Languages & Frameworks,TRUE
-PostCSS,Languages & Frameworks,FALSE
-PostgreSQL for NoSQL,Platforms,FALSE
-Postman,Tools,FALSE
-PowerShell,Tools,FALSE
-Powershell,Tools,FALSE
-Pre-commit downstream build checks,Techniques,FALSE
-PredictionIO,Languages & Frameworks,FALSE
-Presto,Platforms,FALSE
-Prettier,Tools,FALSE
-Private Clouds,Platforms,FALSE
-Procedure oriented integration,Techniques,FALSE
-Production immune system,Techniques,FALSE
-Productionizing Jupyter Notebooks,Techniques,TRUE
-Products over projects,Techniques,FALSE
-Programming in your CI/CD tool,Techniques,FALSE
-Progressive Enhancement,Techniques,FALSE
-Progressive Web Applications,Techniques,FALSE
-Prometheus,Tools,FALSE
-Promises for asynchronous programming,Techniques,FALSE
-Property-based unit testing,Techniques,FALSE
-Prophet,Platforms,TRUE
-Prototype On Paper,Tools,FALSE
-Prototyping with InVision and Sketch,Techniques,FALSE
-Protractor for AngularJS,Tools,FALSE
-Provisioning testing,Techniques,FALSE
-Pulumi,Platforms,FALSE
-Puncturing encapsulation with change data capture,Techniques,TRUE
-Puppet,Tools,FALSE
-Puppet-librarian and Chef-librarian,Tools,FALSE
-Puppeteer,Languages & Frameworks,FALSE
-PyTorch,Languages & Frameworks,FALSE
-Python 3,Languages & Frameworks,FALSE
-Q & Bluebird,Languages & Frameworks,FALSE
-Q#,Languages & Frameworks,FALSE
-QA in production,Techniques,FALSE
-Quick,Tools,FALSE
-Quick and Nimble,Languages & Frameworks,FALSE
-Quorum,Platforms,FALSE
-R as Compute Platform,Languages & Frameworks,FALSE
-RAML,Tools,FALSE
-RDF & SPARQL,Platforms,FALSE
-RDF triple stores,Tools,FALSE
-RDFa,Platforms,FALSE
-REST without PUT,Techniques,FALSE
-REST-assured,Tools,FALSE
-RIA,Platforms,FALSE
-RIBs,Languages & Frameworks,FALSE
-RPA,Techniques,FALSE
-Rackspace Cloud,Platforms,FALSE
-Rake for Java & .NET,Tools,FALSE
-Rancher,Platforms,FALSE
-Rapidoid,Languages & Frameworks,FALSE
-Rasa,Languages & Frameworks,FALSE
-ReSwift,Languages & Frameworks,FALSE
-React Native,Languages & Frameworks,FALSE
-React.js,Languages & Frameworks,FALSE
-Reactive Architectures,Techniques,FALSE
-Reactive Extensions across languages,Languages & Frameworks,FALSE
-Reactive Extensions for .Net,Tools,FALSE
-Reactive architectures,Techniques,FALSE
-ReactiveX,Languages & Frameworks,FALSE
-Reactor,Languages & Frameworks,FALSE
-Reagent,Languages & Frameworks,FALSE
-Real-time business intelligence,Techniques,FALSE
-Realm,Platforms,FALSE
-ReasonML,Languages & Frameworks,TRUE
-Recharts,Languages & Frameworks,FALSE
-Recreating ESB antipatterns with Kafka,Techniques,FALSE
-Redis,Platforms,FALSE
-Redux,Languages & Frameworks,FALSE
-Release train,Techniques,TRUE
-Remote usability testing,Techniques,FALSE
-Rendertron,Tools,FALSE
-Repsheet,Tools,FALSE
-Request-response events in user-facing workflows,Techniques,FALSE
-Require.js,Languages & Frameworks,FALSE
-Require.js & NPM,Languages & Frameworks,FALSE
-Resilience4j,Languages & Frameworks,TRUE
-Resin.io,Platforms,FALSE
-Responsive web design,Techniques,FALSE
-Restfulie,Tools,FALSE
-Retrofit,Languages & Frameworks,FALSE
-Riak,Platforms,FALSE
-Rich Internet Applications,Platforms,FALSE
-Rich Internet applications,Platforms,FALSE
-Rider,Tools,FALSE
-Riemann,Tools,FALSE
-Risk-commensurate vendor strategy,Techniques,FALSE
-Robolectric,Languages & Frameworks,FALSE
-Rook,Platforms,FALSE
-Room,Languages & Frameworks,TRUE
-Roslyn,Tools,FALSE
-Ruby,Languages & Frameworks,FALSE
-Ruby/Jruby,Languages & Frameworks,FALSE
-RubyMotion,Languages & Frameworks,FALSE
-Run cost as architecture fitness function,Techniques,FALSE
-Rust,Languages & Frameworks,FALSE
-SAFE stack,Languages & Frameworks,FALSE
-SAFe™,Techniques,FALSE
-"SASS, SCSS, LESS, and Stylus",Languages & Frameworks,FALSE
-"SASS, SCSS, and LESS",Languages & Frameworks,FALSE
-SDN,Platforms,FALSE
-SMS and USSD as a UI,Platforms,FALSE
-SPDY,Platforms,FALSE
-SPIFFE,Platforms,FALSE
-SaaS performance testing tools,Tools,FALSE
-Sandstorm,Platforms,FALSE
-Scala,Languages & Frameworks,FALSE
-"Scala, the good parts",Languages & Frameworks,FALSE
-Scikit-learn,Tools,FALSE
-Scout2,Tools,FALSE
-"Scratch, Alice, and Kodu",Languages & Frameworks,FALSE
-Scrum certification,Techniques,FALSE
-Secrets as a service,Techniques,FALSE
-Security Chaos Engineering,Techniques,FALSE
-Security Monkey,Tools,FALSE
-Security sandwich,Techniques,FALSE
-Segregated DOM plus node for JS Testing,Techniques,FALSE
-Selenium 2 testing of mobile websites,Tools,FALSE
-Semantic monitoring,Techniques,FALSE
-Sensu,Tools,FALSE
-Sentry,Tools,FALSE
-Separate DevOps team,Techniques,FALSE
-Server / application container end-of-life,Techniques,FALSE
-Serverless Framework,Tools,FALSE
-Serverless architecture,Techniques,FALSE
-Serverspec,Tools,FALSE
-Service choreography,Techniques,FALSE
-Service mesh,Techniques,FALSE
-Shared VPC,Platforms,FALSE
-Sidecars for endpoint security,Techniques,FALSE
-SignalR,Languages & Frameworks,FALSE
-Siloed metrics,Techniques,FALSE
-Silverback,Tools,FALSE
-Simple performance trending,Techniques,FALSE
-Sinatra,Languages & Frameworks,FALSE
-Single command deploy,Techniques,FALSE
-Single threaded servers with asynchronous I/O,Platforms,FALSE
-Singleton infrastructure,Platforms,FALSE
-Sleepy Puppy,Tools,FALSE
-Smart Systems,Techniques,FALSE
-Smart contracts,Techniques,TRUE
-Smart systems,Techniques,FALSE
-SnapCI,Tools,FALSE
-Snowplow Analytics,Tools,FALSE
-Snowplow Analytics & Piwik,Tools,FALSE
-Snyk,Tools,FALSE
-Social code analysis,Techniques,FALSE
-Solidity,Languages & Frameworks,FALSE
-Sonar,Tools,FALSE
-Sonobuoy,Tools,FALSE
-Spacemacs,Tools,FALSE
-Spark,Tools,FALSE
-Spark Photon/Spark Electron,Platforms,FALSE
-Spec-based codegen,Techniques,FALSE
-Spek,Languages & Frameworks,FALSE
-Spinnaker,Tools,FALSE
-Splunk,Tools,FALSE
-Spray/akka-http,Languages & Frameworks,FALSE
-Spring Boot,Languages & Frameworks,FALSE
-Spring Cloud,Languages & Frameworks,FALSE
-Spring Cloud Contract,Tools,FALSE
-Squid,Tools,FALSE
-Stanford CoreNLP,Tools,FALSE
-Static site generators,Techniques,FALSE
-Stolon,Tools,TRUE
-Storm,Platforms,FALSE
-Structured logging,Techniques,FALSE
-Subversion,Tools,FALSE
-Superficial private cloud,Platforms,FALSE
-Swagger,Tools,FALSE
-Swashbuckle for .NET Core,Tools,FALSE
-Swift,Languages & Frameworks,FALSE
-SwiftNIO,Languages & Frameworks,FALSE
-SysDig,Tools,FALSE
-Systems,Tools,TRUE
-TDD'ing containers,Techniques,FALSE
-TFS,Tools,FALSE
-TICK Stack,Platforms,FALSE
-TLA+,Languages & Frameworks,FALSE
-TLB,Tools,FALSE
-TOTP Two-Factor Authentication,Platforms,FALSE
-Tablet,Platforms,FALSE
-Tablet (formerly iPad),Platforms,FALSE
-Taiko,Languages & Frameworks,TRUE
-Tailored Service Template,Techniques,FALSE
-Talisman,Tools,FALSE
-Tangible interaction,Techniques,FALSE
-Tango,Platforms,FALSE
-Tarantool,Platforms,FALSE
-Taurus,Tools,TRUE
-Templating in YAML,Techniques,TRUE
-Tendermint,Platforms,TRUE
-TensorFlow,Platforms,FALSE
-TensorFlow Lite,Languages & Frameworks,FALSE
-TensorFlow Mobile,Languages & Frameworks,FALSE
-TensorFlow Serving,Platforms,FALSE
-Tensorflow Eager Execution,Languages & Frameworks,FALSE
-Terraform,Tools,FALSE
-Terraform provider GoCD,Tools,TRUE
-Terragrunt,Tools,FALSE
-Terratest,Tools,TRUE
-Test at the appropriate level,Techniques,FALSE
-Test recorders,Techniques,FALSE
-TestCafe,Tools,FALSE
-TestFlight & HockeyApp,Tools,FALSE
-Testinfra,Tools,FALSE
-Testing as a separate organization,Techniques,FALSE
-Text it as a service / Rapidpro.io,Platforms,FALSE
-The three Rs of security,Techniques,FALSE
-Thoughtful caching,Techniques,FALSE
-Threat Modeling,Techniques,FALSE
-Three.js,Languages & Frameworks,FALSE
-Time series databases,Platforms,FALSE
-TimescaleDB,Platforms,TRUE
-Traefik,Tools,FALSE
-Transfer learning for NLP,Techniques,TRUE
-Traveling Ruby,Languages & Frameworks,FALSE
-Travis for OSX/iOS,Tools,FALSE
-Treating VMs like physical infrastructure,Platforms,FALSE
-Truffle,Languages & Frameworks,FALSE
-Twitter Bootstrap,Languages & Frameworks,FALSE
-TypeScript,Languages & Frameworks,FALSE
-U2F,Platforms,FALSE
-UI dev environments,Tools,FALSE
-UIAutomator,Tools,FALSE
-Ubiquitous computing,Platforms,FALSE
-Unikernels,Techniques,FALSE
-Unity beyond gaming,Platforms,FALSE
-User centered design,Techniques,FALSE
-VCS with “implicit workflow”,Tools,FALSE
-VR beyond gaming,Techniques,FALSE
-Vagrant,Tools,FALSE
-Vapor,Languages & Frameworks,TRUE
-Velocity as productivity,Techniques,FALSE
-Versioning data for reproducible analytics,Techniques,FALSE
-Vert.x,Platforms,FALSE
-Visual Studio Code,Tools,FALSE
-Visual Studio Live Share,Tools,FALSE
-Visual regression testing tools,Tools,FALSE
-Visualization and metrics,Techniques,FALSE
-Visualizations for business data,Tools,FALSE
-Voice platforms,Platforms,FALSE
-Vue.js,Languages & Frameworks,FALSE
-Vumi,Platforms,FALSE
-WCF HTTP,Tools,FALSE
-WS-*,Platforms,FALSE
-WS-* beyond basic profile,Platforms,FALSE
-Wallaby.js,Tools,FALSE
-Wardley mapping,Techniques,TRUE
-WeChat,Platforms,FALSE
-Web API,Languages & Frameworks,FALSE
-Web Bluetooth,Platforms,FALSE
-Web Components standard,Platforms,FALSE
-Web as platform,Techniques,FALSE
-WebAssembly,Languages & Frameworks,FALSE
-WebFlux,Languages & Frameworks,FALSE
-WebRTC,Languages & Frameworks,FALSE
-WebVR,Platforms,FALSE
-Webpack,Tools,FALSE
-Weex,Languages & Frameworks,FALSE
-Windows Containers,Platforms,FALSE
-Windows Phone,Platforms,FALSE
-Windows Phone 7,Platforms,FALSE
-Windows infrastructure automation,Techniques,FALSE
-WireMock,Tools,FALSE
-Wolfram Language,Languages & Frameworks,FALSE
-Work-in-Progress limits,Techniques,FALSE
-Xamarin,Tools,FALSE
-Yarn,Tools,FALSE
-Yeoman,Languages & Frameworks,FALSE
-ZAP,Tools,FALSE
-Zepto.js,Platforms,FALSE
-Zero-code packages,Platforms,FALSE
-Zipkin,Tools,FALSE
-Zucchini,Tools,FALSE
-acs-engine,Tools,FALSE
-api.ai,Platforms,FALSE
-assertj-swagger,Tools,FALSE
-axios,Tools,FALSE
-batect,Tools,TRUE
-cfn_nag,Tools,FALSE
-fastai,Languages & Frameworks,TRUE
-fastlane,Tools,FALSE
-gVisor,Platforms,FALSE
-git-secrets,Tools,FALSE
-gopass,Tools,FALSE
-http4k,Languages & Frameworks,TRUE
-iBeacon,Platforms,FALSE
-iFrames for sandboxing,Techniques,FALSE
-iPad,Platforms,FALSE
-iPhone,Platforms,FALSE
-ievms,Tools,FALSE
-jQuery Mobile,Tools,FALSE
-joi,Languages & Frameworks,TRUE
-jsoniter,Tools,FALSE
-kops,Tools,FALSE
-kube-bench,Tools,FALSE
-leaflet.js,Tools,FALSE
-nsp,Tools,FALSE
-pdfmake,Tools,FALSE
-react-testing-library,Languages & Frameworks,TRUE
-single-spa,Languages & Frameworks,FALSE
-spaCy,Tools,FALSE
-tmate,Tools,FALSE
-troposphere,Languages & Frameworks,FALSE
-vFabric,Platforms,FALSE
-wit.ai,Platforms,FALSE
+Karate,Languages & Frameworks,false
+TimescaleDB,Platforms,false
+AWS Lambda,Platforms,false
+Jaeger,Tools,false
+Gatsby.js,Languages & Frameworks,false
+Highcharts,Tools,false
+Molecule,Tools,false
+Octopus,Tools,false
+GraphQL,Languages & Frameworks,false
+Twitter Bootstrap,Languages & Frameworks,false
+HoloLens,Platforms,false
+Rider,Tools,false
+Aeron,Languages & Frameworks,false
+Android Architecture Components,Languages & Frameworks,false
+fastai,Languages & Frameworks,false
+Google BigQuery ML,Platforms,false
+Hadoop as a service,Platforms,false
+GitHub,Tools,false
+Out-of-container functional testing,Techniques,false
+Facets,Tools,false
+Squid,Tools,false
+MURAL,Tools,false
+Testinfra,Tools,false
+Zhong Tai,Techniques,false
+Text it as a service / Rapidpro.io,Platforms,false
+Node.js,Platforms,false
+JavaScript as a platform,Languages & Frameworks,false
+Firebase,Platforms,false
+Log aggregation & indexing,Tools,false
+Goss,Tools,false
+Domain-scoped events,Techniques,false
+Semi-supervised learning loops,Techniques,false
+What-If Tool,Tools,false
+ReasonML,Languages & Frameworks,false
+OAuth,Platforms,false
+Experience Design (XD),Techniques,false
+Layered microservices architecture,Techniques,false
+Bounded Buy,Techniques,false
+Rust,Languages & Frameworks,false
+NuGet,Tools,false
+InSpec,Tools,false
+ROS,Platforms,false
+Locust,Tools,false
+Scrum certification,Techniques,false
+Axon,Languages & Frameworks,false
+Google as corporate platform,Platforms,false
+Prototyping with InVision and Sketch,Techniques,false
+Delta Lake,Platforms,false
+BERT,Techniques,false
+Content Security Policies,Techniques,false
+IE6 End of Life,Platforms,false
+JSPatch,Languages & Frameworks,false
+Lotus,Languages & Frameworks,false
+Zipkin,Tools,false
+Digdag,Languages & Frameworks,false
+Terragrunt,Tools,false
+Azure DevOps,Platforms,false
+Simple performance trending,Techniques,false
+Categorization & prioritization of technical debt,Techniques,false
+Fission,Platforms,false
+Lighthouse,Tools,false
+Applying product management to internal platforms,Techniques,false
+Headless Firefox,Tools,false
+SnapCI,Tools,false
+Web as platform,Techniques,false
+OpenID Connect,Platforms,false
+Lens,Tools,false
+Amazon Rekognition,Tools,false
+RDFa,Platforms,false
+PostCSS,Languages & Frameworks,false
+WCF HTTP,Tools,false
+HTML 5,Languages & Frameworks,false
+Logic in stored procedures,Languages & Frameworks,false
+Property-based unit testing,Techniques,false
+TestFlight & HockeyApp,Tools,false
+Client and server rendering with same code,Techniques,false
+Physical Web,Languages & Frameworks,false
+Zero trust architecture (ZTA),Techniques,false
+Apex,Tools,false
+Nomad,Platforms,false
+Hosted IDE's,Techniques,false
+gVisor,Platforms,false
+Ethereum,Platforms,false
+Twistlock,Tools,false
+Mobile Web,Platforms,false
+Ansible,Tools,false
+REST-assured,Tools,false
+AWS Device Farm,Platforms,false
+Core Async,Languages & Frameworks,false
+EMQ,Platforms,false
+IPFS,Platforms,false
+Velocity as productivity,Techniques,false
+Hosted identity management as a service,Techniques,false
+Azure Data Factory for orchestration,Tools,false
+Bug bounties,Techniques,false
+Rancher,Platforms,false
+Ethical OS,Techniques,false
+ievms,Tools,false
+REST without PUT,Techniques,false
+Cloudera Impala,Platforms,false
+OWIN,Languages & Frameworks,false
+AppCode,Tools,false
+Gitpod,Tools,false
+Capability modeling,Techniques,false
+Appium,Tools,false
+Flume,Tools,false
+AWS Application Load Balancer,Platforms,false
+Frank,Tools,false
+DigitalOcean,Platforms,false
+Rich Internet applications,Platforms,true
+Archery,Tools,false
+Android,Platforms,false
+cfn_nag,Tools,false
+Cake and Fake,Tools,false
+User centered design,Techniques,true
+Four key metrics,Techniques,false
+R as Compute Platform,Languages & Frameworks,false
+Security Chaos Engineering,Techniques,false
+Overambitious API gateways,Platforms,false
+Formik,Languages & Frameworks,false
+Lean software development,Techniques,false
+Grasp,Tools,false
+Spring Boot,Languages & Frameworks,false
+Phoenix Environments,Techniques,false
+Service mesh,Techniques,false
+Big Data envy,Techniques,false
+Pre-commit downstream build checks,Techniques,false
+Masterless Chef/Puppet,Techniques,false
+Windows Phone 7,Platforms,false
+Bridging physical and digital worlds with simple hardware,Techniques,false
+troposphere,Languages & Frameworks,false
+AWS Fargate,Platforms,false
+CoreCLR and CoreFX,Platforms,false
+Flair,Languages & Frameworks,false
+Edge Side Includes for page composition,Techniques,false
+Decoupling secret management from source code,Techniques,false
+Moco,Tools,false
+Evolutionary architecture,Techniques,false
+Loki,Tools,false
+Machine image pipelines,Techniques,false
+APIs as a product,Techniques,false
+Rook,Platforms,false
+Explainability as a first-class model selection criterion,Techniques,false
+Vapor,Languages & Frameworks,false
+Azure Pipelines,Platforms,false
+Sarama,Languages & Frameworks,false
+Gor,Tools,false
+PyTorch,Languages & Frameworks,false
+Room,Languages & Frameworks,false
+Prototype On Paper,Tools,false
+Packet beat,Tools,false
+Open source IaaS,Platforms,false
+CoAP,Platforms,false
+DialogFlow,Platforms,false
+Simplest possible feature toggle,Techniques,false
+Datensparsamkeit,Techniques,false
+EVM beyond Ethereum,Platforms,false
+Monitoring of invariants,Techniques,false
+Gitlab,Tools,false
+Jenkins as a deployment pipeline,Tools,false
+Apache Kafka,Tools,false
+Guerrilla user testing,Techniques,false
+Taiko,Languages & Frameworks,false
+TLA+,Languages & Frameworks,false
+AngularJS and Knockout,Languages & Frameworks,false
+Distroless Docker images,Techniques,false
+Autonomous bubble pattern,Techniques,false
+TensorFlow Lite,Languages & Frameworks,false
+Angular,Languages & Frameworks,false
+Build your own radar,Techniques,false
+Configuration in DNS,Techniques,false
+Trillian,Platforms,false
+Continuous delivery for machine learning (CD4ML),Techniques,false
+Low-cost robotics,Platforms,false
+Snowplow Analytics & Piwik,Tools,false
+MediaPipe,Languages & Frameworks,false
+IndexedDB,Tools,false
+Scout2,Tools,false
+Superficial private cloud,Platforms,false
+Multi-account cloud setup,Techniques,false
+Google Dart,Languages & Frameworks,false
+Pose,Languages & Frameworks,false
+Jackrabbit Oak,Platforms,false
+Retrofit,Languages & Frameworks,false
+SAFE stack,Languages & Frameworks,false
+Java language end of life,Languages & Frameworks,false
+LoRaWAN,Platforms,false
+Real-time business intelligence,Techniques,false
+Master data management,Techniques,false
+Serverless Framework,Tools,false
+BFF - Backend for frontends,Techniques,false
+Prettier,Tools,false
+Wolfram Language,Languages & Frameworks,false
+GKE,Platforms,false
+Chrome OS,Platforms,true
+Parcel,Tools,false
+GPGPU,Platforms,false
+GraphQL Inspector,Languages & Frameworks,false
+JSF,Languages & Frameworks,false
+Offline mobile webapps (just HTML5),Platforms,false
+Handwritten CSS,Languages & Frameworks,false
+TypeScript,Languages & Frameworks,false
+ESB,Tools,false
+NaCl,Tools,false
+Hosted solutions for testing iOS,Tools,false
+Frege,Languages & Frameworks,false
+Language workbenches,Tools,false
+Apache Pig,Tools,false
+Jasmine paired with Node.js,Languages & Frameworks,false
+TICK Stack,Platforms,false
+Bottled Water,Tools,false
+Bokeh/Vega,Tools,false
+Chaos Monkey,Tools,false
+Packer,Tools,false
+in-toto,Tools,false
+EC2 & S3,Platforms,false
+Reactor,Languages & Frameworks,false
+Quick,Tools,false
+Event sourcing,Techniques,false
+VCS with “implicit workflow”,Tools,false
+SwiftUI,Languages & Frameworks,false
+SPIFFE,Platforms,false
+Nightwatch,Languages & Frameworks,false
+Appium Test Distribution,Tools,false
+Reactive Architectures,Techniques,false
+HashiCorp Vault,Tools,false
+Hybrid clouds,Platforms,false
+Backend as a service,Platforms,false
+SAFe™,Techniques,false
+MariaDB,Platforms,false
+Test recorders,Techniques,false
+JRuby,Platforms,false
+single-spa,Languages & Frameworks,false
+Paged.js,Languages & Frameworks,false
+Elixir,Languages & Frameworks,false
+Zero-code packages,Platforms,false
+eBPF,Platforms,false
+jQuery Mobile,Tools,false
+DevOps,Techniques,false
+Snapshot testing only,Techniques,false
+JAMstack,Techniques,false
+Jepsen,Languages & Frameworks,false
+Material UI,Languages & Frameworks,false
+Xamarin,Tools,false
+Traefik,Tools,false
+iFrames for sandboxing,Techniques,false
+Istio,Platforms,false
+Dashing,Languages & Frameworks,false
+Postman,Tools,false
+Zepto.js,Platforms,false
+Blackbox,Tools,false
+wit.ai,Platforms,false
+NPM for all the things,Techniques,false
+NoPSD,Techniques,false
+Cassandra carefully,Platforms,false
+Concourse CI,Tools,false
+Functional Java,Languages & Frameworks,false
+Google App Engine,Platforms,false
+Managing stateful systems via container orchestration,Techniques,false
+CockroachDB,Platforms,false
+Polly,Tools,false
+KVM,Platforms,false
+SwiftNIO,Languages & Frameworks,false
+Event Sourcing,Techniques,false
+Enterprise-wide integration test environments,Techniques,false
+VR beyond gaming,Techniques,false
+Cloudflare Workers,Platforms,false
+Reactive Extensions across languages,Languages & Frameworks,false
+OpenZeppelin,Languages & Frameworks,false
+Kuma,Platforms,false
+Mountebank,Tools,false
+ASP,Tools,false
+PlatformIO,Platforms,false
+Rootless containers,Platforms,false
+Scratch, Alice, and Kodu,Languages & Frameworks,false
+Puppet,Tools,false
+IndiaStack,Platforms,false
+TOTP Two-Factor Authentication,Platforms,false
+JuMP,Languages & Frameworks,false
+Java 8,Languages & Frameworks,false
+Observability as code,Techniques,false
+Open Policy Agent (OPA),Tools,false
+Voice platforms,Platforms,false
+Next-generation test tools,Tools,false
+Crypto shredding,Techniques,false
+Products over projects,Techniques,false
+Logs as data,Techniques,false
+Decoupling deployment from release,Techniques,false
+Gitflow,Techniques,false
+Development environments in the cloud,Techniques,false
+Truffle,Languages & Frameworks,false
+AnyStatus,Tools,false
+Travis for OSX/iOS,Tools,false
+LeakCanary,Languages & Frameworks,false
+Optimal Workshop,Tools,false
+Smart systems,Techniques,false
+nsp,Tools,false
+PSake,Tools,false
+Akka,Platforms,false
+Meteor.js,Platforms,false
+OWASP ASVS,Techniques,false
+AWS,Platforms,false
+AssertJ,Languages & Frameworks,false
+Om,Languages & Frameworks,false
+Run cost as architecture fitness function,Techniques,false
+Silverback,Tools,false
+Web Components standard,Platforms,false
+Micro frontends,Techniques,false
+Aggregates as documents,Techniques,false
+OpenTelemetry,Platforms,false
+Cosmos DB,Platforms,false
+Electron,Platforms,false
+Consul,Tools,false
+Decision driven BI,Techniques,false
+HSTS,Platforms,false
+TLB,Tools,false
+Hamms,Tools,false
+Aurelia,Languages & Frameworks,false
+Visual Studio Code,Tools,false
+Architectural fitness function,Techniques,false
+Productionizing Jupyter Notebooks,Techniques,false
+Ocelot,Tools,false
+WebFlux,Languages & Frameworks,false
+MicroK8s,Platforms,false
+Evolutionary database,Techniques,false
+Conduit,Tools,false
+Client-directed query,Techniques,false
+Q#,Languages & Frameworks,false
+Segregated DOM plus node for JS Testing,Techniques,false
+Bluetooth Mesh,Platforms,false
+Service choreography,Techniques,false
+Windows Phone,Platforms,false
+Butterknife,Languages & Frameworks,false
+MinIO,Platforms,false
+CoffeeScript,Languages & Frameworks,false
+PlantUML,Tools,false
+Living CSS Style Guides,Techniques,false
+Terraform provider GoCD,Tools,false
+Apache camel,Tools,false
+git-secrets,Tools,false
+Incremental data warehousing,Techniques,false
+Hyperapp,Languages & Frameworks,false
+Partition infrastructure along team bounds,Techniques,false
+Flagr,Tools,false
+Accumulate-only data,Techniques,false
+LocalStack,Tools,false
+Atlas and BeeHive,Languages & Frameworks,false
+C# 4.0,Languages & Frameworks,false
+Automation of technical tests,Techniques,false
+Linux containers,Platforms,false
+The three Rs of security,Techniques,false
+OkHttp,Languages & Frameworks,false
+acs-engine,Tools,false
+Anthos,Platforms,false
+EventStore,Platforms,false
+react-testing-library,Languages & Frameworks,false
+Sonar,Tools,false
+Deequ,Languages & Frameworks,false
+Mapbox,Platforms,false
+Rake for Java & .NET,Tools,false
+iPhone,Platforms,false
+asdf-vm,Tools,false
+Health check pages,Techniques,false
+Redux,Languages & Frameworks,false
+Fastly,Platforms,false
+WebRTC,Languages & Frameworks,false
+Singleton infrastructure,Platforms,false
+JavaScript tooling,Tools,false
+Couchbase,Platforms,false
+api.ai,Platforms,false
+Knet.jl,Languages & Frameworks,false
+Spring Cloud,Languages & Frameworks,false
+RDF triple stores,Tools,false
+Crazy Egg,Tools,false
+Sizzy,Tools,false
+Wallaby.js,Tools,false
+Manual infrastructure management,Techniques,false
+Glitch,Platforms,false
+Pitest,Tools,false
+Structured logging,Techniques,false
+Django REST,Languages & Frameworks,false
+Testcontainers,Languages & Frameworks,false
+Docker Toolbox,Tools,false
+Keras,Languages & Frameworks,false
+DeepLearning.scala,Languages & Frameworks,false
+Single threaded servers with asynchronous I/O,Platforms,false
+Social code analysis,Techniques,false
+Rapidoid,Languages & Frameworks,false
+Docker Notary,Tools,false
+kops,Tools,false
+Tango,Platforms,false
+Robolectric,Languages & Frameworks,false
+Generated infrastructure diagrams,Techniques,false
+Acceptance test of journeys,Techniques,false
+Vert.x,Platforms,false
+Federated learning,Techniques,false
+Big enterprise solutions,Platforms,false
+Communication between those responsible for hardware and software,Platforms,false
+React Styleguidist,Tools,false
+Recharts,Languages & Frameworks,false
+Carthage,Tools,false
+Declarative provisioning,Techniques,false
+Care about languages,Languages & Frameworks,false
+SDN,Platforms,false
+Treating VMs like physical infrastructure,Platforms,false
+Packetbeat,Tools,false
+Gitrob,Tools,false
+Crux,Platforms,false
+Terraform,Tools,false
+Security sandwich,Techniques,false
+Dependabot,Tools,false
+OWASP Dependency-Check,Tools,false
+ReactiveX,Languages & Frameworks,false
+AWS ECS,Platforms,false
+Anka,Platforms,false
+Cross mobile platforms,Tools,false
+Apache Beam,Languages & Frameworks,false
+OpenTracing,Platforms,false
+Ignoring OWASP Top 10,Techniques,false
+ReSwift,Languages & Frameworks,false
+Azure Stack,Platforms,false
+HTML5 storage instead of cookies,Techniques,false
+Cloud-init,Tools,false
+Large format mobile devices,Platforms,false
+Datomic,Platforms,false
+MockK,Languages & Frameworks,false
+Polycloud,Techniques,false
+Pace-layered Application Strategy,Techniques,false
+OpenAPM,Tools,false
+Hangfire,Languages & Frameworks,false
+Programming in your CI/CD tool,Techniques,false
+Mobile testing on mobile networks,Techniques,false
+Foreman,Tools,false
+.NET Core,Platforms,false
+Kotlin,Languages & Frameworks,false
+Trivy,Tools,false
+Bitrise,Tools,false
+U2F,Platforms,false
+Espruino,Platforms,false
+Logic-free markup,Tools,false
+Puppet-librarian and Chef-librarian,Tools,false
+Cypress,Tools,false
+Message buses without smarts,Tools,false
+Cloud Foundry,Platforms,false
+Tailored Service Template,Techniques,false
+Hyperledger,Platforms,false
+Mobile payment systems,Platforms,false
+PredictionIO,Languages & Frameworks,false
+Java portal servers,Platforms,false
+TFS,Tools,false
+Load Impact,Tools,false
+Risk-commensurate vendor strategy,Techniques,false
+RDF & SPARQL,Platforms,true
+Apache Flink,Platforms,false
+Gatling,Tools,false
+Kafka Streams,Platforms,false
+Infrastructure configuration scanner,Techniques,false
+Flyway,Tools,false
+Serverspec,Tools,false
+Conversationally aware APIs,Techniques,false
+Private Clouds,Platforms,false
+UI dev environments,Tools,false
+Apache Superset,Tools,false
+Care about hardware,Platforms,false
+Spacemacs,Tools,false
+Nashorn,Languages & Frameworks,false
+Keycloak,Platforms,false
+Tablet (formerly iPad),Platforms,false
+Anemic REST,Techniques,false
+Cloud lift and shift,Techniques,false
+Lottie,Tools,false
+ECMAScript 2017,Languages & Frameworks,false
+Boot2docker,Tools,false
+Threat Modeling,Techniques,false
+DevOps as a team,Techniques,false
+Iterative data warehousing,Techniques,false
+CartoDB,Tools,false
+RIBs,Languages & Frameworks,false
+Fairseq,Languages & Frameworks,false
+Oculus Quest,Platforms,false
+Arrow,Languages & Frameworks,false
+Web Bluetooth,Platforms,false
+CSS frameworks,Languages & Frameworks,false
+Domain-specific PaaS,Platforms,false
+Falco,Tools,false
+Focus on mean time to recovery,Techniques,false
+Low-code platforms,Platforms,false
+Pointer Events,Languages & Frameworks,false
+GoCD,Tools,false
+MMKV,Languages & Frameworks,false
+Origami,Tools,false
+Secrets as a service,Techniques,false
+NestJS,Languages & Frameworks,false
+Provisioning testing,Techniques,false
+Spark,Tools,false
+ECharts,Languages & Frameworks,false
+Static site generators,Techniques,false
+GemJars,Tools,false
+Repsheet,Tools,false
+Zucchini,Tools,false
+Faraday,Tools,false
+Apache Kylin,Platforms,false
+Web API,Languages & Frameworks,false
+Go language,Languages & Frameworks,false
+Quarkus,Languages & Frameworks,false
+Play Framework 2,Languages & Frameworks,false
+High performance envy/web scale envy,Techniques,false
+Polyglot Persistence,Techniques,false
+Automated machine learning (AutoML),Techniques,false
+Use remote-native processes and approaches,Techniques,false
+Lambda pinball,Techniques,false
+Database migrations for NoSQL,Techniques,false
+Nancy,Languages & Frameworks,false
+Ant,Tools,false
+Nuance Mix,Platforms,false
+Heroku,Platforms,false
+Scala,Languages & Frameworks,false
+jest-when,Languages & Frameworks,false
+GCP Pub/Sub,Platforms,false
+FPM,Tools,false
+Future of Java,Languages & Frameworks,false
+Styled components,Languages & Frameworks,false
+Traveling Ruby,Languages & Frameworks,false
+Versioning data for reproducible analytics,Techniques,false
+WireMock,Tools,false
+Netflix OSS Full stack,Platforms,false
+Contentful,Platforms,false
+Cilium,Tools,false
+Caching reverse proxies,Tools,false
+PowerShell,Tools,false
+CSS-in-JS,Languages & Frameworks,false
+New Relic beyond Rails,Tools,false
+dbt,Tools,false
+React Native,Languages & Frameworks,false
+AppHarbor,Platforms,false
+SASS, SCSS, LESS, and Stylus,Languages & Frameworks,false
+Semantic monitoring,Techniques,false
+BEM,Techniques,false
+Windows infrastructure automation,Techniques,false
+Jest,Languages & Frameworks,false
+Require.js & NPM,Languages & Frameworks,false
+Responsive web design,Techniques,false
+Pa11y,Tools,false
+CircleCI,Tools,false
+Druid,Languages & Frameworks,false
+Flux,Techniques,false
+Tarantool,Platforms,false
+JavaScript as a first class language,Languages & Frameworks,false
+Stratos,Platforms,false
+Consumer-driven contract testing,Techniques,false
+Thoughtful caching,Techniques,false
+In-process acceptance testing,Techniques,false
+Pulumi,Platforms,false
+Chaos Toolkit,Languages & Frameworks,false
+Powershell,Tools,false
+Recreating ESB antipatterns with Kafka,Techniques,false
+Testing using real device,Techniques,false
+Pageify,Tools,false
+Redis,Platforms,false
+Decentralized identity,Techniques,false
+BackstopJS,Tools,false
+Mermaid,Tools,false
+Gorilla REPL,Tools,false
+RIA,Platforms,false
+HTML 5 for offline applications,Languages & Frameworks,false
+Event API’s,Techniques,false
+Android-x86,Tools,false
+Koin,Languages & Frameworks,false
+Opinionated and automated code formatting,Techniques,false
+Apache Atlas,Platforms,false
+Galen,Tools,false
+tmate,Tools,false
+AsyncAPI,Tools,false
+iBeacon,Platforms,false
+AVA,Tools,false
+Lightweight Architecture Decision Records,Techniques,false
+TensorFlow Serving,Platforms,false
+MeiliSearch,Platforms,false
+Claudia,Tools,false
+Matomo,Platforms,false
+Infrastructure automation of development workstations,Techniques,false
+Automated deployment pipeline,Techniques,false
+Yocto Project,Tools,false
+Application Servers,Platforms,false
+Legacy in a box,Techniques,false
+Hadoop 2.0,Platforms,false
+Heptio Ark,Tools,false
+OpenAM,Platforms,false
+JavaScript MV* frameworks,Languages & Frameworks,false
+Composer,Tools,false
+Unity beyond gaming,Platforms,false
+Test at the appropriate level,Techniques,false
+Long-lived branches with Gitflow,Techniques,false
+HTML5 for offline applications,Languages & Frameworks,false
+OpenStack,Platforms,false
+Node overload,Platforms,false
+Azure Service Fabric,Platforms,false
+Append-only data store,Techniques,false
+AWSume,Tools,false
+OpenSocial,Platforms,false
+Continuous integration in the cloud,Platforms,false
+Phrase,Tools,false
+Dojo,Tools,false
+Grunt.js,Tools,false
+Apache Pulsar,Platforms,false
+Pragmatic remote pairing,Techniques,false
+WebVR,Platforms,false
+Clinic.js Bubbleprof,Languages & Frameworks,false
+Groovy,Languages & Frameworks,false
+ONNX,Platforms,false
+WebAssembly,Languages & Frameworks,false
+Apollo,Languages & Frameworks,false
+Pipelines as code,Techniques,false
+CSS Grid Layout,Languages & Frameworks,false
+HAL,Languages & Frameworks,false
+Papertrail,Tools,false
+Application appliances,Platforms,false
+Airflow,Tools,false
+Time series databases,Platforms,false
+Ethical bias testing,Techniques,false
+Flight.js,Languages & Frameworks,false
+GenyMotion,Tools,false
+Kong API Gateway,Tools,false
+TensorFlow Mobile,Languages & Frameworks,false
+Dropwizard,Languages & Frameworks,false
+RPA,Techniques,false
+Language Server Protocol,Platforms,false
+Hyperledger Composer,Languages & Frameworks,false
+RAML,Tools,false
+Offline first web applications,Techniques,false
+Prophet,Platforms,false
+CoreOS,Platforms,false
+Event streaming as the source of truth,Techniques,false
+Marquez,Platforms,false
+Vumi,Platforms,false
+Security Monkey,Tools,false
+Mesosphere DCOS,Platforms,false
+Continuous deployment,Techniques,false
+FBSnapshotTestcase,Tools,false
+Presto,Platforms,false
+Request-response events in user-facing workflows,Techniques,false
+Visual Studio Live Share,Tools,false
+Mechanical sympathy,Techniques,false
+Gauge,Tools,false
+Ruby/Jruby,Languages & Frameworks,false
+Auth0,Platforms,false
+Jib,Tools,false
+Cylon.js,Languages & Frameworks,false
+Tensorflow Eager Execution,Languages & Frameworks,false
+Protractor for AngularJS,Tools,false
+Swift,Languages & Frameworks,false
+D3,Tools,false
+Neo4J,Platforms,false
+vFabric,Platforms,false
+Data mesh,Techniques,false
+Windows Containers,Platforms,false
+Kubeflow,Tools,false
+Progressive Web Applications,Techniques,false
+Intentional Software,Tools,false
+Google Wave,Tools,true
+Log aggregation for business analytics,Techniques,false
+Spark Photon/Spark Electron,Platforms,false
+Browser-based templating,Tools,false
+Git,Tools,false
+Long lived branches with Gitflow,Techniques,false
+Declarative data pipeline definition,Techniques,false
+Server / application container end-of-life,Techniques,false
+Require.js,Languages & Frameworks,false
+Performance testing as a first-class citizen,Techniques,false
+Domain-Specific Languages,Languages & Frameworks,false
+ERNIE,Languages & Frameworks,false
+Release train,Techniques,false
+Client-side MVC,Tools,false
+kube-bench,Tools,false
+JVM as platform,Platforms,false
+Algorithmic IT operations,Techniques,false
+Tailwind CSS,Languages & Frameworks,false
+Storm,Platforms,false
+GraphQL for server side resource aggregation,Techniques,false
+Templating in YAML,Techniques,false
+CloudEvents,Platforms,false
+Event Storming,Techniques,false
+Julia,Languages & Frameworks,false
+Tendermint,Platforms,false
+Docker,Platforms,false
+Pumba,Tools,false
+Build pipelines,Techniques,false
+Co-location by telepresence,Techniques,false
+Hosting PII data in the EU,Techniques,false
+Fetch,Languages & Frameworks,false
+Spec-based codegen,Techniques,false
+Immutable servers,Tools,false
+Git based CMS/Git for non-code,Techniques,false
+Stolon,Tools,false
+Elasticsearch LTR,Tools,false
+Amazon API Gateway,Platforms,false
+WeChat,Platforms,false
+Taurus,Tools,false
+Jupyter for automated testing,Techniques,false
+Ruby,Languages & Frameworks,false
+Apache Mesos,Platforms,false
+Debezium,Platforms,false
+Splunk,Tools,false
+Crowdin,Platforms,false
+Deflect,Platforms,false
+Yeoman,Languages & Frameworks,false
+Realm,Platforms,false
+Minimizing application configuration,Techniques,false
+Clojure,Languages & Frameworks,false
+Laconia,Languages & Frameworks,false
+Mercurial,Tools,false
+jsoniter,Tools,false
+GraphQL for server-side resource aggregation,Techniques,false
+Maven,Tools,false
+JupyterLab,Platforms,false
+Testing as a separate organization,Techniques,false
+Capturing client-side JavaScript errors,Techniques,false
+Ubiquitous computing,Platforms,false
+GraalVM,Platforms,false
+Immutable.js,Languages & Frameworks,false
+Blue-green deployment,Techniques,false
+CMS as a platform,Platforms,false
+Reagent,Languages & Frameworks,false
+Selenium 2 testing of mobile websites,Tools,false
+Graphite,Tools,false
+Let's Encrypt,Tools,false
+Apollo Auto,Platforms,false
+Dapper,Languages & Frameworks,false
+Deis,Platforms,false
+Event driven business intelligence,Techniques,false
+Riemann,Tools,false
+GitUp,Tools,false
+Clojure.spec,Tools,false
+Wardley mapping,Techniques,false
+ECMAScript 6,Languages & Frameworks,false
+Scala, the good parts,Languages & Frameworks,false
+HyperResource,Languages & Frameworks,false
+Sentry,Tools,false
+RubyMotion,Languages & Frameworks,false
+CVXPY,Tools,false
+Jupyter,Tools,false
+Stanford CoreNLP,Tools,false
+mkcert,Tools,false
+React.js,Languages & Frameworks,false
+Argo CD,Platforms,false
+ESP8266,Platforms,false
+Systems,Tools,false
+Platform roadmaps,Techniques,false
+iPad,Platforms,false
+Ember.js,Languages & Frameworks,false
+CI theatre,Techniques,false
+Chaos Engineering,Techniques,false
+Cross-platform mobile toolkits,Tools,false
+10x engineers,Techniques,false
+Mobile first,Techniques,false
+Micronaut,Languages & Frameworks,false
+Buildkite,Tools,false
+Humio,Tools,false
+Netlify,Platforms,false
+Reactive Extensions for .Net,Tools,false
+assertj-swagger,Tools,false
+CSS Modules,Languages & Frameworks,false
+ConfigCat,Tools,false
+Teleport,Platforms,false
+SPDY,Platforms,false
+Sandstorm,Platforms,false
+JSONassert,Tools,false
+MemGuard,Tools,false
+tfsec,Tools,false
+Manifold,Tools,false
+Distributed version control,Tools,false
+Q & Bluebird,Languages & Frameworks,false
+batect,Tools,false
+joi,Languages & Frameworks,false
+UIAutomator,Tools,false
+ARM Server SoC,Platforms,false
+AWS Cloud Development Kit,Platforms,false
+Light Table,Tools,false
+Logstash & Graylog2,Tools,false
+NoSQL,Tools,false
+Rackspace Cloud,Platforms,false
+Elm,Languages & Frameworks,false
+Grafeas,Tools,false
+Humane registry,Techniques,false
+DVC,Tools,false
+Snowflake,Platforms,false
+Handcranking of Hadoop clusters using config management tools,Techniques,false
+Exposed,Languages & Frameworks,false
+Microsoft Nano Server,Platforms,false
+Shared VPC,Platforms,false
+Three.js,Languages & Frameworks,false
+Front-end integration via artifact,Techniques,false
+Procedure oriented integration,Techniques,false
+Firefox,Platforms,true
+Analyzing test runs,Techniques,false
+Godot,Platforms,false
+Solidity,Languages & Frameworks,false
+ScoutSuite,Tools,false
+Detekt,Tools,false
+Deltacloud,Tools,false
+Hive,Languages & Frameworks,false
+Google Cloud Dataflow,Platforms,false
+Gobot,Languages & Frameworks,false
+Idempotency filter,Techniques,false
+Sinatra,Languages & Frameworks,false
+Snowplow Analytics,Tools,false
+ZAP,Tools,false
+Calatrava,Platforms,false
+Cage,Tools,false
+Ceph,Platforms,false
+Roslyn,Tools,false
+Transfer learning for NLP,Techniques,false
+Data integrity at the origin,Techniques,false
+Functional languages,Languages & Frameworks,true
+Promises for asynchronous programming,Techniques,false
+PostgreSQL for NoSQL,Platforms,false
+Heavyweight test tools,Tools,false
+Hydra,Platforms,false
+ClojureScript,Languages & Frameworks,false
+Container security scanning,Techniques,false
+Docker for builds,Techniques,false
+spaCy,Tools,false
+GWT,Platforms,false
+Citrix for development,Tools,false
+Visualizations for business data,Tools,false
+kind,Tools,false
+Code in configuration,Tools,false
+Data Lake,Techniques,false
+Avro,Languages & Frameworks,false
+Mongoose OS,Platforms,false
+Gradle,Tools,false
+Phoenix,Languages & Frameworks,false
+Prometheus,Tools,false
+Kubernetes,Platforms,false
+Google Cloud Platform,Platforms,false
+SysDig,Tools,false
+Weex,Languages & Frameworks,false
+Continuous delivery for mobile devices,Techniques,false
+Lua,Languages & Frameworks,false
+Spray/akka-http,Languages & Frameworks,false
+Codefresh,Tools,false
+Enterprise Data Warehouse,Platforms,false
+XState,Languages & Frameworks,false
+Differential privacy,Techniques,false
+Ktor,Languages & Frameworks,false
+Sidecars for endpoint security,Techniques,false
+Data discoverability,Techniques,false
+Camunda,Languages & Frameworks,false
+Open source BI/ETL tools,Tools,false
+Snowpack,Tools,false
+TDD'ing containers,Techniques,false
+Deno,Platforms,false
+AngularJS,Languages & Frameworks,false
+Patroni,Tools,false
+Remote usability testing,Techniques,false
+GitLab,Tools,false
+QA in production,Techniques,false
+FoundationDB,Platforms,false
+Incremental delivery with COTS,Techniques,false
+Riak,Platforms,false
+Pivotal Cloud Foundry,Platforms,false
+Particle Photon/Particle Electron,Platforms,false
+WS-*,Platforms,false
+Polly.js,Languages & Frameworks,false
+Micro frontends for mobile,Techniques,false
+Binary attestation,Techniques,false
+Backbone.js,Languages & Frameworks,false
+Embark,Languages & Frameworks,false
+Local storage sync,Techniques,false
+Rasa,Languages & Frameworks,false
+JavaScript micro frameworks,Tools,false
+Rich Internet Applications,Platforms,false
+Swashbuckle for .NET Core,Tools,false
+Quick and Nimble,Languages & Frameworks,false
+MongoDB,Platforms,false
+App containers,Platforms,false
+HiveRunner,Languages & Frameworks,false
+Chrome,Platforms,true
+gopass,Tools,false
+Cloud,Platforms,false
+Mosquitto,Platforms,false
+Inverse Conway Maneuver,Techniques,false
+Restfulie,Tools,false
+PhoneGap/Apache Cordova,Platforms,false
+Capture domain events explicitly,Techniques,false
+Angular 2,Languages & Frameworks,false
+ArchUnit,Tools,false
+Dagger,Languages & Frameworks,false
+Flutter,Languages & Frameworks,false
+Serverless architecture,Techniques,false
+PhantomJS,Tools,false
+LambdaCD,Tools,false
+H2O,Platforms,false
+Librarian-puppet and Librarian-Chef,Tools,false
+Haskell Hadoop library,Languages & Frameworks,false
+Chaos Katas,Techniques,false
+Cursive,Tools,false
+Puncturing encapsulation with change data capture,Techniques,false
+Alamofire,Languages & Frameworks,false
+Log level per request,Techniques,false
+Pinpoint,Tools,false
+Pester,Languages & Frameworks,false
+Generic cloud usage,Techniques,false
+axios,Tools,false
+BeyondCorp,Techniques,false
+Puppeteer,Languages & Frameworks,false
+MapD,Platforms,false
+Icon fonts,Tools,false
+ESLint,Tools,false
+Skaffold,Tools,false
+Spek,Languages & Frameworks,false
+Dc.js,Tools,false
+Embedded mobile mocks,Techniques,false
+Buying solutions you can only afford one of,Platforms,false
+Quorum,Platforms,false
+Figma,Tools,false
+OSGi,Platforms,false
+Gremlin,Tools,false
+Vue.js,Languages & Frameworks,false
+Visualization and metrics,Techniques,false
+SMS and USSD as a UI,Platforms,false
+Ionic Framework,Languages & Frameworks,false
+Helm,Tools,false
+HAML,Languages & Frameworks,false
+Dask,Languages & Frameworks,false
+Enlive,Languages & Frameworks,false
+Interledger,Platforms,false
+Advanced analytics,Techniques,false
+Nameko,Languages & Frameworks,false
+KotlinTest,Languages & Frameworks,false
+Cloud-based image comprehension,Platforms,false
+Siloed metrics,Techniques,false
+Automate database deployment,Techniques,false
+Polyglot development environments,Tools,true
+Terratest,Tools,false
+DataStax Enterprise Graph,Platforms,false
+Scikit-learn,Tools,false
+Tamer,Languages & Frameworks,false
+Progressive Enhancement,Techniques,false
+Elastic Search,Platforms,false
+Corda,Platforms,false
+Perimeterless enterprise,Techniques,false
+Feature branching,Techniques,false
+Next.js,Languages & Frameworks,false
+MemSQL,Platforms,false
+Resilience4j,Languages & Frameworks,false
+Legacy migration feature parity,Techniques,false
+http4k,Languages & Frameworks,false
+SignalR,Languages & Frameworks,false
+Gloo,Tools,false
+Github,Tools,false
+Caffe,Languages & Frameworks,false
+Forward Secrecy,Techniques,false
+Rendertron,Tools,false
+TensorFlow,Languages & Frameworks,false
+Front end instrumentation,Techniques,false
+React Testing Library,Languages & Frameworks,false
+Preflight builds,Techniques,false
+Clara rules,Languages & Frameworks,false
+Cloud Spanner,Platforms,false
+Ethereum for decentralized applications,Techniques,false
+SaaS performance testing tools,Tools,false
+Privacy-preserving record linkage (PPRL) using Bloom filter,Techniques,false
+BigQuery,Platforms,false
+OpenVR,Platforms,false
+Browsersync,Tools,false
+Kubernetes Operators,Tools,false
+Coding architects,Techniques,false
+Subversion,Tools,false
+WS-* beyond basic profile,Platforms,false
+Continuous Delivery (CD),Techniques,false
+Infrastructure as code,Techniques,false
+Design systems,Techniques,false
+A single CI instance for all teams,Techniques,false
+Component-based frameworks,Languages & Frameworks,false
+Security policy as code,Techniques,false
+Mobile web,Platforms,false
+Handwritten CloudFormation,Tools,false
+Sonobuoy,Tools,false
+Wire,Languages & Frameworks,false
+TestCafe,Tools,false
+Spring Cloud Contract,Tools,false
+Sensu,Tools,false
+F#,Languages & Frameworks,false
+Database based integration,Techniques,false
+Concurrency abstractions and patterns,Techniques,false
+Vagrant,Tools,false
+Grafana,Tools,false
+Facebook as business platform,Platforms,false
+Blockchain beyond bitcoin,Techniques,false
+DesignOps,Techniques,false
+Microservices,Techniques,false
+Pipelines for infrastructure as code,Techniques,false
+IE8,Platforms,false
+fastlane,Tools,false
+Exhaustive browser-based testing,Techniques,false
+Location based services,Platforms,false
+Instana,Languages & Frameworks,false
+API management services,Tools,false
+Concurrent languages,Languages & Frameworks,true
+Swagger,Tools,false
+Reactive architectures,Techniques,false
+Polyglot programming,Techniques,false
+Canary builds,Techniques,false
+Tablet,Platforms,false
+Calabash,Tools,false
+Smart Systems,Techniques,false
+Data visualizations of development and operations,Techniques,false
+Hystrix,Tools,false
+Apache Spark,Platforms,false
+Collaborative analytics and data science,Techniques,false
+Platform engineering product teams,Techniques,false
+Enterprise Data Lake,Techniques,false
+Single command deploy,Techniques,false
+Deployment and scripting test tools,Techniques,false
+SASS, SCSS, and LESS,Languages & Frameworks,false
+Brighter,Tools,false
+leaflet.js,Tools,false
+Agile analytics,Techniques,false
+Yarn,Tools,false
+Instrument all the things,Techniques,false
+Knative,Platforms,false
+Production immune system,Techniques,false
+Cosmos,Platforms,false
+Hot Chocolate,Platforms,false
+Django Rest,Languages & Frameworks,false
+ES6,Languages & Frameworks,false
+React Hooks,Languages & Frameworks,false
+Hipster batch,Techniques,false
+Separate DevOps team,Techniques,false
+1% canary,Techniques,false
+Machine image as a build artifact,Techniques,false
+Non-relational databases,Platforms,true
+InfluxDB,Platforms,false
+Linux security modules,Platforms,false
+Headless Chrome for front-end test,Tools,false
+Dependency Structure Matrices,Tools,false
+k9s,Tools,false
+Tangible interaction,Techniques,false
+Pact & Pacto,Tools,false
+Microservice envy,Techniques,false
+Jekyll,Tools,false
+Gulp,Tools,false
+Python 3,Languages & Frameworks,false
+Experiment tracking tools for machine learning,Tools,false
+ARKit/ARCore,Languages & Frameworks,false
+Embedded servlet containers,Tools,false
+Visual regression testing tools,Tools,false
+Linux Security Modules,Platforms,false
+Dependency management for JavaScript,Tools,false
+Unikernels,Techniques,false
+Sleepy Puppy,Tools,false
+Capture domain events explicitily,Techniques,false
+Azure,Platforms,false
+Resin.io,Platforms,false
+Enzyme,Languages & Frameworks,false
+ALT.NET,Platforms,false
+Honeycomb,Tools,false
+Aplas,Tools,false
+Flow,Tools,false
+Babel,Tools,false
+Webpack,Tools,false
+Dependency drift fitness function,Techniques,false
+Exhaustive browser based testing,Techniques,false
+Flood IO,Platforms,false
+Over-ambitious API Gateways,Platforms,false
+Jade,Tools,false
+Work-in-Progress limits,Techniques,false
+Smart contracts,Techniques,false
+Spinnaker,Tools,false
+Data-hungry packages,Platforms,false
+Espresso,Tools,false
+Snyk,Tools,false
+pdfmake,Tools,false
+Talisman,Tools,false
+Emergent design,Techniques,false
+ASP.NET MVC,Tools,false
+DeepWalk,Techniques,false
+Immer,Languages & Frameworks,false
+Commitizen,Tools,false
+ATOM,Platforms,false

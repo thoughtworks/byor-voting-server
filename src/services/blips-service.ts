@@ -33,7 +33,7 @@ export function sortByQuadrants(blips: any[]): any[] {
     // end of the block
 
     return flatMap(newQuadrantOrder, quadrant => {
-        let allBlipsSortedByVotes = sortBy(quadrants[quadrant], 'votes')
+        let allBlipsSortedByVotes = sortBy(quadrants[quadrant], 'numberOfVotes')
             .reverse()
             .slice(0, 50);
         return sortBy(allBlipsSortedByVotes, blip => rankRings[blip.ring]);

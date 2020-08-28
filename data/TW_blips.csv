@@ -79,7 +79,7 @@ Physical Web,Languages & Frameworks,false
 Zero trust architecture (ZTA),Techniques,false
 Apex,Tools,false
 Nomad,Platforms,false
-Hosted IDE's,Techniques,false
+"Hosted IDE's",Techniques,false
 gVisor,Platforms,false
 Ethereum,Platforms,false
 Twistlock,Tools,false
@@ -273,7 +273,7 @@ Mountebank,Tools,false
 ASP,Tools,false
 PlatformIO,Platforms,false
 Rootless containers,Platforms,false
-Scratch, Alice, and Kodu,Languages & Frameworks,false
+"Scratch, Alice, and Kodu",Languages & Frameworks,false
 Puppet,Tools,false
 IndiaStack,Platforms,false
 TOTP Two-Factor Authentication,Platforms,false
@@ -534,7 +534,7 @@ New Relic beyond Rails,Tools,false
 dbt,Tools,false
 React Native,Languages & Frameworks,false
 AppHarbor,Platforms,false
-SASS, SCSS, LESS, and Stylus,Languages & Frameworks,false
+"SASS, SCSS, LESS, and Stylus",Languages & Frameworks,false
 Semantic monitoring,Techniques,false
 BEM,Techniques,false
 Windows infrastructure automation,Techniques,false
@@ -724,7 +724,7 @@ CMS as a platform,Platforms,false
 Reagent,Languages & Frameworks,false
 Selenium 2 testing of mobile websites,Tools,false
 Graphite,Tools,false
-Let's Encrypt,Tools,false
+"Let's Encrypt",Tools,false
 Apollo Auto,Platforms,false
 Dapper,Languages & Frameworks,false
 Deis,Platforms,false
@@ -734,7 +734,7 @@ GitUp,Tools,false
 Clojure.spec,Tools,false
 Wardley mapping,Techniques,false
 ECMAScript 6,Languages & Frameworks,false
-Scala, the good parts,Languages & Frameworks,false
+"Scala, the good parts",Languages & Frameworks,false
 HyperResource,Languages & Frameworks,false
 Sentry,Tools,false
 RubyMotion,Languages & Frameworks,false
@@ -849,7 +849,7 @@ Data discoverability,Techniques,false
 Camunda,Languages & Frameworks,false
 Open source BI/ETL tools,Tools,false
 Snowpack,Tools,false
-TDD'ing containers,Techniques,false
+"TDD'ing containers",Techniques,false
 Deno,Platforms,false
 AngularJS,Languages & Frameworks,false
 Patroni,Tools,false
@@ -1014,7 +1014,6 @@ Platform engineering product teams,Techniques,false
 Enterprise Data Lake,Techniques,false
 Single command deploy,Techniques,false
 Deployment and scripting test tools,Techniques,false
-SASS, SCSS, and LESS,Languages & Frameworks,false
 Brighter,Tools,false
 leaflet.js,Tools,false
 Agile analytics,Techniques,false

@@ -3,7 +3,7 @@ fileignoreconfig:
   checksum: b8e72d458235e09af97580032e2414423216887f38af97b6494fef4ecc0d9b45
   ignore_detectors: []
 - filename: data/TW_blips_history.csv
-  checksum: 9c84dee413eacb392a38e91da539c11643a722b5650605718c93e91f864019c0
+  checksum: 96e213f903ee074703e05362026e387af9d402af7cdfe2b084665919d5e21671
   ignore_detectors: []
 - filename: src/mongodb/migrations/1560524383674-encode-users-passwords.ts
   checksum: 14b09d710c6430d2e1360cd944ea21bdccdcd938a4d2d8432584326d575071db

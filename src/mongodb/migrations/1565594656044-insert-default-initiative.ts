@@ -13,14 +13,12 @@ export function up(next: (error?: any) => any) {
         config.mongoUri,
         config.dbname,
         pipe(
-            mergeMap((db: Db) => insertManyObs([
-                {
-                    name: "Default initiative",
-                    roles: {
-                        administrators: ["admin"]
-                    }
-                }
-            ], db.collection(config.initiativeCollection))),
+            mergeMap((db: Db) =>
+                insertManyObs(
+                    [{ name: 'Default initiative', roles: { administrators: ['admin'] } }],
+                    db.collection(config.initiativeCollection),
+                ),
+            ),
             tap(result => logDebug('getMongoClient-insertManyObs/result ->' + inspect(result))),
         ),
     ).subscribe(nextVal => logObsNext(nextVal), error => logObsError(error), () => logObsCompleted(next));

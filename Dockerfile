@@ -1,9 +1,14 @@
 ARG NODE_VERSION=10.23.0-alpine
 
-FROM node:${NODE_VERSION} AS build
+FROM node:${NODE_VERSION} AS dev
+
+# Install bash, ssh client and git
+RUN apk add --update bash openssh git
 
 # Install Serveless framework
 RUN npm install -g serverless@~1.40.0
+
+FROM node:${NODE_VERSION} AS build
 
 WORKDIR /usr/src/app
 

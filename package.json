@@ -94,7 +94,7 @@
     "observable-mongo": "^2.3.13",
     "request": "^2.88.0",
     "socket.io": "^2.2.0",
-    "underscore": "^1.9.1",
+    "underscore": "^1.12.1",
     "yargs": "^13.2.2"
   },
   "config": {
